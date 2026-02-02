@@ -161,6 +161,30 @@
     const SUPABASE_URL = "https://fhusjlkneckbvnrdhbil.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_nCCfptJOb8Lzy1uAwGBJzA_OJtDneTS";
 
+<script>
+/**
+ * HALL ENGINE ADAPTER v1
+ * Если нет внешнего профиля — работает как раньше
+ */
+
+window.HALL_PROFILE = window.HALL_PROFILE || null;
+
+/**
+ * zone: "Партер" | "Амфітеатр" | "Балкон" | "Ложа"
+ * row: number
+ * fallback: { price, className }
+ */
+function hallResolveSeatStyle({ zone, row, fallback }) {
+  if (!window.HALL_PROFILE) {
+    return fallback; // 🔒 режим «как раньше»
+  }
+
+  // 🔜 здесь позже будет логика по seance / afisha
+  return fallback;
+}
+</script>
+
+    
     // Партер 1–18 по 20 місць, проход після 10-го
     const parterRows = Array.from({length:18}, (_,i)=>( {
       row: i+1,
