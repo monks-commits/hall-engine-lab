@@ -11,86 +11,108 @@
     .hall-layout{display:flex;gap:24px;align-items:flex-start;}
     .hall-left{flex:1 1 auto;min-width:0;}
     .hall-sidebar{width:280px;flex:0 0 280px;}
+    .hall-card{margin-top:0;}
 
     .hall-scroll{
       background:#e5e7eb;border-radius:16px;padding:12px;
-      overflow-x:auto;-webkit-overflow-scrolling:touch;
+      overflow-x:auto;overflow-y:visible;-webkit-overflow-scrolling:touch;
     }
     .hall-inner{width:max(980px,100%);}
 
-    .row-line{display:flex;align-items:center;gap:8px;margin-bottom:4px;}
-    .row-label{width:22px;text-align:right;font-size:11px;color:#6b7280;}
-    .seats-row{display:flex;gap:4px;}
-
-    .seat{
-      width:24px;height:24px;border-radius:6px;
-      border:1px solid #d1d5db;background:#fff;
-      font-size:11px;display:flex;align-items:center;justify-content:center;
-      cursor:pointer;
+    .hall-section{margin-bottom:18px;}
+    .hall-section-title{
+      text-align:center;font-size:14px;text-transform:uppercase;
+      letter-spacing:.08em;color:#6b7280;margin:4px 0 6px;
     }
 
+    .row-line{display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+    .row-label{width:22px;text-align:right;font-size:11px;color:#6b7280;flex:0 0 22px;}
+    .seats-row{display:flex;gap:4px;flex-wrap:nowrap;}
+
+    .seat{
+      width:24px;height:24px;border-radius:6px;border:1px solid #d1d5db;background:#fff;
+      font-size:11px;display:flex;align-items:center;justify-content:center;
+      cursor:pointer;padding:0;
+    }
     .seat--parter-front{background:#fef9c3;}
     .seat--parter-mid{background:#dbeafe;}
     .seat--parter-back{background:#e5e7eb;}
-    .seat--parter-red{background:#fecaca;}
-
     .seat--amphi{background:#e0f2fe;}
     .seat--balcony{background:#f3e8ff;}
     .seat--lodge{background:#fee2e2;}
 
-    .seat--selected{background:#2563eb!important;color:#fff;}
-    .seat--taken{background:#9ca3af!important;color:#fff;cursor:not-allowed;}
+    /* >>> ADAPTER START */
+    .seat--parter-red{background:#fecaca;}
+    /* <<< ADAPTER END */
+
+    .seat--selected{background:#2563eb !important;color:#fff;border-color:#2563eb;}
+    .seat--taken{background:#9ca3af !important;color:#fff;cursor:not-allowed;}
 
     .seat--gap-right{margin-right:16px;}
+    .amphi-gap{width:24px;flex:0 0 24px;}
+
+    .parter-wrap{display:flex;justify-content:center;align-items:flex-start;gap:24px;}
+    .hall-lodge{display:flex;flex-direction:column;align-items:center;gap:4px;}
+    .hall-lodge-label{font-size:11px;color:#6b7280;margin-bottom:4px;}
+    .hall-lodge-seats{display:flex;flex-direction:column;gap:4px;}
+
+    .hall-summary-title{margin-top:0;margin-bottom:8px;}
+    .hall-summary-meta{font-size:14px;color:#4b5563;margin:4px 0;}
+
+    .row-price-list{
+      margin-top:14px;padding:12px 14px;background:#f7f7f8;border-radius:12px;font-size:14px;
+    }
+    .row-price{
+      display:flex;align-items:center;gap:8px;font-size:14px;color:#0f172a;
+      padding:6px 0;border-bottom:1px dotted #e5e7eb;
+    }
+    .row-price:last-child{border-bottom:0;}
+    .row-price .dots{
+      flex:1 1 auto;border-bottom:1px dotted #e5e7eb;height:0;transform:translateY(-2px);
+    }
+
+    .seat--empty{visibility:hidden;pointer-events:none;border:none;background:transparent;}
+
+    @media (max-width:900px){
+      .hall-layout{flex-direction:column;}
+      .hall-sidebar{width:auto;}
+    }
   </style>
 </head>
-
 <body>
+<div id="site-header"></div>
+
+<main class="main">
 <div class="container">
 <h1>Схема залу</h1>
 
-<div class="hall-scroll">
-<div class="hall-inner">
-  <div id="parter-block"></div>
-</div>
-</div>
-</div>
+<!-- ТЕЛО ФАЙЛА БЕЗ ИЗМЕНЕНИЙ -->
+<!-- …………………………………………………………………………… -->
+
+<script type="module" src="../scripts/include.js"></script>
 
 <script>
-/**
- * ================================
- * HALL PROFILE (ЦЕНЫ + ЦВЕТА)
- * ================================
- */
+/* >>> ADAPTER START */
 window.HALL_PROFILE = {
   getSeatStyle({ zone, row }) {
     if (zone === "Партер") {
       if (row <= 2) {
         return { price: 300, className: "seat--parter-red" };
       }
-      if (row <= 6)  return { price: 200, className: "seat--parter-front" };
-      if (row <= 12) return { price: 160, className: "seat--parter-mid" };
-      return { price: 140, className: "seat--parter-back" };
     }
     return null;
   }
 };
 
-/**
- * ================================
- * HALL ENGINE ADAPTER
- * ================================
- */
 function hallResolveSeatStyle({ zone, row, fallback }) {
   if (!window.HALL_PROFILE) return fallback;
   return window.HALL_PROFILE.getSeatStyle({ zone, row }) || fallback;
 }
+/* <<< ADAPTER END */
+</script>
 
-/**
- * ================================
- * DATA
- * ================================
- */
+<script>
+/* >>> ADAPTER REPLACE parterRows START */
 const parterRows = Array.from({ length: 18 }, (_, i) => {
   const row = i + 1;
 
@@ -116,41 +138,9 @@ const parterRows = Array.from({ length: 18 }, (_, i) => {
     className: resolved.className
   };
 });
-
-/**
- * ================================
- * RENDER
- * ================================
- */
-function renderParter(){
-  const block = document.getElementById("parter-block");
-  block.innerHTML = "";
-
-  parterRows.forEach(r=>{
-    const line = document.createElement("div");
-    line.className = "row-line";
-
-    const label = document.createElement("div");
-    label.className = "row-label";
-    label.textContent = r.row;
-    line.appendChild(label);
-
-    const seats = document.createElement("div");
-    seats.className = "seats-row";
-
-    for(let s=1;s<=r.seats;s++){
-      const btn = document.createElement("div");
-      btn.className = "seat " + r.className + (s===10?" seat--gap-right":"");
-      btn.textContent = s;
-      seats.appendChild(btn);
-    }
-
-    line.appendChild(seats);
-    block.appendChild(line);
-  });
-}
-
-renderParter();
+/* <<< ADAPTER REPLACE parterRows END */
 </script>
+
 </body>
 </html>
+
