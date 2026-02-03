@@ -166,9 +166,25 @@
   window.HALL_PROFILE = window.HALL_PROFILE || null;
 
   function hallResolveSeatStyle({ zone, row, fallback }) {
-    if (!window.HALL_PROFILE) return fallback;
-    return fallback; // пока так
+  if (!window.HALL_PROFILE) return fallback;
+  const r = window.HALL_PROFILE.getSeatStyle?.({ zone, row });
+  return r || fallback;
+}
+
+</script>
+<script>
+/* 🔴 TEST ONLY */
+window.HALL_PROFILE = {
+  getSeatStyle({ zone, row }) {
+    if (zone === "Партер" && row <= 3) {
+      return {
+        price: 999,
+        className: "seat--parter-front"
+      };
+    }
+    return null;
   }
+};
 </script>
 
 <script>
