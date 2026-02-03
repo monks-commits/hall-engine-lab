@@ -153,54 +153,47 @@
 
 <script>
 /**
- * ===============================
- * HALL ENGINE ADAPTER v1
- * ===============================
- * Если профиль не подключён —
- * схема работает как раньше
+ * ================================
+ * HALL PROFILE (ЦЕНЫ + ЦВЕТА)
+ * ================================
+ * Меняется здесь. Engine не трогаем.
  */
 
-(function () {
-  // внешний профиль (пока отсутствует)
-  window.HALL_PROFILE = null;
-
-  /**
-   * zone: "Партер" | "Амфітеатр" | "Балкон" | "Ложа"
-   * row: number
-   * fallback: { price, className }
-   */
-  window.hallResolveSeatStyle = function ({ zone, row, fallback }) {
-    // режим полной совместимости
-    if (!window.HALL_PROFILE) {
-      return fallback;
-    }
-
-    // будущее расширение (пока не используется)
-    if (typeof window.HALL_PROFILE.getSeatStyle === "function") {
-      const r = window.HALL_PROFILE.getSeatStyle({ zone, row });
-      if (r && r.price != null && r.className) {
-        return r;
+window.HALL_PROFILE = {
+  getSeatStyle({ zone, row }) {
+    // работаем ТОЛЬКО с партером
+    if (zone === "Партер") {
+      // 🔴 первые 2 ряда — КРАСНЫЕ
+      if (row <= 2) {
+        return {
+          price: 300,
+          className: "seat--parter-red"
+        };
       }
+
+      // как было раньше
+      if (row <= 6)  return { price: 200, className: "seat--parter-front" };
+      if (row <= 12) return { price: 160, className: "seat--parter-mid" };
+      return { price: 140, className: "seat--parter-back" };
     }
 
-    return fallback;
-  };
-})();
-</script>
-
-/** ===============================
- *  HALL ENGINE ADAPTER
- *  =============================== */
-function hallResolveSeatStyle({ zone, row, fallback }) {
-  if (!window.HALL_PROFILE || !window.HALL_PROFILE.getSeatStyle) {
-    return fallback;
+    // остальные зоны пока не трогаем
+    return null;
   }
+};
+
+/**
+ * ================================
+ * HALL ENGINE ADAPTER
+ * ================================
+ */
+function hallResolveSeatStyle({ zone, row, fallback }) {
+  if (!window.HALL_PROFILE) return fallback;
+
   const resolved = window.HALL_PROFILE.getSeatStyle({ zone, row });
   return resolved || fallback;
 }
 </script>
-
-
 
   
   <script>
