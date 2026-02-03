@@ -270,11 +270,9 @@ window.HALL_PROFILE = {
   const fallback = {
     price: row <= 6 ? 200 : (row <= 12 ? 160 : 140),
     className:
-      row <= 6
-        ? "seat--parter-front"
-        : row <= 12
-        ? "seat--parter-mid"
-        : "seat--parter-back"
+      row <= 6 ? "seat--parter-front"
+      : row <= 12 ? "seat--parter-mid"
+      : "seat--parter-back"
   };
 
   const resolved = hallResolveSeatStyle({
@@ -291,6 +289,7 @@ window.HALL_PROFILE = {
     className: resolved.className
   };
 });
+
 
 
     const amphiLeftRows  = [
