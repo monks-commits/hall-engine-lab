@@ -40,7 +40,6 @@
     .seat--amphi{background:#e0f2fe;}
     .seat--balcony{background:#f3e8ff;}
     .seat--lodge{background:#fee2e2;}
-.seat--parter-red{background:#fecaca;}
 
     .seat--selected{background:#2563eb !important;color:#fff;border-color:#2563eb;}
     .seat--taken{background:#9ca3af !important;color:#fff;cursor:not-allowed;}
@@ -152,51 +151,6 @@
   <div id="site-footer"></div>
   <script type="module" src="../scripts/include.js"></script>
 
-<script>
-/**
- * ================================
- * HALL PROFILE (ЦЕНЫ + ЦВЕТА)
- * ================================
- * Меняется здесь. Engine не трогаем.
- */
-
-window.HALL_PROFILE = {
-  getSeatStyle({ zone, row }) {
-    // работаем ТОЛЬКО с партером
-    if (zone === "Партер") {
-      // 🔴 первые 2 ряда — КРАСНЫЕ
-      if (row <= 2) {
-        return {
-          price: 300,
-          className: "seat--parter-red"
-        };
-      }
-
-      // как было раньше
-      if (row <= 6)  return { price: 200, className: "seat--parter-front" };
-      if (row <= 12) return { price: 160, className: "seat--parter-mid" };
-      return { price: 140, className: "seat--parter-back" };
-    }
-
-    // остальные зоны пока не трогаем
-    return null;
-  }
-};
-
-/**
- * ================================
- * HALL ENGINE ADAPTER
- * ================================
- */
-function hallResolveSeatStyle({ zone, row, fallback }) {
-  if (!window.HALL_PROFILE) return fallback;
-
-  const resolved = window.HALL_PROFILE.getSeatStyle({ zone, row });
-  return resolved || fallback;
-}
-</script>
-
-  
   <script>
     const qs = new URLSearchParams(location.search);
     const showSlug  = (qs.get("show")  || "").trim();
@@ -207,99 +161,16 @@ function hallResolveSeatStyle({ zone, row, fallback }) {
     const SUPABASE_URL = "https://fhusjlkneckbvnrdhbil.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_nCCfptJOb8Lzy1uAwGBJzA_OJtDneTS";
 
-
-/** ===============================
- *  HALL PROFILE (LOCAL, v1)
- *  Тимчасовий профіль цін і кольорів
- *  Якщо видалити — hall працює як раніше
- *  =============================== */
-window.HALL_PROFILE = {
-  getSeatStyle({ zone, row }) {
-
-    // === ПАРТЕР ===
-    if (zone === "Партер") {
-      if (row >= 1 && row <= 6) {
-        return { price: 200, className: "seat--parter-front" };
-      }
-      if (row >= 7 && row <= 12) {
-        return { price: 160, className: "seat--parter-mid" };
-      }
-      if (row >= 13 && row <= 18) {
-        return { price: 140, className: "seat--parter-back" };
-      }
-    }
-
-    // === АМФІТЕАТР ===
-    if (String(zone).startsWith("Амфітеатр")) {
-      return { price: 120, className: "seat--amphi" };
-    }
-
-    // === БАЛКОН ===
-    if (zone === "Балкон") {
-      if (row >= 1 && row <= 5) {
-        return { price: 100, className: "seat--balcony" };
-      }
-      if (row === 6) {
-        return { price: 80, className: "seat--balcony" };
-      }
-    }
-
-    // === ЛОЖІ ===
-    if (String(zone).startsWith("Ложа")) {
-      return { price: 10, className: "seat--lodge" };
-    }
-
-    return null; // fallback
-  }
-};
-
-
-
-    
     // Партер 1–18 по 20 місць, проход після 10-го
-    const parterRows = Array.from({ length: 18 }, (_, i) => {
-  const row = i + 1;
-
-  const fallback = {
-    price: row <= 6 ? 200 : (row <= 12 ? 160 : 140),
-    className:
-      row <= 6 ? "seat--parter-front"
-      : row <= 12 ? "seat--parter-mid"
-      : "seat--parter-back"
-  };
-
-  const resolved = hallResolveSeatStyle({
-    zone: "Партер",
-    row,
-    fallback
-  });
-
-  return {
-    row,
-    seats: 20,
-    zone: "Партер",
-    price: resolved.price,
-    className: resolved.className
-  };
-});
-
-
-  const resolved = hallResolveSeatStyle({
-    zone: "Партер",
-    row,
-    fallback
-  });
-
-  return {
-    row,
-    seats: 20,
-    zone: "Партер",
-    price: resolved.price,
-    className: resolved.className
-  };
-});
-
-
+    const parterRows = Array.from({length:18}, (_,i)=>( {
+      row: i+1,
+      seats: 20,
+      zone: "Партер",
+      price: i+1 <= 6 ? 200 : (i+1 <= 12 ? 160 : 140),
+      className: i+1 <= 6 ? "seat--parter-front"
+               : i+1 <= 12 ? "seat--parter-mid"
+                           : "seat--parter-back"
+    } ));
 
     const amphiLeftRows  = [
       {row:19,seats:11},{row:20,seats:11},{row:21,seats:11},{row:22,seats:11},{row:23,seats:11},
@@ -357,7 +228,7 @@ window.HALL_PROFILE = {
       if (!m) return k;
       const prefix = m[1].toUpperCase();
       const row = Number(m[2]);
-      const seat = Number(m[3]); 
+      const seat = Number(m[3]);
 
       if (prefix === "P") return `Ряд ${row}, місце ${seat} (Партер)`;
       if (prefix === "A") return row === 0 ? `Ложа А, місце ${seat}` : `Ряд ${row}, місце ${seat} (Амфітеатр)`;
