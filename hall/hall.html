@@ -161,46 +161,16 @@
     const SUPABASE_URL = "https://fhusjlkneckbvnrdhbil.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_nCCfptJOb8Lzy1uAwGBJzA_OJtDneTS";
 
-<script>
-/** HALL ENGINE ADAPTER **/
-window.HALL_PROFILE = window.HALL_PROFILE || null;
-
-function hallResolveSeatStyle({ zone, row, fallback }) {
-  if (!window.HALL_PROFILE) return fallback;
-  const r = window.HALL_PROFILE.getSeatStyle?.({ zone, row });
-  return r || fallback;
-}
-
-// ====== ВЕСЬ ОСТАЛЬНОЙ КОД HALL НИЖЕ ======
-
-const parterRows = Array.from({ length: 18 }, (_, i) => {
-  const row = i + 1;
-
-  const fallback = {
-    price: row <= 6 ? 200 : (row <= 12 ? 160 : 140),
-    className:
-      row <= 6 ? "seat--parter-front"
-      : row <= 12 ? "seat--parter-mid"
-      : "seat--parter-back"
-  };
-
-  const resolved = hallResolveSeatStyle({
-    zone: "Партер",
-    row,
-    fallback
-  });
-
-  return {
-    row,
-    seats: 20,
-    zone: "Партер",
-    price: resolved.price,
-    className: resolved.className
-  };
-});
-</script>
-
-
+    // Партер 1–18 по 20 місць, проход після 10-го
+    const parterRows = Array.from({length:18}, (_,i)=>( {
+      row: i+1,
+      seats: 20,
+      zone: "Партер",
+      price: i+1 <= 6 ? 200 : (i+1 <= 12 ? 160 : 140),
+      className: i+1 <= 6 ? "seat--parter-front"
+               : i+1 <= 12 ? "seat--parter-mid"
+                           : "seat--parter-back"
+    } ));
 
     const amphiLeftRows  = [
       {row:19,seats:11},{row:20,seats:11},{row:21,seats:11},{row:22,seats:11},{row:23,seats:11},
