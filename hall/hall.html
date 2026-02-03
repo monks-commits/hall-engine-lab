@@ -173,37 +173,36 @@
 
 <script>
   // ВЕСЬ ОСТАЛЬНОЙ КОД HALL
-  const parterRows = Array.from({ length: 18 }, ...)
-  ...
-</script>
 
+  const parterRows = Array.from({ length: 18 }, (_, i) => {
+    const row = i + 1;
+    const fallback = {
+      price: row <= 6 ? 200 : (row <= 12 ? 160 : 140),
+      className: row <= 6
+        ? "seat--parter-front"
+        : row <= 12
+          ? "seat--parter-mid"
+          : "seat--parter-back"
+    };
 
-    
-    // Партер 1–18 по 20 місць, проход після 10-го
-    const parterRows = Array.from({length:18}, (_,i)=>{
-  const row = i + 1;
+    const resolved = hallResolveSeatStyle({
+      zone: "Партер",
+      row,
+      fallback
+    });
 
-  const fallback = {
-    price: row <= 6 ? 200 : (row <= 12 ? 160 : 140),
-    className: row <= 6 ? "seat--parter-front"
-             : row <= 12 ? "seat--parter-mid"
-                         : "seat--parter-back"
-  };
-
-  const resolved = hallResolveSeatStyle({
-    zone: "Партер",
-    row,
-    fallback
+    return {
+      row,
+      seats: 20,
+      zone: "Партер",
+      price: resolved.price,
+      className: resolved.className
+    };
   });
 
-  return {
-    row,
-    seats: 20,
-    zone: "Партер",
-    price: resolved.price,
-    className: resolved.className
-  };
-});
+  // дальше renderParter(), renderAmphi(), и т.д.
+</script>
+
 
 
     const amphiLeftRows  = [
