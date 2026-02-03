@@ -188,6 +188,21 @@
 })();
 </script>
 
+<script>
+/** ===============================
+ *  HALL ENGINE ADAPTER
+ *  =============================== */
+function hallResolveSeatStyle({ zone, row, fallback }) {
+  if (!window.HALL_PROFILE || !window.HALL_PROFILE.getSeatStyle) {
+    return fallback;
+  }
+  const resolved = window.HALL_PROFILE.getSeatStyle({ zone, row });
+  return resolved || fallback;
+}
+</script>
+
+
+
   
   <script>
     const qs = new URLSearchParams(location.search);
