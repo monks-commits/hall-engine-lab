@@ -333,21 +333,7 @@
   };
 });
   
-let SEANCE_CONFIG = null;
 
-async function loadSeanceConfig() {
-  if (!SEANCE_ID) return null;
-
-  const url = `../data/seances/${SEANCE_ID}.json`;
-  const cfg = await fetchJsonSafe(url);
-
-  if (cfg && typeof cfg === "object") {
-    console.log("[hall-cash] seance config loaded", cfg);
-    return cfg;
-  }
-
-  return null;
-}
 
 
     const amphiLeftRows  = [
