@@ -1400,7 +1400,7 @@ seatsRow.appendChild(
       setSyncPill("SYNC: —", "");
       refreshQueueCount();
 
-     
+     SEANCE_CONFIG = await loadSeanceConfig();
  
 
       await loadTakenSeatsOnline().catch(()=>{});
