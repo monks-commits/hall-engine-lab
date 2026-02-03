@@ -151,6 +151,44 @@
   <div id="site-footer"></div>
   <script type="module" src="../scripts/include.js"></script>
 
+<script>
+/**
+ * ===============================
+ * HALL ENGINE ADAPTER v1
+ * ===============================
+ * Если профиль не подключён —
+ * схема работает как раньше
+ */
+
+(function () {
+  // внешний профиль (пока отсутствует)
+  window.HALL_PROFILE = null;
+
+  /**
+   * zone: "Партер" | "Амфітеатр" | "Балкон" | "Ложа"
+   * row: number
+   * fallback: { price, className }
+   */
+  window.hallResolveSeatStyle = function ({ zone, row, fallback }) {
+    // режим полной совместимости
+    if (!window.HALL_PROFILE) {
+      return fallback;
+    }
+
+    // будущее расширение (пока не используется)
+    if (typeof window.HALL_PROFILE.getSeatStyle === "function") {
+      const r = window.HALL_PROFILE.getSeatStyle({ zone, row });
+      if (r && r.price != null && r.className) {
+        return r;
+      }
+    }
+
+    return fallback;
+  };
+})();
+</script>
+
+  
   <script>
     const qs = new URLSearchParams(location.search);
     const showSlug  = (qs.get("show")  || "").trim();
