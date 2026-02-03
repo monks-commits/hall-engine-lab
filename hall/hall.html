@@ -199,6 +199,55 @@
     const SUPABASE_URL = "https://fhusjlkneckbvnrdhbil.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_nCCfptJOb8Lzy1uAwGBJzA_OJtDneTS";
 
+<script>
+/** ===============================
+ *  HALL PROFILE (LOCAL, v1)
+ *  Тимчасовий профіль цін і кольорів
+ *  Якщо видалити — hall працює як раніше
+ *  =============================== */
+window.HALL_PROFILE = {
+  getSeatStyle({ zone, row }) {
+
+    // === ПАРТЕР ===
+    if (zone === "Партер") {
+      if (row >= 1 && row <= 6) {
+        return { price: 200, className: "seat--parter-front" };
+      }
+      if (row >= 7 && row <= 12) {
+        return { price: 160, className: "seat--parter-mid" };
+      }
+      if (row >= 13 && row <= 18) {
+        return { price: 140, className: "seat--parter-back" };
+      }
+    }
+
+    // === АМФІТЕАТР ===
+    if (String(zone).startsWith("Амфітеатр")) {
+      return { price: 120, className: "seat--amphi" };
+    }
+
+    // === БАЛКОН ===
+    if (zone === "Балкон") {
+      if (row >= 1 && row <= 5) {
+        return { price: 100, className: "seat--balcony" };
+      }
+      if (row === 6) {
+        return { price: 80, className: "seat--balcony" };
+      }
+    }
+
+    // === ЛОЖІ ===
+    if (String(zone).startsWith("Ложа")) {
+      return { price: 10, className: "seat--lodge" };
+    }
+
+    return null; // fallback
+  }
+};
+</script>
+
+
+    
     // Партер 1–18 по 20 місць, проход після 10-го
     const parterRows = Array.from({ length: 18 }, (_, i) => {
   const row = i + 1;
