@@ -284,6 +284,22 @@ window.HALL_PROFILE = {
 });
 
 
+  const resolved = hallResolveSeatStyle({
+    zone: "Партер",
+    row,
+    fallback
+  });
+
+  return {
+    row,
+    seats: 20,
+    zone: "Партер",
+    price: resolved.price,
+    className: resolved.className
+  };
+});
+
+
 
     const amphiLeftRows  = [
       {row:19,seats:11},{row:20,seats:11},{row:21,seats:11},{row:22,seats:11},{row:23,seats:11},
