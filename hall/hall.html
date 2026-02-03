@@ -357,7 +357,7 @@ window.HALL_PROFILE = {
       if (!m) return k;
       const prefix = m[1].toUpperCase();
       const row = Number(m[2]);
-      const seat = Number(m[3]);
+      const seat = Number(m[3]); 
 
       if (prefix === "P") return `Ряд ${row}, місце ${seat} (Партер)`;
       if (prefix === "A") return row === 0 ? `Ложа А, місце ${seat}` : `Ряд ${row}, місце ${seat} (Амфітеатр)`;
