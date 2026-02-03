@@ -378,11 +378,18 @@ async function loadSeanceConfig() {
   };
 });
 
-function applySeanceConfig(meta) {
-  return null;
-}
+
 
   
+function applySeanceConfig(meta) {
+  if (!SEANCE_CONFIG || !meta) return null;
+
+  const key = seatKey(meta);
+
+  // 1️⃣ override конкретного места
+  if (SEANCE_CONFIG.seat_overrides?.[key]) {
+    return SEANCE_CONFIG.seat_overrides[key];
+  }
 
   // 2️⃣ правила по диапазонам
   const zoneLetter =
@@ -392,7 +399,7 @@ function applySeanceConfig(meta) {
 
   if (!zoneLetter) return null;
 
-  for (const rule in SEANCE_CONFIG.pricing) {
+  for (const rule in SEANCE_CONFIG.pricing || {}) {
     const m = rule.match(/^([PAB])(\d+)-(\d+)$/);
     if (!m) continue;
 
