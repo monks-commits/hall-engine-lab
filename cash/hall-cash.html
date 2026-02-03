@@ -575,30 +575,7 @@ function applySeanceConfig(meta) {
       return rows.map(r=>r.map(esc).join(",")).join("\n");
     }
 
-    // ---- show meta / seance_id ----
-    let SHOW_META = null;
-    let SEANCE_ID = "";
-    async function loadShowMeta(){
-      if (!showSlug) return;
-      const list = await fetchJsonSafe("../data/afisha.json");
-      if (Array.isArray(list)) SHOW_META = list.find(x => x && x.id === showSlug) || null;
-
-      const title = SHOW_META?.title || showSlug || "—";
-      const date = SHOW_META?.date || "";
-      const time = SHOW_META?.time || "";
-      const dt = (date && time) ? ` • ${date} ${time}` : "";
-
-      const t2 = String(time || "").replace(":", "-");
-      SEANCE_ID = (showSlug && date && t2) ? `${showSlug}-${date}-${t2}` : "";
-
-      const elShow = document.getElementById("summary-show");
-      const elSeance = document.getElementById("summary-seance");
-      if(elShow) elShow.textContent = `Вистава: ${title}${dt}`;
-      if(elSeance) elSeance.textContent = `Seance: ${SEANCE_ID || "—"}`;
-
-      renderCashLog();
-    }
-
+    
     // Онлайн-проданные места из tickets (блокируем их)
     const takenSeatsOnline = new Set();
     async function loadTakenSeatsOnline(){
