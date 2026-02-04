@@ -626,33 +626,79 @@ async function loadSeanceConfig() {
       if (status === "blocked"){ btn.classList.add("seat--blocked"); btn.disabled = true; }
     }
 
-    function makeSeatElement(key,label,extraClass,price){
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.textContent = label;
-      btn.className = "seat" + (extraClass ? " " + extraClass : "");
-      btn.dataset.key = key;
-      btn.dataset.price = String(price);
+    function applySeanceConfig(meta){
+  if (!SEANCE_CONFIG) return null;
 
-      applyStatusClass(btn, getEffectiveStatus(key));
+  const key = seatKey(meta);
 
-      btn.addEventListener("click", ()=>{
-        const st = getEffectiveStatus(key);
-        if (st === "sold" || st === "blocked") return;
+  if (SEANCE_CONFIG.seat_overrides?.[key]) {
+    return SEANCE_CONFIG.seat_overrides[key];
+  }
 
-        if (btn.classList.contains("seat--selected")){
-          btn.classList.remove("seat--selected");
-          selected.delete(key);
-        } else {
-          btn.classList.add("seat--selected");
-          selected.set(key, { price });
-        }
-        updateSummary();
-      });
+  const zoneLetter =
+    meta.zone === "Партер" ? "P" :
+    meta.zone.startsWith("Амфітеатр") ? "A" :
+    meta.zone === "Балкон" ? "B" : null;
 
-      seatButtons.set(key, btn);
-      return btn;
+  if (!zoneLetter) return null;
+
+  for (const rule in SEANCE_CONFIG.pricing || {}) {
+    const m = rule.match(/^([PAB])(\d+)-(\d+)$/);
+    if (!m) continue;
+    const [, z, from, to] = m;
+    if (z === zoneLetter &&
+        meta.row >= Number(from) &&
+        meta.row <= Number(to)) {
+      return SEANCE_CONFIG.pricing[rule];
     }
+  }
+  return null;
+}
+
+function makeSeatElement(key,label,extraClass,price,meta){
+  let finalPrice = price;
+  let finalClass = extraClass;
+  let saleAllowed = true;
+
+  const cfg = applySeanceConfig(meta);
+  if (cfg) {
+    if (cfg.price !== undefined) finalPrice = cfg.price;
+    if (cfg.class) finalClass = cfg.class;
+    if (cfg.sale === false) saleAllowed = false;
+  }
+
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.textContent = label;
+  btn.className = "seat" + (finalClass ? " " + finalClass : "");
+  btn.dataset.key = key;
+  btn.dataset.price = String(finalPrice);
+
+  applyStatusClass(btn, getEffectiveStatus(key));
+
+  if (!saleAllowed) {
+    btn.classList.add("seat--no-sale");
+    btn.disabled = true;
+  }
+
+  btn.addEventListener("click", ()=>{
+    const st = getEffectiveStatus(key);
+    if (st === "sold" || st === "blocked" || !saleAllowed) return;
+
+    if (btn.classList.contains("seat--selected")){
+      btn.classList.remove("seat--selected");
+      selected.delete(key);
+    } else {
+      btn.classList.add("seat--selected");
+      selected.set(key, { price: finalPrice });
+    }
+    updateSummary();
+  });
+
+  seatButtons.set(key, btn);
+  return btn;
+}
+
 
     function clearSelection(){
       for (const k of selected.keys()){
