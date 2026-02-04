@@ -358,21 +358,14 @@ async function loadSeanceConfig() {
     const balconyRows15 = [1,2,3,4,5].map(n=>( { row:n, zone:"Балкон", price:0, className:"seat--balcony" } ));
     const balconyRow6 = { row:6, zone:"Балкон", price:0, className:"seat--balcony" };
 
-    const lodgeSeats = Array.from({ length: 18 }, (_, i) => {
-  const row = i + 1;
-  let price = row <= 2 ? 170 :
-              row <= 4 ? 200 :
-              row <= 8 ? 180 :
-              row <= 12 ? 140 :
-              row <= 15 ? 120 : 100;
+   const lodgeSeats = Array.from({ length: 18 }, (_, i) => ({
+  index: i + 1,
+  price: 0,
+  zone: "Ложа",
+  className: ""
+}));
 
-  return {
-    index: row,
-    price,
-    zone: "Ложа",
-    className: `seat--${price}`
-  };
-});
+
 
     function seatKey(meta){
       const row = meta.row ?? 0;
