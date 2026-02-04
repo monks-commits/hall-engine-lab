@@ -1348,9 +1348,10 @@ function makeSeatElement(key,label,extraClass,price,meta){
       refreshQueueCount();
 
       await loadShowMeta();
-      CASH_PATCH = loadCashPatch();
+SEANCE_CONFIG = await loadSeanceConfig();
+CASH_PATCH = loadCashPatch();
+await loadTakenSeatsOnline();
 
-      await loadTakenSeatsOnline().catch(()=>{});
       renderParter();
       renderLodges();
       renderAmphi();
