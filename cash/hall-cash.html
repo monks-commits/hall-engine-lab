@@ -1135,7 +1135,7 @@ seatsRow.appendChild(
 
       for(let pos=1;pos<=28;pos++){
         if (pos<=10){
-          const meta = { zone: "Балкон", row: r.row, seat: pos };
+          const meta = { zone:"Балкон", row:6, seat:pos };
 const cls  = r.className + (pos === 14 ? " seat--gap-right" : "");
 seatsRow.appendChild(
   makeSeatElement(
