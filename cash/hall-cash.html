@@ -305,7 +305,9 @@
 
   <script>
     const qs = new URLSearchParams(location.search);
-    const SEANCE_ID = (qs.get("seance") || "").trim();   // НОВОЕ
+
+const showSlug  = (qs.get("show")   || "").trim();   // СТАРОЕ
+const SEANCE_ID = (qs.get("seance") || "").trim();   // НОВОЕ
 
 
     // embed mode (backoffice): ?embed=1
@@ -336,9 +338,9 @@
 let SEANCE_CONFIG = null;
 
 async function loadSeanceConfig() {
-  if (!SEANCE_ID) return null;
+  if (!showSlug) return null;
 
-  const url = `../data/seances/${SEANCE_ID}.json`;
+  const url = `../data/seances/${showSlug}.json`;
   const cfg = await fetchJsonSafe(url);
 
   if (cfg && typeof cfg === "object") {
