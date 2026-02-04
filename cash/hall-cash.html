@@ -1149,8 +1149,16 @@ seatsRow.appendChild(
 
         } else if (pos>=19){
           const seatNum = pos-8;
-          const key = seatKey({zone:"Балкон", row:6, seat:seatNum});
-          seatsRow.appendChild(makeSeatElement(key, seatNum, "seat--balcony", 80));
+          const meta = { zone: "Балкон", row: 6, seat: seatNum };
+seatsRow.appendChild(
+  makeSeatElement(
+    seatKey(meta),
+    seatNum,
+    "seat--balcony",
+    80,
+    meta
+  )
+);
         } else {
           const empty = document.createElement("button");
           empty.type="button";
