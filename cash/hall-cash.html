@@ -384,7 +384,7 @@ async function loadSeanceConfig() {
 function applySeanceConfig(meta) {
   if (!SEANCE_CONFIG || !meta) return null;
 
-  const key = seatKey(meta);
+ 
 
   // 1️⃣ override конкретного места
   if (SEANCE_CONFIG.seat_overrides?.[key]) {
