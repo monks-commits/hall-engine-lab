@@ -1103,7 +1103,8 @@ right.appendChild(makeSeatElement(seatKey(meta), seatNum, rightCfg.className, 12
         seatsRow.className = "seats-row";
 
         for(let pos=1;pos<=28;pos++){
-          const meta = { zone: "Балкон", row: r.row, seat: pos };
+          const meta = { zone:"Балкон", row:6, seat:pos };
+
 const cls  = r.className + (pos === 14 ? " seat--gap-right" : "");
 seatsRow.appendChild(
   makeSeatElement(
