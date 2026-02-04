@@ -1106,30 +1106,7 @@ b.appendChild(
 
   // Ряды 1–5
   [1,2,3,4,5].forEach(rowNum => {
-    const rowLine = document.createElement("div");
-    rowLine.className = "row-line";
-
-    const lab = document.createElement("div");
-    lab.className = "row-label";
-    lab.textContent = rowNum;
-    rowLine.appendChild(lab);
-
-    const seatsRow = document.createElement("div");
-    seatsRow.className = "seats-row";
-
-    for (let pos = 1; pos <= 28; pos++) {
-      if (pos <= 14 || pos >= 15) {
-        const seat = pos;
-        const meta = { zone: "Балкон", row: rowNum, seat };
-        seatsRow.appendChild(
-          makeSeatElement(seatKey(meta), seat, "", 0, meta)
-        );
-      }
-    }
-
-    rowLine.appendChild(seatsRow);
-    block.appendChild(rowLine);
-  });
+   
 
   // Ряд 6 (разрыв)
   const rowNum = 6;
