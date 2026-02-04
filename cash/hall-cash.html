@@ -384,26 +384,53 @@ async function loadSeanceConfig() {
 function applySeanceConfig(meta) {
   if (!SEANCE_CONFIG || !meta) return null;
 
- 
+  const key = seatKey(meta);
 
-  // 1️⃣ override конкретного места
+  // override конкретного места
   if (SEANCE_CONFIG.seat_overrides?.[key]) {
     return SEANCE_CONFIG.seat_overrides[key];
   }
+
+  const zoneLetter =
+    meta.zone === "Партер" ? "P" :
+    meta.zone.startsWith("Амфітеатр") ? "A" :
+    meta.zone === "Балкон" ? "B" : null;
+
+  if (!zoneLetter) return null;
+
+  for (const rule in SEANCE_CONFIG.pricing) {
+    const m = rule.match(/^([PAB])(\d+)-(\d+)$/);
+    if (!m) continue;
+
+    const [, z, from, to] = m;
+    if (
+      z === zoneLetter &&
+      meta.row >= Number(from) &&
+      meta.row <= Number(to)
+    ) {
+      return SEANCE_CONFIG.pricing[rule];
+    }
+  }
+
+  return null;
+}
+
 
 
 
     
     function seatKey(meta){
-      const row = meta.row ?? 0;
-      const seat = meta.seat ?? 0;
-      if (meta.zone === "Партер") return `P${row}-M${seat}`;
-      if (String(meta.zone).startsWith("Амфітеатр")) return `A${row}-M${seat}`;
-      if (meta.zone === "Балкон") return `B${row}-M${seat}`;
-      if (meta.zone === "Ложа А") return `A0-M${seat}`;
-      if (meta.zone === "Ложа Б") return `B0-M${seat}`;
-      return `P${row}-M${seat}`;
-    }
+  const row = meta.row ?? 0;
+  const seat = meta.seat ?? 0;
+
+  if (meta.zone === "Партер") return `P${row}-M${seat}`;
+  if (String(meta.zone).startsWith("Амфітеатр")) return `A${row}-M${seat}`;
+  if (meta.zone === "Балкон") return `B${row}-M${seat}`;
+  if (meta.zone === "Ложа А") return `A0-M${seat}`;
+  if (meta.zone === "Ложа Б") return `B0-M${seat}`;
+
+  return `P${row}-M${seat}`;
+}
 
     function seatKeyToHuman(k){
       const m = String(k).match(/^([PAB])(\d+)-M(\d+)$/i);
