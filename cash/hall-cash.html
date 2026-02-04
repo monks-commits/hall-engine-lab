@@ -1012,9 +1012,12 @@ function makeSeatElement(key,label,extraClass,price,meta){
         seatsRow.className = "seats-row";
 
         for (let s=1; s<=r.seats; s++){
-          const key = seatKey({zone:"Партер", row:r.row, seat:s});
-          const cls = r.className + (s===10 ? " seat--gap-right" : "");
-          seatsRow.appendChild(makeSeatElement(key, s, cls, r.price));
+          const meta = { zone:"Партер", row:r.row, seat:s };
+const cls = r.className + (s===10 ? " seat--gap-right" : "");
+seatsRow.appendChild(
+  makeSeatElement(seatKey(meta), s, cls, r.price, meta)
+);
+
 
         }
 
