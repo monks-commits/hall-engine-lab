@@ -1015,6 +1015,7 @@ function makeSeatElement(key,label,extraClass,price,meta){
           const key = seatKey({zone:"Партер", row:r.row, seat:s});
           const cls = r.className + (s===10 ? " seat--gap-right" : "");
           seatsRow.appendChild(makeSeatElement(key, s, cls, r.price));
+
         }
 
         rowLine.appendChild(seatsRow);
@@ -1028,10 +1029,12 @@ function makeSeatElement(key,label,extraClass,price,meta){
       a.innerHTML = ""; b.innerHTML = "";
 
       lodgeSeats.forEach(ls=>{
-        const keyA = seatKey({zone:"Ложа А", row:0, seat:ls.index});
-        const keyB = seatKey({zone:"Ложа Б", row:0, seat:ls.index});
-        a.appendChild(makeSeatElement(keyA, ls.index, ls.className, 10));
-        b.appendChild(makeSeatElement(keyB, ls.index, ls.className, 10));
+        const metaA = { zone:"Ложа А", row:0, seat:ls.index };
+const metaB = { zone:"Ложа Б", row:0, seat:ls.index };
+
+a.appendChild(makeSeatElement(seatKey(metaA), ls.index, ls.className, 10, metaA));
+b.appendChild(makeSeatElement(seatKey(metaB), ls.index, ls.className, 10, metaB));
+
       });
     }
 
@@ -1059,15 +1062,17 @@ function makeSeatElement(key,label,extraClass,price,meta){
 
         if (leftCfg){
           for(let s=1;s<=leftCfg.seats;s++){
-            const key = seatKey({zone:leftCfg.zone, row:rowNum, seat:s});
-            left.appendChild(makeSeatElement(key, s, leftCfg.className, 120));
+            const meta = { zone:leftCfg.zone, row:rowNum, seat:s };
+left.appendChild(makeSeatElement(seatKey(meta), s, leftCfg.className, 120, meta));
+
           }
         }
         if (rightCfg){
           for(let s=1;s<=rightCfg.seats;s++){
             const seatNum = s+11;
-            const key = seatKey({zone:rightCfg.zone, row:rowNum, seat:seatNum});
-            right.appendChild(makeSeatElement(key, seatNum, rightCfg.className, 120));
+            const meta = { zone:rightCfg.zone, row:rowNum, seat:seatNum };
+right.appendChild(makeSeatElement(seatKey(meta), seatNum, rightCfg.className, 120, meta));
+
           }
         }
 
