@@ -650,7 +650,7 @@ async function loadSeanceConfig() {
     if (z === zoneLetter &&
         meta.row >= Number(from) &&
         meta.row <= Number(to)) {
-      return SEANCE_CONFIG.pricing[rule];
+      return SEANCE_CONFIG.pricing[rule]; 
     }
   }
   return null;
