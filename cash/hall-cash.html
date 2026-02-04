@@ -1127,56 +1127,89 @@ b.appendChild(
       });
     }
 
-    function renderBalcony(){
+   function renderBalcony(){
   const block = document.getElementById("balcony-block");
   block.innerHTML = "";
 
-  // Ряды 1–5
-  [1,2,3,4,5].forEach(rowNum => {
-   
+  // Ряды 1–5 (по 20 мест, без прохода)
+  [1,2,3,4,5].forEach(rowNum=>{
+    const rowLine = document.createElement("div");
+    rowLine.className = "row-line";
 
-  // ===== Балкон, ряд 6 (с проходом) =====
-{
-  const rowLine6 = document.createElement("div");
-  rowLine6.className = "row-line";
+    const lab = document.createElement("div");
+    lab.className = "row-label";
+    lab.textContent = rowNum;
+    rowLine.appendChild(lab);
 
-  const lab = document.createElement("div");
-  lab.className = "row-label";
-  lab.textContent = 6;
-  rowLine6.appendChild(lab);
+    const seatsRow = document.createElement("div");
+    seatsRow.className = "seats-row";
 
-  const seatsRow = document.createElement("div");
-  seatsRow.className = "seats-row";
-
-  for (let pos = 1; pos <= 28; pos++) {
-    if (pos <= 10) {
-      const key = seatKey({ zone: "Балкон", row: 6, seat: pos });
-      const cls = "seat--balcony" + (pos === 10 ? " seat--gap-right" : "");
-      seatsRow.appendChild(
-        makeSeatElement(key, pos, cls, 80, { zone: "Балкон", row: 6, seat: pos })
-      );
-    } else if (pos >= 19) {
-      const seatNum = pos - 8; // 19 → 11
-      const key = seatKey({ zone: "Балкон", row: 6, seat: seatNum });
+    for(let s=1;s<=20;s++){
+      const key = seatKey({zone:"Балкон", row:rowNum, seat:s});
       seatsRow.appendChild(
         makeSeatElement(
           key,
-          seatNum,
+          s,
           "seat--balcony",
-          80,
-          { zone: "Балкон", row: 6, seat: seatNum }
+          100,
+          { zone:"Балкон", row:rowNum, seat:s }
         )
       );
-    } else {
-      const empty = document.createElement("button");
-      empty.type = "button";
-      empty.className = "seat seat--empty";
-      seatsRow.appendChild(empty);
     }
-  }
 
-  rowLine6.appendChild(seatsRow);
-  block.appendChild(rowLine6);
+    rowLine.appendChild(seatsRow);
+    block.appendChild(rowLine);
+  });
+
+  // Ряд 6 (28 позиций с проходом)
+  {
+    const rowLine = document.createElement("div");
+    rowLine.className = "row-line";
+
+    const lab = document.createElement("div");
+    lab.className = "row-label";
+    lab.textContent = 6;
+    rowLine.appendChild(lab);
+
+    const seatsRow = document.createElement("div");
+    seatsRow.className = "seats-row";
+
+    for(let pos=1;pos<=28;pos++){
+      if (pos<=10){
+        const key = seatKey({zone:"Балкон", row:6, seat:pos});
+        const cls = "seat--balcony" + (pos===10 ? " seat--gap-right" : "");
+        seatsRow.appendChild(
+          makeSeatElement(
+            key,
+            pos,
+            cls,
+            80,
+            { zone:"Балкон", row:6, seat:pos }
+          )
+        );
+      } else if (pos>=19){
+        const seatNum = pos-8;
+        const key = seatKey({zone:"Балкон", row:6, seat:seatNum});
+        seatsRow.appendChild(
+          makeSeatElement(
+            key,
+            seatNum,
+            "seat--balcony",
+            80,
+            { zone:"Балкон", row:6, seat:seatNum }
+          )
+        );
+      } else {
+        const empty = document.createElement("button");
+        empty.type="button";
+        empty.className="seat seat--empty";
+        seatsRow.appendChild(empty);
+      }
+    }
+
+    rowLine.appendChild(seatsRow);
+    block.appendChild(rowLine);
+  }
 }
 
 
