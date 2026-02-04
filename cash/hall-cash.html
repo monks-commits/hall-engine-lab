@@ -530,7 +530,8 @@ async function loadSeanceConfig() {
 
     // ---- show meta / seance_id ----
     let SHOW_META = null;
-    let SEANCE_ID = "";
+// SEANCE_ID берётся из query (?seance=...)
+
     async function loadShowMeta(){
       if (!showSlug) return;
       const list = await fetchJsonSafe("../data/afisha.json");
