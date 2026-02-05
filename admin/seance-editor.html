@@ -157,27 +157,34 @@ const data = {
 };
 
 function addRule(){
-  const z = zone.value;
-  const from = fromRow.value;
-  const to = toRow.value;
-  const p = price.value;
-  const c = color.value;
+  const z = document.getElementById("zone").value;
+  const from = Number(document.getElementById("fromRow").value);
+  const to   = Number(document.getElementById("toRow").value);
+  const p    = Number(document.getElementById("price").value);
+  const c    = document.getElementById("color").value;
+  const saleAllowed = document.getElementById("sale").checked;
 
-  if(!from || !to || !p){
-    alert("Заповни ряди і ціну");
+  if (!z || !from || !to || !p) {
+    alert("❗ Вкажи зону, ряди ВІД–ДО і ціну");
+    return;
+  }
+
+  if (from > to) {
+    alert("❗ Ряд 'від' не може бути більшим за 'до'");
     return;
   }
 
   const key = `${z}${from}-${to}`;
 
   data.pricing[key] = {
-    price: Number(p),
+    price: p,
     color: c,
-    sale: sale.checked
+    sale: saleAllowed
   };
 
   render();
 }
+
 
 function removeRule(key){
   delete data.pricing[key];
