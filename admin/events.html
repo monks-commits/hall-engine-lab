@@ -95,15 +95,16 @@ function buildSeanceId(show){
 
 function openCash(show){
   const seance = buildSeanceId(show);
-  const url = `../cash/hall-cash.html?show=${show.id}&seance=${seance}`;
-  window.open(url,"_blank");
+  location.href =
+    `index.html?mode=cash&show=${show.id}&seance=${seance}`;
 }
 
 function openEditor(show){
   const seance = buildSeanceId(show);
-  const url = `create.html?seance=${seance}`;
-  window.open(url,"_blank");
+  location.href =
+    `index.html?mode=create&seance=${seance}`;
 }
+
 
 function render(data){
   if(!Array.isArray(data) || !data.length){
