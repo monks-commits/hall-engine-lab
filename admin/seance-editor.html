@@ -199,6 +199,46 @@ document.getElementById("publish").onclick = async () => {
     alert("❌ Помилка публікації");
   }
 };
+
+async function loadSeance(){
+  const seance = seanceId.value.trim();
+  if(!seance){
+    alert("Вкажи Seance ID");
+    return;
+  }
+
+  const url =
+    `${SUPABASE_URL}/rest/v1/seances_pricing` +
+    `?seance_id=eq.${encodeURIComponent(seance)}` +
+    `&select=pricing,seat_overrides`;
+
+  const res = await fetch(url, {
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`
+    }
+  });
+
+  if(!res.ok){
+    alert("Помилка завантаження seance");
+    return;
+  }
+
+  const rows = await res.json();
+
+  if(!rows.length){
+    alert("Seance не знайдено");
+    return;
+  }
+
+  data.pricing = rows[0].pricing || {};
+  data.seat_overrides = rows[0].seat_overrides || {};
+
+  render();
+  alert("Seance завантажено");
+}
+
+  
 </script>
 
 </body>
