@@ -125,11 +125,9 @@ const data = {
 };
 
 function seatClass(price){
-  if(price >= 300) return "seat--300";
-  if(price >= 222) return "seat--200";
-  if(price >= 180) return "seat--180";
-  return "seat--170";
+  return `seat--${price}`;
 }
+
 
 
 function addRule(){
