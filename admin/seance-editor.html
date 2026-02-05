@@ -210,13 +210,46 @@ function addSeatOverride(){
 }
 
 function render(){
-  renderRulesList();
-  output.value = JSON.stringify({
+  const out = {
     seance_id: seanceId.value.trim(),
     pricing: data.pricing,
     seat_overrides: data.seat_overrides
-  }, null, 2);
+  };
+
+  output.value = JSON.stringify(out, null, 2);
+
+  const list = document.getElementById("rulesList");
+  if (!list) return;
+
+  list.innerHTML = "";
+
+  for (const key in data.pricing){
+    const r = data.pricing[key];
+
+    const zone =
+      key[0] === "P" ? "Партер" :
+      key[0] === "A" ? "Амфітеатр" :
+      key[0] === "B" ? "Балкон" : "?";
+
+    const rows = key.slice(1);
+
+    const div = document.createElement("div");
+    div.className = "rule-item";
+    div.innerHTML = `
+      <div class="rule-color" style="background:${r.color || "#e5e7eb"}"></div>
+      <b>${zone}</b>
+      <span class="rule-muted">ряди ${rows}</span>
+      <span>—</span>
+      <b>${r.price} грн</b>
+      <span class="rule-muted">
+        ${r.sale === false ? "❌ не продається" : "✔ продається"}
+      </span>
+    `;
+
+    list.appendChild(div);
+  }
 }
+
 
 function copy(){
   output.select();
