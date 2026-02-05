@@ -2,47 +2,50 @@
 <html lang="uk">
 <head>
 <meta charset="UTF-8">
-<title>Admin — Билетний відділ</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Билетний відділ</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
 
 <style>
 html,body{
   margin:0;
   padding:0;
   height:100%;
+  overflow:hidden;
   font-family:system-ui,-apple-system,Segoe UI,sans-serif;
-  background:#0f172a;
 }
 
 .header{
+  height:56px;
+  background:#111827;
+  color:#fff;
   display:flex;
+  align-items:center;
   gap:12px;
-  padding:10px 14px;
-  background:#020617;
-  border-bottom:1px solid #1e293b;
+  padding:0 16px;
 }
 
 .header button{
-  background:#111827;
-  color:#e5e7eb;
-  border:1px solid #1e293b;
-  border-radius:10px;
-  padding:8px 14px;
-  font-weight:800;
+  background:#1f2937;
+  color:#fff;
+  border:none;
+  border-radius:8px;
+  padding:8px 12px;
   cursor:pointer;
+  font-weight:700;
 }
 
 .header button.active{
-  background:#22c55e;
-  color:#052e16;
-  border-color:#22c55e;
+  background:#2563eb;
+}
+
+.main{
+  height:calc(100% - 56px);
 }
 
 iframe{
   width:100%;
-  height:calc(100vh - 56px);
-  border:0;
-  background:#f1f5f9;
+  height:100%;
+  border:none;
 }
 </style>
 </head>
@@ -50,27 +53,48 @@ iframe{
 <body>
 
 <div class="header">
-  <button onclick="go('events.html',this)">Події</button>
-  <button onclick="go('create.html',this)">Створення</button>
-  <button onclick="go('reports.html',this)">Звіти</button>
-  <button onclick="go('docs.html',this)">Документи</button>
+  <button id="btnEvents">Події</button>
+  <button id="btnCreate">Створення</button>
+  <button id="btnReports">Звіти</button>
+  <button id="btnDocs">Документи</button>
 </div>
 
-<iframe id="frame"></iframe>
+<div class="main">
+  <iframe id="frame"></iframe>
+</div>
 
 <script>
 const frame = document.getElementById("frame");
+const qs = new URLSearchParams(location.search);
 
-function go(page, btn){
-  document.querySelectorAll(".header button")
-    .forEach(b=>b.classList.remove("active"));
-
-  btn.classList.add("active");
-  frame.src = page;
+function openPage(url){
+  frame.src = url;
 }
 
-// старт по умолчанию
-go("events.html", document.querySelectorAll("button")[0]);
+document.getElementById("btnEvents").onclick = ()=>{
+  openPage("events.html");
+};
+
+document.getElementById("btnCreate").onclick = ()=>{
+  openPage("create.html");
+};
+
+document.getElementById("btnReports").onclick = ()=>{
+  openPage("reports.html");
+};
+
+document.getElementById("btnDocs").onclick = ()=>{
+  openPage("docs.html");
+};
+
+// 🚀 если пришли с Подій → Каса
+if (qs.get("mode") === "cash") {
+  const show   = qs.get("show");
+  const seance = qs.get("seance");
+  openPage(`../cash/hall-cash.html?embed=1&show=${show}&seance=${seance}`);
+} else {
+  openPage("events.html");
+}
 </script>
 
 </body>
