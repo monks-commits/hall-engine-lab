@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<title>Редактор сеансу — ціни та зони</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+  font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+  background:#f3f4f6;
+  margin:0;
+  padding:20px;
+}
+.wrap{max-width:900px;margin:auto;}
+h1{margin-bottom:10px}
+.card{
+  background:#fff;
+  border-radius:12px;
+  padding:16px;
+  margin-bottom:16px;
+  box-shadow:0 4px 14px rgba(0,0,0,.08);
+}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+label{font-size:14px}
+input,select,button,textarea{
+  padding:8px 10px;
+  font-size:14px;
+}
+button{cursor:pointer}
+textarea{
+  width:100%;
+  height:260px;
+  font-family:monospace;
+}
+.badge{
+  font-size:12px;
+  padding:2px 6px;
+  border-radius:6px;
+  background:#e5e7eb;
+}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+
+<h1>🎛️ Редактор seance.json</h1>
+<p class="badge">Генерує ціни + CSS-класи для hall.html</p>
+
+<div class="card">
+  <div class="row">
+    <label>Seance ID</label>
+    <input id="seanceId" placeholder="koncert-2026-02-10-19-00" style="flex:1">
+  </div>
+</div>
+
+<div class="card">
+  <h3>➕ Правило по рядах</h3>
+
+  <div class="row">
+    <label>Зона</label>
+    <select id="zone">
+      <option value="P">Партер</option>
+      <option value="A">Амфітеатр</option>
+      <option value="B">Балкон</option>
+    </select>
+
+    <label>Ряди</label>
+    <input id="fromRow" type="number" placeholder="від">
+    <input id="toRow" type="number" placeholder="до">
+
+    <label>Ціна</label>
+    <input id="price" type="number" placeholder="200">
+
+    <label>
+      <input type="checkbox" id="sale" checked>
+      Продається
+    </label>
+
+    <button onclick="addRule()">Додати</button>
+  </div>
+</div>
+
+<div class="card">
+  <h3>🎯 Окреме місце</h3>
+  <div class="row">
+    <input id="seatKey" placeholder="P3-M5">
+    <input id="seatPrice" type="number" placeholder="ціна">
+    <label>
+      <input type="checkbox" id="seatSale">
+      Заборонити продаж
+    </label>
+    <button onclick="addSeatOverride()">Додати</button>
+  </div>
+</div>
+
+<div class="card">
+  <h3>📄 seance.json</h3>
+  <textarea id="output"></textarea>
+  <button onclick="copy()">📋 Скопіювати</button>
+</div>
+
+<button id="publish">🚀 Опублікувати</button>
+
+</div>
+
+<script>
+const SUPABASE_FUNCTION_URL =
+  "https://fhusjlkneckbvnrdhbil.supabase.co/functions/v1/save-seance";
+
+const data = {
+  pricing: {},
+  seat_overrides: {}
+};
+
+function seatClass(price){
+  return `seat--${price}`;
+}
+
+function addRule(){
+  const z = zone.value;
+  const from = fromRow.value;
+  const to = toRow.value;
+  const p = price.value;
+  const saleAllowed = sale.checked;
+
+  if(!from || !to || !p){
+    alert("Заповни ряди і ціну");
+    return;
+  }
+
+  const key = `${z}${from}-${to}`;
+  data.pricing[key] = {
+    price: Number(p),
+    class: seatClass(p),
+    sale: saleAllowed
+  };
+  render();
+}
+
+function addSeatOverride(){
+  const key = seatKey.value.trim();
+  if(!key) return;
+
+  const obj = {};
+  if(seatPrice.value){
+    obj.price = Number(seatPrice.value);
+    obj.class = seatClass(seatPrice.value);
+  }
+  if(seatSale.checked){
+    obj.sale = false;
+  }
+
+  data.seat_overrides[key] = obj;
+  render();
+}
+
+function render(){
+  const out = {
+    seance_id: seanceId.value.trim(),
+    pricing: data.pricing,
+    seat_overrides: data.seat_overrides
+  };
+  output.value = JSON.stringify(out, null, 2);
+}
+
+function copy(){
+  output.select();
+  document.execCommand("copy");
+  alert("Скопійовано");
+}
+
+document.getElementById("publish").onclick = async () => {
+  const seance = seanceId.value.trim();
+  if(!seance){
+    alert("Вкажи Seance ID");
+    return;
+  }
+
+  const payload = {
+    seance_id: seance,
+    pricing: data.pricing,
+    seat_overrides: data.seat_overrides
+  };
+
+  const res = await fetch(SUPABASE_FUNCTION_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+
+  if(res.ok){
+    alert("✅ Опубліковано");
+  } else {
+    alert("❌ Помилка публікації");
+  }
+};
+</script>
+
+</body>
+</html>
