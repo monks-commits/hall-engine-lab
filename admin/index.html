@@ -2,207 +2,75 @@
 <html lang="uk">
 <head>
 <meta charset="UTF-8">
-<title>Адмін-панель • Ticket System</title>
+<title>Admin — Билетний відділ</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-:root{
-  --bg:#0f172a;
-  --bg-soft:#111827;
-  --panel:#020617;
-  --accent:#22c55e;
-  --danger:#ef4444;
-  --muted:#94a3b8;
-  --text:#e5e7eb;
-}
-
-*{box-sizing:border-box}
-body{
+html,body{
   margin:0;
+  padding:0;
+  height:100%;
   font-family:system-ui,-apple-system,Segoe UI,sans-serif;
-  background:#f1f5f9;
-  color:#0f172a;
+  background:#0f172a;
 }
 
-/* ===== HEADER ===== */
-.admin-header{
-  position:sticky;
-  top:0;
-  z-index:100;
-  background:var(--bg);
-  color:var(--text);
+.header{
   display:flex;
-  align-items:center;
-  gap:16px;
-  padding:12px 16px;
-}
-
-.admin-title{
-  font-weight:800;
-  letter-spacing:.3px;
-  white-space:nowrap;
-}
-
-.nav{
-  display:flex;
-  gap:8px;
-  flex:1;
-}
-
-.nav button{
-  background:transparent;
-  border:1px solid rgba(255,255,255,.15);
-  color:var(--text);
-  padding:8px 14px;
-  border-radius:10px;
-  cursor:pointer;
-  font-weight:600;
-}
-
-.nav button.active{
-  background:#1e293b;
-  border-color:#334155;
-}
-
-.nav button:hover{
+  gap:12px;
+  padding:10px 14px;
   background:#020617;
+  border-bottom:1px solid #1e293b;
 }
 
-/* ===== STATUS ===== */
-.status{
-  display:flex;
-  gap:8px;
-  align-items:center;
-}
-
-.pill{
-  padding:4px 10px;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:700;
-}
-
-.pill.online{background:var(--accent);color:#052e16}
-.pill.offline{background:var(--danger);color:#450a0a}
-
-.toggle-btn{
-  background:#020617;
-  border:1px solid #334155;
+.header button{
+  background:#111827;
   color:#e5e7eb;
-  padding:6px 10px;
+  border:1px solid #1e293b;
   border-radius:10px;
+  padding:8px 14px;
+  font-weight:800;
   cursor:pointer;
-  font-weight:700;
 }
 
-/* ===== MAIN ===== */
-.main{
-  padding:24px;
+.header button.active{
+  background:#22c55e;
+  color:#052e16;
+  border-color:#22c55e;
 }
 
-.section{
-  display:none;
-}
-
-.section.active{
-  display:block;
-}
-
-.card{
-  background:#fff;
-  border-radius:14px;
-  padding:20px;
-  box-shadow:0 6px 20px rgba(0,0,0,.08);
-  max-width:1100px;
-}
-
-.card h2{
-  margin-top:0;
+iframe{
+  width:100%;
+  height:calc(100vh - 56px);
+  border:0;
+  background:#f1f5f9;
 }
 </style>
 </head>
 
 <body>
 
-<!-- ================= HEADER ================= -->
-<header class="admin-header">
-  <div class="admin-title">🎟 Ticket Admin</div>
+<div class="header">
+  <button onclick="go('events.html',this)">Події</button>
+  <button onclick="go('create.html',this)">Створення</button>
+  <button onclick="go('reports.html',this)">Звіти</button>
+  <button onclick="go('docs.html',this)">Документи</button>
+</div>
 
-  <nav class="nav">
-    <button class="active" data-section="events">Події</button>
-    <button data-section="create">Створення</button>
-    <button data-section="reports">Звіти</button>
-    <button data-section="docs">Документи</button>
-  </nav>
-
-  <div class="status">
-    <span id="onlinePill" class="pill online">ONLINE</span>
-    <button id="toggleOnline" class="toggle-btn">⛔ Блокувати сайт</button>
-  </div>
-</header>
-
-<!-- ================= MAIN ================= -->
-<main class="main">
-
-  <section id="events" class="section active">
-    <div class="card">
-      <h2>Події</h2>
-      <p>Активні сеанси, швидкі дії, перехід у касу.</p>
-    </div>
-  </section>
-
-  <section id="create" class="section">
-    <div class="card">
-      <h2>Створення</h2>
-      <p>Підготовка і створення сеансів (редактор).</p>
-    </div>
-  </section>
-
-  <section id="reports" class="section">
-    <div class="card">
-      <h2>Звіти</h2>
-      <ul>
-        <li>Продажі</li>
-        <li>Броні</li>
-        <li>Каса</li>
-        <li><b>Клієнти</b></li>
-      </ul>
-    </div>
-  </section>
-
-  <section id="docs" class="section">
-    <div class="card">
-      <h2>Документи</h2>
-      <p>Накладні, акти, експорт.</p>
-    </div>
-  </section>
-
-</main>
+<iframe id="frame"></iframe>
 
 <script>
-/* ===== NAV ===== */
-document.querySelectorAll(".nav button").forEach(btn=>{
-  btn.onclick = ()=>{
-    document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active"));
-    btn.classList.add("active");
+const frame = document.getElementById("frame");
 
-    const id = btn.dataset.section;
-    document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
-    document.getElementById(id).classList.add("active");
-  };
-});
+function go(page, btn){
+  document.querySelectorAll(".header button")
+    .forEach(b=>b.classList.remove("active"));
 
-/* ===== ONLINE TOGGLE (пока локально) ===== */
-let online = true;
-const pill = document.getElementById("onlinePill");
-const toggle = document.getElementById("toggleOnline");
+  btn.classList.add("active");
+  frame.src = page;
+}
 
-toggle.onclick = ()=>{
-  online = !online;
-  pill.textContent = online ? "ONLINE" : "OFFLINE";
-  pill.className = "pill " + (online ? "online" : "offline");
-  toggle.textContent = online ? "⛔ Блокувати сайт" : "▶ Увімкнути сайт";
-};
+// старт по умолчанию
+go("events.html", document.querySelectorAll("button")[0]);
 </script>
 
 </body>
