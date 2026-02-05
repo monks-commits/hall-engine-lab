@@ -82,6 +82,9 @@ textarea{
 
     <label>Ціна</label>
     <input id="price" type="number" placeholder="200">
+    
+<label>Колір</label>
+<input id="color" type="color" id="color" value="#9333ea">
 
     <label>
       <input type="checkbox" id="sale" checked>
@@ -131,12 +134,12 @@ function seatClass(price){
 }
 
 
-
 function addRule(){
   const z = zone.value;
   const from = fromRow.value;
   const to = toRow.value;
   const p = price.value;
+  const c = color.value;
   const saleAllowed = sale.checked;
 
   if(!from || !to || !p){
@@ -145,13 +148,18 @@ function addRule(){
   }
 
   const key = `${z}${from}-${to}`;
+
   data.pricing[key] = {
     price: Number(p),
-    class: seatClass(p),
+    class: `seat--${p}`,
+    color: c,
     sale: saleAllowed
   };
+
   render();
 }
+
+
 
 function addSeatOverride(){
   const key = seatKey.value.trim();
