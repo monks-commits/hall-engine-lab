@@ -168,7 +168,9 @@ function addSeatOverride(){
   const obj = {};
   if(seatPrice.value){
     obj.price = Number(seatPrice.value);
-    obj.class = seatClass(seatPrice.value);
+    obj.class = `seat--${seatPrice.value}`;
+obj.color = color.value;
+
   }
   if(seatSale.checked){
     obj.sale = false;
