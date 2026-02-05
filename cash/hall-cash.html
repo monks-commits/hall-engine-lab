@@ -692,12 +692,19 @@ function makeSeatElement(key,label,extraClass,price,meta){
     if (cfg.sale === false) saleAllowed = false;
   }
 
-  const btn = document.createElement("button");
-  btn.type = "button";
-  btn.textContent = label;
-  btn.className = "seat" + (finalClass ? " " + finalClass : "");
-  btn.dataset.key = key;
-  btn.dataset.price = String(finalPrice);
+ const btn = document.createElement("button");
+btn.type = "button";
+btn.textContent = label;
+btn.className = "seat" + (finalClass ? " " + finalClass : "");
+btn.dataset.key = key;
+btn.dataset.price = String(finalPrice);
+
+// 🎨 APPLY COLOR FROM SEANCE (cash)
+if (cfg && cfg.color) {
+  btn.style.background = cfg.color;
+  btn.style.color = "#fff";
+}
+
 
   applyStatusClass(btn, getEffectiveStatus(key));
 
