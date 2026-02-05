@@ -217,13 +217,11 @@ function addSeatOverride(){
 }
 
 function render(){
-  const out = {
+  output.value = JSON.stringify({
     seance_id: seanceId.value.trim(),
     pricing: data.pricing,
     seat_overrides: data.seat_overrides
-  };
-
-  output.value = JSON.stringify(out, null, 2);
+  }, null, 2);
 
   const list = document.getElementById("rulesList");
   if (!list) return;
@@ -232,11 +230,11 @@ function render(){
 
   Object.entries(data.pricing).forEach(([key, r]) => {
     const zone =
-      key[0] === "P" ? "Партер" :
-      key[0] === "A" ? "Амфітеатр" :
-      key[0] === "B" ? "Балкон" : "?";
+      key.startsWith("P") ? "Партер" :
+      key.startsWith("A") ? "Амфітеатр" :
+      key.startsWith("B") ? "Балкон" : "?";
 
-    const rows = key.slice(1);
+    const rows = key.slice(1); // <-- ВАЖНО: "1-6"
 
     const div = document.createElement("div");
     div.style.display = "flex";
@@ -246,14 +244,14 @@ function render(){
 
     div.innerHTML = `
       <span style="
-        width:18px;
-        height:18px;
+        width:16px;
+        height:16px;
         border-radius:4px;
         background:${r.color || "#e5e7eb"};
         display:inline-block;
       "></span>
       <b>${zone}</b>
-      <span>ряди ${rows}</span>
+      <span>ряди <b>${rows}</b></span>
       <span>—</span>
       <b>${r.price} грн</b>
       <span style="opacity:.6">
