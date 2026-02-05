@@ -223,9 +223,7 @@ function render(){
 
   list.innerHTML = "";
 
-  for (const key in data.pricing){
-    const r = data.pricing[key];
-
+  Object.entries(data.pricing).forEach(([key, r]) => {
     const zone =
       key[0] === "P" ? "Партер" :
       key[0] === "A" ? "Амфітеатр" :
@@ -234,21 +232,32 @@ function render(){
     const rows = key.slice(1);
 
     const div = document.createElement("div");
-    div.className = "rule-item";
+    div.style.display = "flex";
+    div.style.alignItems = "center";
+    div.style.gap = "10px";
+    div.style.marginBottom = "6px";
+
     div.innerHTML = `
-      <div class="rule-color" style="background:${r.color || "#e5e7eb"}"></div>
+      <span style="
+        width:18px;
+        height:18px;
+        border-radius:4px;
+        background:${r.color || "#e5e7eb"};
+        display:inline-block;
+      "></span>
       <b>${zone}</b>
-      <span class="rule-muted">ряди ${rows}</span>
+      <span>ряди ${rows}</span>
       <span>—</span>
       <b>${r.price} грн</b>
-      <span class="rule-muted">
+      <span style="opacity:.6">
         ${r.sale === false ? "❌ не продається" : "✔ продається"}
       </span>
     `;
 
     list.appendChild(div);
-  }
+  });
 }
+
 
 
 function copy(){
