@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="uk">
 <head>
 <meta charset="UTF-8">
@@ -30,6 +30,7 @@ h3{margin:0 0 10px}
   padding:4px 10px;border-radius:999px;font-size:12px;
   background:#e5e7eb
 }
+.badge.ready{background:#bbf7d0}
 .section-actions{display:flex;gap:10px;flex-wrap:wrap}
 iframe{
   width:100%;height:520px;border:1px solid #e5e7eb;
@@ -48,32 +49,46 @@ iframe{
   <!-- 1. Seance data -->
   <div class="card">
     <h3>1️⃣ Дані сеансу</h3>
+
     <div class="row">
       <label>
         Подія
-        <select>
-          <option>Вибрати подію…</option>
-          <option>koncert</option>
-          <option>vistava</option>
+        <select id="eventSlug">
+          <option value="">Вибрати подію…</option>
+          <option value="koncert">koncert</option>
+          <option value="vistava">vistava</option>
         </select>
       </label>
 
       <label>
         Дата
-        <input type="date">
+        <input type="date" id="eventDate">
       </label>
 
       <label>
         Час
-        <input type="time">
+        <input type="time" id="eventTime">
       </label>
 
       <label>
         Seance ID
-        <input type="text" placeholder="auto" disabled>
+        <input type="text" id="seanceId" placeholder="auto" disabled>
       </label>
 
-      <span class="badge">чернетка</span>
+      <span id="statusBadge" class="badge">чернетка</span>
+    </div>
+
+    <!-- STATUS CONTROL -->
+    <div class="row" style="margin-top:10px">
+      <label>
+        Статус сеансу
+        <select id="seanceStatus">
+          <option value="draft">Чернетка</option>
+          <option value="ready">Готовий</option>
+        </select>
+      </label>
+
+      <button class="btn btn-ghost" onclick="setReady()">Зробити готовим</button>
     </div>
   </div>
 
@@ -89,7 +104,6 @@ iframe{
   <!-- 3. Pricing -->
   <div class="card">
     <h3>3️⃣ Ціни та кольори</h3>
-
     <!-- embed later -->
     <iframe src="../../seance-editor.html?embed=1"></iframe>
   </div>
@@ -98,7 +112,7 @@ iframe{
   <div class="card">
     <h3>4️⃣ Збереження</h3>
     <div class="section-actions">
-      <button class="btn btn-primary">💾 Зберегти</button>
+      <button class="btn btn-primary" onclick="saveSeance()">💾 Зберегти</button>
       <button class="btn btn-ghost">Опублікувати</button>
       <button class="btn btn-ghost">Скасувати</button>
     </div>
@@ -106,12 +120,81 @@ iframe{
 </main>
 
 <script>
-  // Подключаем общую шапку
-  fetch("../index.html")
-    .then(r=>r.text())
-    .then(html=>{
-      document.getElementById("admin-header").innerHTML = html;
-    });
+/* -------------------------
+   STATE
+--------------------------*/
+const seance = {
+  event: "",
+  date: "",
+  time: "",
+  seance_id: "",
+  status: "draft"
+};
+
+/* -------------------------
+   HELPERS
+--------------------------*/
+function updateSeanceId(){
+  if (!seance.event || !seance.date || !seance.time) return;
+  const t = seance.time.replace(":","-");
+  seance.seance_id = `${seance.event}-${seance.date}-${t}`;
+  document.getElementById("seanceId").value = seance.seance_id;
+}
+
+function updateStatusUI(){
+  const badge = document.getElementById("statusBadge");
+  badge.textContent = seance.status === "ready" ? "готовий" : "чернетка";
+  badge.classList.toggle("ready", seance.status === "ready");
+  document.getElementById("seanceStatus").value = seance.status;
+}
+
+/* -------------------------
+   ACTIONS
+--------------------------*/
+function setReady(){
+  seance.status = "ready";
+  updateStatusUI();
+}
+
+function saveSeance(){
+  const payload = {
+    seance_id: seance.seance_id,
+    status: seance.status
+  };
+  console.log("SAVE SEANCE:", payload);
+  alert("Сеанс збережено (поки що локально)");
+}
+
+/* -------------------------
+   EVENTS
+--------------------------*/
+document.getElementById("eventSlug").onchange = e=>{
+  seance.event = e.target.value;
+  updateSeanceId();
+};
+document.getElementById("eventDate").onchange = e=>{
+  seance.date = e.target.value;
+  updateSeanceId();
+};
+document.getElementById("eventTime").onchange = e=>{
+  seance.time = e.target.value;
+  updateSeanceId();
+};
+document.getElementById("seanceStatus").onchange = e=>{
+  seance.status = e.target.value;
+  updateStatusUI();
+};
+
+/* -------------------------
+   HEADER
+--------------------------*/
+fetch("../index.html")
+  .then(r=>r.text())
+  .then(html=>{
+    document.getElementById("admin-header").innerHTML = html;
+  });
+
+updateStatusUI();
 </script>
 
 </body>
