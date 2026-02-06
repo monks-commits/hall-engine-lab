@@ -8,130 +8,126 @@
 <link rel="stylesheet" href="../styles.css">
 
 <style>
-.page-wrap{padding:20px;max-width:1400px;margin:auto}
-.filters{
-  display:flex;gap:12px;flex-wrap:wrap;
-  background:#fff;padding:14px;border-radius:12px;
-  box-shadow:0 4px 14px rgba(0,0,0,.06);
+.page-wrap{padding:20px;max-width:1200px;margin:auto}
+.card{
+  background:#fff;
+  border-radius:14px;
+  padding:16px;
   margin-bottom:16px;
-}
-.filters label{font-size:13px;color:#374151}
-.filters input,.filters select{
-  padding:8px 10px;border-radius:8px;border:1px solid #d1d5db;
-}
-.btn{padding:9px 14px;border-radius:10px;border:none;font-weight:700;cursor:pointer}
-.btn-primary{background:#111827;color:#fff}
-.btn-ghost{background:#f3f4f6}
-
-.table-wrap{
-  background:#fff;border-radius:12px;
   box-shadow:0 4px 14px rgba(0,0,0,.06);
-  overflow:auto;
 }
-table{width:100%;border-collapse:collapse;font-size:14px}
-th,td{padding:10px 12px;border-bottom:1px solid #e5e7eb}
-th{text-align:left;font-size:12px;text-transform:uppercase;color:#6b7280}
-tfoot td{font-weight:800;background:#f9fafb}
+h1{margin-bottom:10px}
+h3{margin:0 0 10px}
+p{margin:0;color:#374151;font-size:14px}
 .badge{
-  padding:4px 8px;border-radius:999px;font-size:12px;
+  display:inline-block;
+  margin-left:8px;
+  padding:4px 10px;
+  border-radius:999px;
+  font-size:12px;
+  background:#e5e7eb;
 }
-.badge.sale{background:#bbf7d0}
-.badge.reserve{background:#fed7aa}
-.badge.online{background:#e0e7ff}
-.badge.cash{background:#fde68a}
+.list{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:14px;
+}
+.item{
+  border:1px solid #e5e7eb;
+  border-radius:12px;
+  padding:14px;
+}
+.item h4{margin:0 0 6px;font-size:15px}
+.item small{color:#6b7280}
+.note{
+  font-size:13px;
+  color:#6b7280;
+}
 </style>
 </head>
 
 <body>
 
-<!-- ADMIN HEADER -->
 <div id="admin-header"></div>
 
 <main class="page-wrap">
   <h1>📊 Звіти</h1>
+  <p class="note">
+    Єдина структура звітності для всіх продуктів.
+    Дані та логіка підключаються у відповідних репозиторіях.
+  </p>
 
-  <!-- Filters -->
-  <div class="filters">
-    <label>
-      З
-      <input type="date">
-    </label>
-    <label>
-      По
-      <input type="date">
-    </label>
-
-    <label>
-      Сеанс
-      <select>
-        <option>Усі</option>
-        <option>koncert-2026-02-10-19-00</option>
-      </select>
-    </label>
-
-    <label>
-      Тип
-      <select>
-        <option>Усі</option>
-        <option>Онлайн</option>
-        <option>Каса</option>
-      </select>
-    </label>
-
-    <button class="btn btn-primary">Показати</button>
-    <button class="btn btn-ghost">CSV</button>
-    <button class="btn btn-ghost">PDF</button>
+  <!-- Sales -->
+  <div class="card">
+    <h3>Продажі <span class="badge">загальна структура</span></h3>
+    <div class="list">
+      <div class="item">
+        <h4>Журнал продажів</h4>
+        <small>Усі завершені продажі за період</small>
+      </div>
+      <div class="item">
+        <h4>Продажі по сеансах</h4>
+        <small>Розбивка по подіях / датах</small>
+      </div>
+      <div class="item">
+        <h4>Продажі по залах</h4>
+        <small>Аналітика по залах та зонам</small>
+      </div>
+    </div>
   </div>
 
-  <!-- Table -->
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>Дата</th>
-          <th>Сеанс</th>
-          <th>Місця</th>
-          <th>Тип</th>
-          <th>Канал</th>
-          <th>Сума</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- demo rows -->
-        <tr>
-          <td>2026-02-10 18:12</td>
-          <td>koncert-2026-02-10-19-00</td>
-          <td>Ряд 3, місця 5-6</td>
-          <td><span class="badge sale">Продаж</span></td>
-          <td><span class="badge cash">Каса</span></td>
-          <td>400 грн</td>
-        </tr>
-
-        <tr>
-          <td>2026-02-10 18:25</td>
-          <td>koncert-2026-02-10-19-00</td>
-          <td>Ряд 1, місце 2</td>
-          <td><span class="badge reserve">Бронь</span></td>
-          <td><span class="badge online">Онлайн</span></td>
-          <td>200 грн</td>
-        </tr>
-      </tbody>
-
-      <tfoot>
-        <tr>
-          <td colspan="5">Разом</td>
-          <td>600 грн</td>
-        </tr>
-      </tfoot>
-    </table>
+  <!-- Bookings -->
+  <div class="card">
+    <h3>Бронювання</h3>
+    <div class="list">
+      <div class="item">
+        <h4>Активні бронювання</h4>
+        <small>Незавершені / тимчасові</small>
+      </div>
+      <div class="item">
+        <h4>Історія бронювань</h4>
+        <small>Скасовані та завершені</small>
+      </div>
+    </div>
   </div>
+
+  <!-- Clients -->
+  <div class="card">
+    <h3>Клієнти</h3>
+    <div class="list">
+      <div class="item">
+        <h4>База клієнтів</h4>
+        <small>Email / телефон / історія покупок</small>
+      </div>
+      <div class="item">
+        <h4>Активність клієнтів</h4>
+        <small>Частота, середній чек</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Finance -->
+  <div class="card">
+    <h3>Фінанси</h3>
+    <div class="list">
+      <div class="item">
+        <h4>Денні звіти</h4>
+        <small>Підсумок за день</small>
+      </div>
+      <div class="item">
+        <h4>Періодичні звіти</h4>
+        <small>Тиждень / місяць</small>
+      </div>
+    </div>
+  </div>
+
 </main>
 
-<script type="module">
-  // Подтягиваем общую шапку
+<script>
+  // Подключаем общую шапку админки
   fetch("../index.html")
-    .then(r=>r.text())
-    .then(html=>{
+    .then(r => r.text())
+    .then(html => {
       document.getElementById("admin-header").innerHTML = html;
     });
 </script>
