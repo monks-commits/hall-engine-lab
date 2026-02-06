@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <title>Звіти — Білетний відділ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <link rel="stylesheet" href="../styles.css" />
+
+  <style>
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .tab {
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .tab.active {
+      background: #111827;
+      color: #fff;
+      border-color: #111827;
+    }
+
+    .filters {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .filters input,
+    .filters select {
+      padding: 8px 10px;
+      font-size: 14px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th, td {
+      padding: 8px;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    th {
+      color: #6b7280;
+      font-weight: 700;
+    }
+
+    .muted {
+      color: #6b7280;
+      font-size: 13px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- admin header -->
+  <div id="admin-header"></div>
+
+  <main class="container">
+    <h1>📊 Звіти</h1>
+    <p class="muted">Аналітика продажів, бронювань та підсумки</p>
+
+    <!-- tabs -->
+    <div class="tabs">
+      <div class="tab active" data-tab="sales">Продажі</div>
+      <div class="tab" data-tab="bookings">Бронювання</div>
+      <div class="tab" data-tab="summary">Зведений звіт</div>
+    </div>
+
+    <!-- filters -->
+    <div class="filters">
+      <input type="date" id="fromDate" />
+      <input type="date" id="toDate" />
+
+      <input type="text" id="seanceFilter" placeholder="Seance ID" />
+
+      <select id="channelFilter">
+        <option value="">Усі канали</option>
+        <option value="online">Онлайн</option>
+        <option value="cash">Каса</option>
+      </select>
+
+      <button id="btnApply">Застосувати</button>
+    </div>
+
+    <!-- actions -->
+    <div class="actions">
+      <button id="btnExport">📤 Експорт CSV</button>
+      <button id="btnPrint">🖨 Друк</button>
+    </div>
+
+    <!-- content -->
+    <section id="report-content">
+      <!-- SALES TABLE (default) -->
+      <table id="salesTable">
+        <thead>
+          <tr>
+            <th>Дата</th>
+            <th>Seance</th>
+            <th>Подія</th>
+            <th>Канал</th>
+            <th>Місця</th>
+            <th>Сума</th>
+            <th>Касир</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="7" class="muted">Немає даних</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- BOOKINGS TABLE -->
+      <table id="bookingsTable" hidden>
+        <thead>
+          <tr>
+            <th>Дата</th>
+            <th>Seance</th>
+            <th>Місця</th>
+            <th>Статус</th>
+            <th>Джерело</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="5" class="muted">Немає даних</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- SUMMARY -->
+      <div id="summaryBlock" hidden>
+        <table>
+          <tbody>
+            <tr><th>Всього продано</th><td>—</td></tr>
+            <tr><th>Онлайн</th><td>—</td></tr>
+            <tr><th>Каса</th><td>—</td></tr>
+            <tr><th>Бронювання</th><td>—</td></tr>
+            <tr><th>Загальна сума</th><td>—</td></tr>
+            <tr><th>Середній чек</th><td>—</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- scripts -->
+  <script type="module" src="../scripts/include.js"></script>
+
+  <script>
+    // tabs logic (UI only)
+    const tabs = document.querySelectorAll(".tab");
+    const salesTable = document.getElementById("salesTable");
+    const bookingsTable = document.getElementById("bookingsTable");
+    const summaryBlock = document.getElementById("summaryBlock");
+
+    tabs.forEach(tab => {
+      tab.addEventListener("click", () => {
+        tabs.forEach(t => t.classList.remove("active"));
+        tab.classList.add("active");
+
+        const t = tab.dataset.tab;
+        salesTable.hidden = t !== "sales";
+        bookingsTable.hidden = t !== "bookings";
+        summaryBlock.hidden = t !== "summary";
+      });
+    });
+  </script>
+</body>
+</html>
