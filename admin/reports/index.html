@@ -8,7 +8,11 @@
 <link rel="stylesheet" href="../styles.css">
 
 <style>
-.page-wrap{padding:20px;max-width:1200px;margin:auto}
+.page-wrap{
+  padding:20px;
+  max-width:1200px;
+  margin:auto;
+}
 .card{
   background:#fff;
   border-radius:14px;
@@ -18,27 +22,48 @@
 }
 h1{margin-bottom:10px}
 h3{margin:0 0 10px}
-p{margin:0;color:#374151;font-size:14px}
-.badge{
-  display:inline-block;
-  margin-left:8px;
-  padding:4px 10px;
-  border-radius:999px;
-  font-size:12px;
-  background:#e5e7eb;
-}
-.list{
+
+.grid{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
-  gap:14px;
+  gap:16px;
 }
-.item{
+
+.report{
   border:1px solid #e5e7eb;
   border-radius:12px;
   padding:14px;
+  background:#f9fafb;
 }
-.item h4{margin:0 0 6px;font-size:15px}
-.item small{color:#6b7280}
+.report h4{
+  margin:0 0 6px;
+}
+.report p{
+  font-size:13px;
+  color:#6b7280;
+  margin:0 0 10px;
+}
+.report button{
+  padding:8px 12px;
+  border-radius:10px;
+  border:none;
+  font-weight:700;
+  cursor:pointer;
+  background:#111827;
+  color:#fff;
+}
+.report button.secondary{
+  background:#e5e7eb;
+  color:#111827;
+}
+.badge{
+  display:inline-block;
+  font-size:12px;
+  padding:3px 8px;
+  border-radius:999px;
+  background:#e5e7eb;
+  margin-bottom:6px;
+}
 .note{
   font-size:13px;
   color:#6b7280;
@@ -52,84 +77,132 @@ p{margin:0;color:#374151;font-size:14px}
 
 <main class="page-wrap">
   <h1>📊 Звіти</h1>
-  <p class="note">
-    Єдина структура звітності для всіх продуктів.
-    Дані та логіка підключаються у відповідних репозиторіях.
-  </p>
 
-  <!-- Sales -->
+  <!-- SALES -->
   <div class="card">
-    <h3>Продажі <span class="badge">загальна структура</span></h3>
-    <div class="list">
-      <div class="item">
-        <h4>Журнал продажів</h4>
-        <small>Усі завершені продажі за період</small>
+    <h3>Продажі</h3>
+
+    <div class="grid">
+
+      <div class="report">
+        <span class="badge">основний</span>
+        <h4>Продажі за період</h4>
+        <p>Усі продажі (каса + безнал + сайт)</p>
+        <button>Відкрити</button>
       </div>
-      <div class="item">
+
+      <div class="report">
         <h4>Продажі по сеансах</h4>
-        <small>Розбивка по подіях / датах</small>
+        <p>Суми та кількість квитків по кожному сеансу</p>
+        <button>Відкрити</button>
       </div>
-      <div class="item">
-        <h4>Продажі по залах</h4>
-        <small>Аналітика по залах та зонам</small>
+
+      <div class="report">
+        <h4>Продажі по каналах</h4>
+        <p>Каса / сайт / безнал</p>
+        <button>Відкрити</button>
       </div>
+
     </div>
   </div>
 
-  <!-- Bookings -->
+  <!-- BOOKINGS -->
   <div class="card">
     <h3>Бронювання</h3>
-    <div class="list">
-      <div class="item">
+
+    <div class="grid">
+
+      <div class="report">
         <h4>Активні бронювання</h4>
-        <small>Незавершені / тимчасові</small>
+        <p>Незакриті та прострочені броні</p>
+        <button>Відкрити</button>
       </div>
-      <div class="item">
+
+      <div class="report">
         <h4>Історія бронювань</h4>
-        <small>Скасовані та завершені</small>
+        <p>Усі бронювання за період</p>
+        <button>Відкрити</button>
       </div>
+
     </div>
   </div>
 
-  <!-- Clients -->
+  <!-- CLIENTS -->
   <div class="card">
     <h3>Клієнти</h3>
-    <div class="list">
-      <div class="item">
-        <h4>База клієнтів</h4>
-        <small>Email / телефон / історія покупок</small>
+
+    <div class="grid">
+
+      <div class="report">
+        <h4>Клієнти та покупки</h4>
+        <p>Список клієнтів і їх замовлення</p>
+        <button>Відкрити</button>
       </div>
-      <div class="item">
-        <h4>Активність клієнтів</h4>
-        <small>Частота, середній чек</small>
+
+      <div class="report">
+        <h4>Постійні клієнти</h4>
+        <p>Повторні покупки, статистика</p>
+        <button>Відкрити</button>
       </div>
+
     </div>
   </div>
 
-  <!-- Finance -->
+  <!-- CASH -->
   <div class="card">
-    <h3>Фінанси</h3>
-    <div class="list">
-      <div class="item">
-        <h4>Денні звіти</h4>
-        <small>Підсумок за день</small>
+    <h3>Каса</h3>
+
+    <div class="grid">
+
+      <div class="report">
+        <span class="badge">каса</span>
+        <h4>Журнал каси</h4>
+        <p>Усі операції касира</p>
+        <button>Відкрити</button>
       </div>
-      <div class="item">
-        <h4>Періодичні звіти</h4>
-        <small>Тиждень / місяць</small>
+
+      <div class="report">
+        <h4>Зміни касира</h4>
+        <p>Відкриття / закриття змін</p>
+        <button>Відкрити</button>
       </div>
+
     </div>
+  </div>
+
+  <!-- EXPORT -->
+  <div class="card">
+    <h3>Експорт</h3>
+
+    <div class="grid">
+
+      <div class="report">
+        <h4>Експорт у CSV</h4>
+        <p>Для бухгалтерії</p>
+        <button class="secondary">Завантажити</button>
+      </div>
+
+      <div class="report">
+        <h4>Експорт у PDF</h4>
+        <p>Звіти для друку</p>
+        <button class="secondary">Завантажити</button>
+      </div>
+
+    </div>
+
+    <p class="note" style="margin-top:12px">
+      Формат та джерело даних підключаються у продуктових репо.
+    </p>
   </div>
 
 </main>
 
 <script>
-  // Подключаем общую шапку админки
-  fetch("../index.html")
-    .then(r => r.text())
-    .then(html => {
-      document.getElementById("admin-header").innerHTML = html;
-    });
+fetch("../index.html")
+  .then(r=>r.text())
+  .then(html=>{
+    document.getElementById("admin-header").innerHTML = html;
+  });
 </script>
 
 </body>
