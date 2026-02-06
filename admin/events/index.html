@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<title>Події — робочі сеанси</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="stylesheet" href="../styles.css">
+
+<style>
+.page-wrap{padding:20px;max-width:1200px;margin:auto}
+.card{
+  background:#fff;border-radius:14px;padding:16px;margin-bottom:16px;
+  box-shadow:0 4px 14px rgba(0,0,0,.06);
+}
+.list{display:flex;flex-direction:column;gap:10px}
+.item{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:12px 14px;border-radius:12px;
+  background:#f9fafb;border:1px solid #e5e7eb
+}
+.item-title{font-weight:700}
+.badge{
+  padding:4px 10px;border-radius:999px;font-size:12px;
+  background:#fde68a;color:#92400e
+}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{
+  padding:8px 12px;border-radius:10px;border:none;
+  font-weight:700;cursor:pointer
+}
+.btn-primary{background:#111827;color:#fff}
+.btn-ghost{background:#e5e7eb}
+small{color:#6b7280}
+</style>
+</head>
+
+<body>
+
+<div id="admin-header"></div>
+
+<main class="page-wrap">
+  <h1>🎭 Події (робочі сеанси)</h1>
+  <p><small>Сеанси визначаються файлами в <code>/data/seances</code></small></p>
+
+  <div class="card">
+    <div id="list" class="list">
+      <div>Завантаження…</div>
+    </div>
+  </div>
+</main>
+
+<script>
+/* шапка */
+fetch("../index.html")
+  .then(r=>r.text())
+  .then(html=>{
+    document.getElementById("admin-header").innerHTML = html;
+  });
+
+/* список сеансов */
+async function loadSeances(){
+  const list = document.getElementById("list");
+  list.innerHTML = "";
+
+  // GitHub Pages: статический список
+  const res = await fetch("../../data/seances/index.json").catch(()=>null);
+  if(!res){
+    list.innerHTML = "<small>Немає index.json у /data/seances</small>";
+    return;
+  }
+
+  const files = await res.json();
+  if(!Array.isArray(files) || !files.length){
+    list.innerHTML = "<small>Сеансів поки немає</small>";
+    return;
+  }
+
+  files.forEach(id=>{
+    const row = document.createElement("div");
+    row.className = "item";
+    row.innerHTML = `
+      <div>
+        <div class="item-title">${id}</div>
+        <small>seance.json</small>
+      </div>
+      <div class="actions">
+        <span class="badge">чернетка</span>
+        <button class="btn btn-ghost"
+          onclick="openCreate('${id}')">🛠 Створення</button>
+        <button class="btn btn-primary"
+          onclick="openCash('${id}')">🎟 Каса</button>
+      </div>
+    `;
+    list.appendChild(row);
+  });
+}
+
+function openCreate(id){
+  location.href = `../create/?seance=${id}`;
+}
+
+function openCash(id){
+  window.open(`../../cash/hall-cash.html?seance=${id}&embed=1`,"_blank");
+}
+
+loadSeances();
+</script>
+
+</body>
+</html>
