@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<title>Hall Builder 2.0</title>
+
+<style>
+body{
+  font-family:system-ui;
+  display:flex;
+  gap:20px;
+  padding:20px;
+}
+
+#stage{
+  position:relative;
+  border:1px solid #ccc;
+}
+
+#stage img{
+  display:block;
+  max-width:900px;
+}
+
+.seat{
+  position:absolute;
+  width:18px;
+  height:18px;
+  border-radius:50%;
+  background:#2563eb;
+  transform:translate(-50%,-50%);
+  color:#fff;
+  font-size:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.panel{
+  width:320px;
+}
+
+textarea{
+  width:100%;
+  height:420px;
+}
+</style>
+</head>
+
+<body>
+
+<div>
+<input type="file" id="imgLoader">
+
+<div id="stage">
+<img id="hallImage">
+</div>
+</div>
+
+<div class="panel">
+
+<h3>Режим</h3>
+
+<select id="mode">
+<option value="row">Ряд</option>
+<option value="seat">Місце</option>
+</select>
+
+<h3>Параметри</h3>
+
+<label>Row</label>
+<input id="row" value="1">
+
+<label>Seats in row</label>
+<input id="count" value="10">
+
+<label>Zone</label>
+<input id="zone" value="Партер">
+
+<button onclick="exportJSON()">Export JSON</button>
+
+<h3>Result</h3>
+
+<textarea id="output"></textarea>
+
+</div>
+
+<script>
+
+const stage = document.getElementById("stage")
+const img = document.getElementById("hallImage")
+
+const seats=[]
+
+let startPoint=null
+
+document.getElementById("imgLoader").onchange=e=>{
+ const file=e.target.files[0]
+ img.src=URL.createObjectURL(file)
+}
+
+stage.onclick=e=>{
+
+ const rect=stage.getBoundingClientRect()
+
+ const x=(e.clientX-rect.left)/rect.width
+ const y=(e.clientY-rect.top)/rect.height
+
+ const mode=document.getElementById("mode").value
+
+ if(mode==="seat"){
+   createSeat(x,y)
+   return
+ }
+
+ if(!startPoint){
+   startPoint={x,y}
+   return
+ }
+
+ const endPoint={x,y}
+
+ createRow(startPoint,endPoint)
+
+ startPoint=null
+
+}
+
+function createSeat(x,y){
+
+ const row=Number(rowInput.value)
+ const seatNum=seats.length+1
+ const zone=zoneInput.value
+
+ const seat={
+  zone,
+  row,
+  seat:seatNum,
+  x:Number((x*100).toFixed(2)),
+  y:Number((y*100).toFixed(2))
+ }
+
+ seats.push(seat)
+
+ drawSeat(seat)
+
+}
+
+function createRow(p1,p2){
+
+ const count=Number(document.getElementById("count").value)
+ const row=Number(document.getElementById("row").value)
+ const zone=document.getElementById("zone").value
+
+ for(let i=0;i<count;i++){
+
+   const t=i/(count-1)
+
+   const x=p1.x+(p2.x-p1.x)*t
+   const y=p1.y+(p2.y-p1.y)*t
+
+   const seat={
+     zone,
+     row,
+     seat:i+1,
+     x:Number((x*100).toFixed(2)),
+     y:Number((y*100).toFixed(2))
+   }
+
+   seats.push(seat)
+
+   drawSeat(seat)
+
+ }
+
+}
+
+function drawSeat(seat){
+
+ const el=document.createElement("div")
+ el.className="seat"
+
+ el.style.left=seat.x+"%"
+ el.style.top=seat.y+"%"
+
+ el.innerText=seat.seat
+
+ stage.appendChild(el)
+
+}
+
+function exportJSON(){
+
+ const hall={
+   seats
+ }
+
+ output.value=JSON.stringify(hall,null,2)
+
+}
+
+const rowInput=document.getElementById("row")
+const zoneInput=document.getElementById("zone")
+
+</script>
+
+</body>
+</html>
