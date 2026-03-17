@@ -1,0 +1,25 @@
+{
+  "name": "Велика сцена (Театр ім. Шевченка)",
+  "rows": [
+    { "row": 1,  "seats": 20, "aisles": [10], "zones": [ { "from": 1,  "to": 20, "price": 170 } ] },
+    { "row": 2,  "seats": 20, "aisles": [10], "zones": [ { "from": 1,  "to": 20, "price": 200 } ] },
+    { "row": 3,  "seats": 20, "aisles": [10], "zones": [ { "from": 1,  "to": 20, "price": 200 } ] },
+    { "row": 4,  "seats": 20, "aisles": [10], "zones": [ { "from": 1,  "to": 20, "price": 180 } ] },
+    { "row": 5,  "seats": 20, "aisles": [10], "zones": [ { "from": 1,  "to": 20, "price": 180 } ] },
+    { "row": 6,  "seats": 20, "aisles": [10], "zones": [ { "from": 1,  "to": 20, "price": 180 } ] },
+    { "row": 7,  "seats": 20, "aisles": [10], "zones": [ { "from": 1,  "to": 20, "price": 170 } ] },
+    { "row": 8,  "seats": 20, "aisles": [10], "zones": [ { "from": 1,  "to": 20, "price": 170 } ] },
+    { "row": 9,  "seats": 20, "aisles": [10], "zones": [ { "from": 1,  "to": 20, "price": 160 } ] },
+
+    { "row": 10, "seats": 20, "aisles": [10], "zones": [ { "from": 1, "to": 20, "price": 160 } ] },
+
+    { "row": 11, "seats": 20, "aisles": [10], "zones": [ { "from": 1,  "to": 20, "price": 140 } ] },
+    { "row": 12, "seats": 20, "aisles": [10], "zones": [ { "from": 1,  "to": 20, "price": 140 } ] },
+    { "row": 13, "seats": 20, "aisles": [10], "zones": [ { "from": 1,  "to": 20, "price": 120 } ] },
+    { "row": 14, "seats": 20, "aisles": [10], "zones": [ { "from": 1,  "to": 20, "price": 120 } ] },
+    { "row": 15, "seats": 20, "aisles": [10], "zones": [ { "from": 1,  "to": 20, "price": 100 } ] },
+    { "row": 16, "seats": 20, "aisles": [10], "zones": [ { "from": 1,  "to": 20, "price": 100 } ] },
+    { "row": 17, "seats": 20, "aisles": [10], "zones": [ { "from": 1,  "to": 20, "price": 70 } ] },
+    { "row": 18, "seats": 20, "aisles": [10], "zones": [ { "from": 1,  "to": 20, "price": 70 } ] }
+  ]
+}
