@@ -1,0 +1,38 @@
+.hall-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.row-label {
+  width: 30px;
+}
+
+.hall-row-seats {
+  display: flex;
+  gap: 4px;
+}
+
+.seat {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.seat.free {
+  background: #eab308;
+}
+
+.seat.taken {
+  background: #9ca3af;
+}
+
+.seat.selected {
+  background: #22c55e;
+}
+
+.aisle {
+  width: 12px;
+}
