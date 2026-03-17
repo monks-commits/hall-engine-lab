@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Hall Engine Lab</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+
+<h1>VA Hall Engine Lab</h1>
+
+<div id="hall"></div>
+
+<script type="module">
+import { renderHall } from './engine/renderer.js';
+
+const hall = await fetch('./data/hall/academy/academy.json')
+  .then(r => r.json());
+
+renderHall(
+  document.getElementById('hall'),
+  hall,
+  {},
+  {
+    onSelect: (seats) => {
+      console.log('selected:', seats);
+    }
+  }
+);
+</script>
+
+</body>
+</html>
