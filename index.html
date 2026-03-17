@@ -23,6 +23,9 @@ const state = {
   "P5-M7": "taken"
 };
 
+const seance = await fetch('./data/seances/test-seance.json')
+  .then(r => r.json());
+  
 renderHall(
   document.getElementById('hall'),
   hall,
