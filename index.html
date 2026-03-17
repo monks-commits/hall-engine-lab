@@ -14,7 +14,7 @@
 <script type="module">
 import { renderHall } from './engine/renderer.js';
 
-const hall = await fetch('./data/hall/academy/academy.json')
+const hall = await fetch('./data/hall/academy.json')
   .then(r => r.json());
 
 renderHall(
