@@ -17,7 +17,6 @@ import { renderHall } from './engine/renderer.js';
 const hall = await fetch('./data/hall/academy.json')
   .then(r => r.json());
 
-// 👇 ВОТ СЮДА ДОБАВЛЯЕМ
 const state = {
   "P1-M1": "taken",
   "P2-M10": "taken",
@@ -27,7 +26,7 @@ const state = {
 renderHall(
   document.getElementById('hall'),
   hall,
-  state, // 👈 И ВОТ СЮДА ПЕРЕДАЁМ
+  state,
   {
     onSelect: (seats) => {
       console.log('selected:', seats);
