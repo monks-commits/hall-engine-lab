@@ -1,0 +1,10 @@
+{
+  "seance_id": "test1",
+  "hall_id": "academy_main",
+  "prices": [
+    { "row": 1, "from": 1, "to": 11, "price": 220 },
+    { "row": 2, "from": 7, "to": 17, "price": 200 },
+    { "row": 10, "from": 10, "to": 14, "price": 180 },
+    { "row": 18, "from": 1, "to": 20, "price": 110 }
+  ]
+}
