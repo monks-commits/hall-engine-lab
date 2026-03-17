@@ -32,16 +32,17 @@ renderHall(
   state,
   {
     getSeatMeta: ({ row, seat }) => {
-      const rule = seance.prices.find(p =>
-        p.row === row &&
-        seat >= p.from &&
-        seat <= p.to
-      );
 
-      return {
-        price: rule ? rule.price : 120
-      };
-    },
+  const rule = seance.prices.find(p =>
+    (p.row === row || p.row === '*') &&
+    seat >= p.from &&
+    seat <= p.to
+  );
+
+  return {
+    price: rule ? rule.price : 0
+  };
+},
 
     onSelect: (seats) => {
       console.log('selected:', seats);
