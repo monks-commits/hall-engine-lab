@@ -33,6 +33,40 @@ renderHall(
   {
     getSeatMeta: ({ row, seat }) => {
 
+  const seatKey = `P${row}-M${seat}`;
+
+  // 1. override (приоритет)
+  if (seance.seat_overrides?.[seatKey]) {
+    const o = seance.seat_overrides[seatKey];
+    return {
+      price: o.price || 0,
+      className: o.sale === false ? 'disabled' : ''
+    };
+  }
+
+  // 2. правила pricing
+  for (const key in seance.pricing) {
+    const match = key.match(/^P(\d+)-(\d+)$/);
+    if (!match) continue;
+
+    const from = Number(match[1]);
+    const to   = Number(match[2]);
+
+    if (row >= from && row <= to) {
+      const r = seance.pricing[key];
+      return {
+        price: r.price,
+        className: r.sale === false ? 'disabled' : ''
+      };
+    }
+  }
+
+  // 3. fallback
+  return {
+    price: 0
+  };
+},
+
   const rule = seance.prices.find(p =>
     (p.row === row || p.row === '*') &&
     seat >= p.from &&
