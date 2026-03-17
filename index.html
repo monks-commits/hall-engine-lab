@@ -67,11 +67,7 @@ renderHall(
   };
 },
 
-  const rule = seance.prices.find(p =>
-    (p.row === row || p.row === '*') &&
-    seat >= p.from &&
-    seat <= p.to
-  );
+ 
 
   return {
     price: rule ? rule.price : 0
