@@ -1,0 +1,192 @@
+{
+  "name": "Велика сцена (Академія руху)",
+  "rows": [
+    {
+      "row": 1,
+      "seats": 11,
+      "offset": 6,
+      "aisles": [],
+      "zones": [
+        { "from": 1, "to": 11, "price": 220 }
+      ]
+    },
+
+    {
+      "row": 2,
+      "seats": 23,
+      "aisles": [6, 17],
+      "zones": [
+        { "from": 1,  "to": 6,  "price": 160 },
+        { "from": 7,  "to": 17, "price": 200 },
+        { "from": 18, "to": 23, "price": 160 }
+      ]
+    },
+    {
+      "row": 3,
+      "seats": 23,
+      "aisles": [6, 17],
+      "zones": [
+        { "from": 1,  "to": 6,  "price": 160 },
+        { "from": 7,  "to": 17, "price": 200 },
+        { "from": 18, "to": 23, "price": 160 }
+      ]
+    },
+    {
+      "row": 4,
+      "seats": 23,
+      "aisles": [6, 17],
+      "zones": [
+        { "from": 1,  "to": 6,  "price": 160 },
+        { "from": 7,  "to": 17, "price": 200 },
+        { "from": 18, "to": 23, "price": 160 }
+      ]
+    },
+    {
+      "row": 5,
+      "seats": 23,
+      "aisles": [6, 17],
+      "zones": [
+        { "from": 1,  "to": 6,  "price": 160 },
+        { "from": 7,  "to": 17, "price": 200 },
+        { "from": 18, "to": 23, "price": 160 }
+      ]
+    },
+    {
+      "row": 6,
+      "seats": 23,
+      "aisles": [6, 17],
+      "zones": [
+        { "from": 1,  "to": 6,  "price": 160 },
+        { "from": 7,  "to": 17, "price": 200 },
+        { "from": 18, "to": 23, "price": 160 }
+      ]
+    },
+
+    {
+      "row": 7,
+      "seats": 23,
+      "aisles": [6, 17],
+      "zones": [
+        { "from": 1,  "to": 6,  "price": 150 },
+        { "from": 7,  "to": 17, "price": 190 },
+        { "from": 18, "to": 23, "price": 150 }
+      ]
+    },
+
+    {
+      "row": 8,
+      "seats": 23,
+      "aisles": [6, 17],
+      "zones": [
+        { "from": 1,  "to": 6,  "price": 140 },
+        { "from": 7,  "to": 9,  "price": 160 },
+        { "from": 10, "to": 14, "price": 180 },
+        { "from": 15, "to": 17, "price": 160 },
+        { "from": 18, "to": 23, "price": 140 }
+      ]
+    },
+    {
+      "row": 9,
+      "seats": 23,
+      "aisles": [6, 17],
+      "zones": [
+        { "from": 1,  "to": 6,  "price": 140 },
+        { "from": 7,  "to": 9,  "price": 160 },
+        { "from": 10, "to": 14, "price": 180 },
+        { "from": 15, "to": 17, "price": 160 },
+        { "from": 18, "to": 23, "price": 140 }
+      ]
+    },
+    {
+      "row": 10,
+      "seats": 23,
+      "aisles": [6, 17],
+      "zones": [
+        { "from": 1,  "to": 6,  "price": 140 },
+        { "from": 7,  "to": 9,  "price": 160 },
+        { "from": 10, "to": 14, "price": 180 },
+        { "from": 15, "to": 17, "price": 160 },
+        { "from": 18, "to": 23, "price": 140 }
+      ]
+    },
+    {
+      "row": 11,
+      "seats": 23,
+      "aisles": [6, 17],
+      "zones": [
+        { "from": 1,  "to": 6,  "price": 140 },
+        { "from": 7,  "to": 9,  "price": 160 },
+        { "from": 10, "to": 14, "price": 180 },
+        { "from": 15, "to": 17, "price": 160 },
+        { "from": 18, "to": 23, "price": 140 }
+      ]
+    },
+    {
+      "row": 12,
+      "seats": 23,
+      "aisles": [6, 17],
+      "zones": [
+        { "from": 1,  "to": 6,  "price": 140 },
+        { "from": 7,  "to": 9,  "price": 160 },
+        { "from": 10, "to": 14, "price": 180 },
+        { "from": 15, "to": 17, "price": 160 },
+        { "from": 18, "to": 23, "price": 140 }
+      ]
+    },
+    {
+      "row": 13,
+      "seats": 23,
+      "aisles": [6, 17],
+      "zones": [
+        { "from": 1,  "to": 6,  "price": 140 },
+        { "from": 7,  "to": 9,  "price": 160 },
+        { "from": 10, "to": 14, "price": 180 },
+        { "from": 15, "to": 17, "price": 160 },
+        { "from": 18, "to": 23, "price": 140 }
+      ]
+    },
+
+    {
+      "row": 14,
+      "seats": 23,
+      "aisles": [6, 17],
+      "zones": [
+        { "from": 1, "to": 23, "price": 130 }
+      ]
+    },
+    {
+      "row": 15,
+      "seats": 23,
+      "aisles": [6, 17],
+      "zones": [
+        { "from": 1, "to": 23, "price": 130 }
+      ]
+    },
+    {
+      "row": 16,
+      "seats": 23,
+      "aisles": [6, 17],
+      "zones": [
+        { "from": 1, "to": 23, "price": 130 }
+      ]
+    },
+    {
+      "row": 17,
+      "seats": 23,
+      "aisles": [6, 17],
+      "zones": [
+        { "from": 1, "to": 23, "price": 120 }
+      ],
+      "gapAfter": true
+    },
+
+    {
+      "row": 18,
+      "seats": 20,
+      "aisles": [10],
+      "zones": [
+        { "from": 1, "to": 20, "price": 110 }
+      ]
+    }
+  ]
+}
