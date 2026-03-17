@@ -34,16 +34,16 @@ renderHall(
 
     getSeatMeta: ({ row, seat }) => {
 
-  const rule = seance.prices.find(p =>
-    (p.row === row || p.row === "*") &&
-    seat >= p.from &&
-    seat <= p.to
-  );
+      const seatKey = `P${row}-M${seat}`;
 
-  return {
-    price: rule ? rule.price : 0
-  };
-},
+      // 1. override (приоритет)
+      if (seance.seat_overrides?.[seatKey]) {
+        const o = seance.seat_overrides[seatKey];
+        return {
+          price: o.price || 0
+        };
+      }
+
       // 2. правила pricing
       for (const key in seance.pricing) {
         const match = key.match(/^P(\d+)-(\d+)$/);
