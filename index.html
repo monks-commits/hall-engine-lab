@@ -28,6 +28,21 @@ renderHall(
   hall,
   state,
   {
+    // 👇 ВОТ ЭТО ДОБАВЛЯЕМ
+    getSeatMeta: ({ row, seat }) => {
+      // простая логика для теста
+      let price = 0;
+
+      if (row <= 5) price = 200;
+      else if (row <= 10) price = 150;
+      else price = 100;
+
+      return {
+        price,
+        className: 'price-zone'
+      };
+    },
+
     onSelect: (seats) => {
       console.log('selected:', seats);
     }
