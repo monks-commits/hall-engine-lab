@@ -25,56 +25,53 @@ const state = {
 
 const seance = await fetch('./data/seances/test-seance.json')
   .then(r => r.json());
-  
+
 renderHall(
   document.getElementById('hall'),
   hall,
   state,
   {
-    
- getSeatMeta: ({ row, seat }) => {
 
-  const seatKey = `P${row}-M${seat}`;
+    getSeatMeta: ({ row, seat }) => {
 
-  // override
-  if (seance.seat_overrides?.[seatKey]) {
-    const o = seance.seat_overrides[seatKey];
-    return {
-      price: o.price || 0
-    };
-  }
+      const seatKey = `P${row}-M${seat}`;
 
-  // pricing
-  for (const key in seance.pricing) {
-    const match = key.match(/^P(\d+)-(\d+)$/);
-    if (!match) continue;
+      // 1. override (приоритет)
+      if (seance.seat_overrides?.[seatKey]) {
+        const o = seance.seat_overrides[seatKey];
+        return {
+          price: o.price || 0
+        };
+      }
 
-    const from = Number(match[1]);
-    const to   = Number(match[2]);
+      // 2. правила pricing
+      for (const key in seance.pricing) {
+        const match = key.match(/^P(\d+)-(\d+)$/);
+        if (!match) continue;
 
-    if (row >= from && row <= to) {
+        const from = Number(match[1]);
+        const to   = Number(match[2]);
+
+        if (row >= from && row <= to) {
+          return {
+            price: seance.pricing[key].price
+          };
+        }
+      }
+
+      // 3. fallback
       return {
-        price: seance.pricing[key].price
+        price: 0
       };
-    }
-  }
-
-  // fallback
-  return {
-    price: 0
-  };
-},
-
-  return {
-  price: 0
-};
-},
+    },
 
     onSelect: (seats) => {
       console.log('selected:', seats);
     }
+
   }
 );
 </script>
+
 </body>
 </html>
