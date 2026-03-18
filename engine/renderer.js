@@ -41,7 +41,14 @@ export function renderHall(container, hallConfig, state = {}, options = {}) {
       btn.className = 'seat';
       btn.dataset.seatId = seatId;
       btn.textContent = s;
+if (meta?.color) {
+  btn.style.background = meta.color;
+}
 
+if (meta?.disabled) {
+  btn.disabled = true;
+  btn.style.opacity = 0.4;
+}
       const st = state[seatId];
 
       if (st === 'taken') {
