@@ -14,34 +14,40 @@
 <script type="module">
 import { renderHall } from './engine/renderer.js';
 
+//
+// 1. Загружаем зал
+//
 const hall = await fetch('./data/hall/academy.json')
   .then(r => r.json());
 
+//
+// 2. Статусы (занятые места)
+//
 const state = {
   "P1-M1": "taken",
   "P2-M10": "taken",
   "P5-M7": "taken"
 };
 
+//
+// 3. Загружаем seance (из editor / Supabase)
+//
 const seance = await fetch('./data/seances/test-seance.json')
   .then(r => r.json());
 
+//
+// 4. 🔥 АДАПТЕР (editor → engine)
+//
 function convertSeance(seance) {
   const prices = [];
 
   if (!seance.pricing) return { prices: [] };
 
   for (const key in seance.pricing) {
-
     const rule = seance.pricing[key];
 
-    // 🔥 ПАРСИМ P1-3
     const match = key.match(/^P(\d+)-(\d+)$/);
-
-    if (!match) {
-      console.warn('BAD KEY:', key);
-      continue;
-    }
+    if (!match) continue;
 
     const fromRow = Number(match[1]);
     const toRow   = Number(match[2]);
@@ -58,38 +64,64 @@ function convertSeance(seance) {
     }
   }
 
-  console.log('ADAPTER RESULT:', prices); // 👈 ВАЖНО
-
-  return { prices };
+  return {
+    prices,
+    seat_overrides: seance.seat_overrides || {}
+  };
 }
-  
+
+//
+// 5. Создаём engine-данные
+//
+const seanceEngine = convertSeance(seance);
+
+console.log('ENGINE DATA:', seanceEngine);
+
+//
+// 6. Рендер зала
+//
 renderHall(
   document.getElementById('hall'),
   hall,
   state,
   {
 
+    // 🔥 ЦЕНЫ + ЦВЕТА + DISABLED
     getSeatMeta: ({ row, seat }) => {
 
-  const rule = seanceEngine.prices.find(p =>
-    (p.row === row || p.row === "*") &&
-    seat >= p.from &&
-    seat <= p.to
-  );
+      const seatKey = `P${row}-M${seat}`;
 
-  return {
-    price: rule ? rule.price : 0,
-    disabled: rule?.sale === false,
-    color: rule?.color || null
-  };
-},
+      // override (приоритет)
+      if (seanceEngine.seat_overrides?.[seatKey]) {
+        const o = seanceEngine.seat_overrides[seatKey];
+        return {
+          price: o.price || 0,
+          color: o.color,
+          disabled: o.sale === false
+        };
+      }
+
+      // правила
+      const rule = seanceEngine.prices.find(p =>
+        p.row === row &&
+        seat >= p.from &&
+        seat <= p.to
+      );
+
+      return {
+        price: rule ? rule.price : 0,
+        color: rule?.color,
+        disabled: rule?.sale === false
+      };
+    },
 
     onSelect: (seats) => {
-      console.log('selected:', seats); 
+      console.log('selected:', seats);
     }
 
   }
 );
+
 </script>
 
 </body>
