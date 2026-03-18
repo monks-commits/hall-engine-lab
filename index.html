@@ -29,20 +29,28 @@ const seance = await fetch('./data/seances/test-seance.json')
 function convertSeance(seance) {
   const prices = [];
 
+  if (!seance.pricing) return { prices: [] };
+
   for (const key in seance.pricing) {
+
+    const rule = seance.pricing[key];
+
+    // 🔥 ПАРСИМ P1-3
     const match = key.match(/^P(\d+)-(\d+)$/);
-    if (!match) continue;
+
+    if (!match) {
+      console.warn('BAD KEY:', key);
+      continue;
+    }
 
     const fromRow = Number(match[1]);
     const toRow   = Number(match[2]);
-
-    const rule = seance.pricing[key];
 
     for (let r = fromRow; r <= toRow; r++) {
       prices.push({
         row: r,
         from: 1,
-        to: 100, // пока весь ряд
+        to: 100,
         price: rule.price,
         color: rule.color,
         sale: rule.sale
@@ -50,13 +58,10 @@ function convertSeance(seance) {
     }
   }
 
-  return {
-    prices,
-    seat_overrides: seance.seat_overrides || {}
-  };
-}
+  console.log('ADAPTER RESULT:', prices); // 👈 ВАЖНО
 
-const seanceEngine = convertSeance(seance);
+  return { prices };
+}
   
 renderHall(
   document.getElementById('hall'),
