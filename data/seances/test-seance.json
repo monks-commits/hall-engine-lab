@@ -2,7 +2,19 @@
   "seance_id": "test1",
   "hall_id": "academy_main",
   "prices": [
-    { "row": 1, "from": 1, "to": 30, "price": 220 },
-    { "row": "*", "from": 1, "to": 30, "price": 120 }
+    {
+      "row": 1,
+      "from": 1,
+      "to": 30,
+      "price": 220,
+      "color": "#ef4444"
+    },
+    {
+      "row": "*",
+      "from": 1,
+      "to": 30,
+      "price": 120,
+      "color": "#22c55e"
+    }
   ]
 }
