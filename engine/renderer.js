@@ -41,14 +41,29 @@ export function renderHall(container, hallConfig, state = {}, options = {}) {
       btn.className = 'seat';
       btn.dataset.seatId = seatId;
       btn.textContent = s;
-if (meta?.color) {
-  btn.style.background = meta.color;
-}
 
-if (meta?.disabled) {
-  btn.disabled = true;
-  btn.style.opacity = 0.4;
-}
+      // 🔥 META (ОДИН РАЗ, ПРАВИЛЬНО)
+      const meta = options.getSeatMeta
+        ? options.getSeatMeta({ row: rowNum, seat: s }) || {}
+        : {};
+
+      // tooltip (цена)
+      if (meta.price) {
+        btn.title = `Ряд ${rowNum}, місце ${s} — ${meta.price} грн`;
+      }
+
+      // цвет
+      if (meta.color) {
+        btn.style.background = meta.color;
+      }
+
+      // disabled из seance
+      if (meta.disabled) {
+        btn.disabled = true;
+        btn.style.opacity = 0.4;
+      }
+
+      // state (занято)
       const st = state[seatId];
 
       if (st === 'taken') {
@@ -58,21 +73,9 @@ if (meta?.disabled) {
         btn.classList.add('free');
       }
 
-      // 🔥 внешняя логика (цены, запреты и т.д.)
-      if (options.getSeatMeta) {
-        const meta = options.getSeatMeta({ row: rowNum, seat: s }) || {};
-
-        if (meta.price) {
-          btn.title = `Ряд ${rowNum}, місце ${s} — ${meta.price} грн`;
-        }
-
-        if (meta.disabled) {
-          btn.disabled = true;
-        }
-
-        if (meta.className) {
-          btn.classList.add(meta.className);
-        }
+      // дополнительные классы
+      if (meta.className) {
+        btn.classList.add(meta.className);
       }
 
       // click
