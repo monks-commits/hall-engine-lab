@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>VA Hall Builder</title>
+
+<style>
+  body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#f3f4f6;
+    color:#111827;
+  }
+
+  .layout{
+    display:grid;
+    grid-template-columns:320px 1fr;
+    height:100vh;
+  }
+
+  .sidebar{
+    background:#fff;
+    border-right:1px solid #d1d5db;
+    padding:16px;
+    overflow:auto;
+  }
+
+  .sidebar h1{
+    margin:0 0 16px;
+    font-size:22px;
+  }
+
+  .field{
+    margin-bottom:14px;
+  }
+
+  .field label{
+    display:block;
+    font-size:13px;
+    margin-bottom:6px;
+    color:#4b5563;
+  }
+
+  .field input,
+  .field select,
+  .field textarea{
+    width:100%;
+    box-sizing:border-box;
+    padding:10px;
+    border:1px solid #d1d5db;
+    border-radius:8px;
+    font-size:14px;
+  }
+
+  .field textarea{
+    min-height:180px;
+    font-family:monospace;
+  }
+
+  .btn{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    background:#111827;
+    color:#fff;
+    font-weight:700;
+    cursor:pointer;
+    margin-bottom:10px;
+  }
+
+  .btn:hover{
+    opacity:.92;
+  }
+
+  .canvas-wrap{
+    position:relative;
+    overflow:auto;
+    background:#e5e7eb;
+  }
+
+  #canvas{
+    position:relative;
+    margin:0 auto;
+    transform-origin:top left;
+  }
+
+  #hall-image{
+    display:block;
+    user-select:none;
+    pointer-events:none;
+  }
+
+  .seat-dot{
+    position:absolute;
+    width:18px;
+    height:18px;
+    border-radius:50%;
+    background:#dc2626;
+    border:2px solid #fff;
+    transform:translate(-50%,-50%);
+    cursor:pointer;
+    box-shadow:0 2px 8px rgba(0,0,0,.2);
+  }
+
+  .seat-label{
+    position:absolute;
+    transform:translate(-50%, -160%);
+    font-size:10px;
+    font-weight:700;
+    background:#fff;
+    padding:1px 4px;
+    border-radius:4px;
+    border:1px solid #d1d5db;
+    pointer-events:none;
+  }
+
+  .topbar{
+    position:sticky;
+    top:0;
+    background:#fff;
+    border-bottom:1px solid #d1d5db;
+    padding:10px;
+    z-index:10;
+  }
+
+  .counter{
+    font-size:14px;
+    color:#374151;
+    margin-top:6px;
+  }
+</style>
+</head>
+
+<body>
+
+<div class="layout">
+
+  <aside class="sidebar">
+
+    <h1>Hall Builder</h1>
+
+    <div class="field">
+      <label>Завантажити схему</label>
+      <input type="file" id="imageLoader" accept="image/*">
+    </div>
+
+    <div class="field">
+      <label>Zone</label>
+      <input type="text" id="zone" value="Партер">
+    </div>
+
+    <div class="field">
+      <label>Prefix</label>
+      <input type="text" id="prefix" value="P">
+    </div>
+
+    <div class="field">
+      <label>Ряд</label>
+      <input type="number" id="row" value="1">
+    </div>
+
+    <div class="field">
+      <label>Место</label>
+      <input type="number" id="seat" value="1">
+    </div>
+
+    <button class="btn" id="exportBtn">
+      EXPORT JSON
+    </button>
+
+    <button class="btn" id="clearBtn">
+      CLEAR ALL
+    </button>
+
+    <div class="counter" id="counter">
+      Мест: 0
+    </div>
+
+    <div class="field">
+      <label>JSON</label>
+      <textarea id="jsonOutput"></textarea>
+    </div>
+
+  </aside>
+
+  <main class="canvas-wrap">
+
+    <div class="topbar">
+      Клик по схеме = добавить место
+    </div>
+
+    <div id="canvas">
+
+      <img id="hall-image">
+
+    </div>
+
+  </main>
+
+</div>
+
+<script>
+
+const imageLoader = document.getElementById("imageLoader");
+const hallImage   = document.getElementById("hall-image");
+const canvas      = document.getElementById("canvas");
+
+const rowInput    = document.getElementById("row");
+const seatInput   = document.getElementById("seat");
+const zoneInput   = document.getElementById("zone");
+const prefixInput = document.getElementById("prefix");
+
+const jsonOutput  = document.getElementById("jsonOutput");
+const counter     = document.getElementById("counter");
+
+const exportBtn   = document.getElementById("exportBtn");
+const clearBtn    = document.getElementById("clearBtn");
+
+let seats = [];
+
+imageLoader.addEventListener("change", e => {
+
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = ev => {
+
+    hallImage.src = ev.target.result;
+
+    hallImage.onload = () => {
+
+      canvas.style.width  = hallImage.width + "px";
+      canvas.style.height = hallImage.height + "px";
+
+    };
+  };
+
+  reader.readAsDataURL(file);
+});
+
+canvas.addEventListener("click", e => {
+
+  if (!hallImage.src) return;
+
+  if (e.target.classList.contains("seat-dot")) return;
+
+  const rect = canvas.getBoundingClientRect();
+
+  const x = Math.round(e.clientX - rect.left);
+  const y = Math.round(e.clientY - rect.top);
+
+  const row  = Number(rowInput.value);
+  const seat = Number(seatInput.value);
+
+  const zone   = zoneInput.value.trim();
+  const prefix = prefixInput.value.trim();
+
+  const item = {
+    zone,
+    prefix,
+    row,
+    seat,
+    x,
+    y
+  };
+
+  seats.push(item);
+
+  renderSeat(item);
+
+  seatInput.value = seat + 1;
+
+  updateCounter();
+
+});
+
+function renderSeat(item){
+
+  const dot = document.createElement("div");
+  dot.className = "seat-dot";
+
+  dot.style.left = item.x + "px";
+  dot.style.top  = item.y + "px";
+
+  dot.dataset.row  = item.row;
+  dot.dataset.seat = item.seat;
+
+  const label = document.createElement("div");
+  label.className = "seat-label";
+
+  label.style.left = item.x + "px";
+  label.style.top  = item.y + "px";
+
+  label.textContent = item.row + "/" + item.seat;
+
+  dot.addEventListener("click", ev => {
+
+    ev.stopPropagation();
+
+    seats = seats.filter(s =>
+      !(
+        s.x === item.x &&
+        s.y === item.y &&
+        s.row === item.row &&
+        s.seat === item.seat
+      )
+    );
+
+    dot.remove();
+    label.remove();
+
+    updateCounter();
+  });
+
+  canvas.appendChild(dot);
+  canvas.appendChild(label);
+}
+
+function updateCounter(){
+
+  counter.textContent = "Мест: " + seats.length;
+}
+
+exportBtn.addEventListener("click", () => {
+
+  const result = {
+    version:1,
+    generated:true,
+    seats
+  };
+
+  jsonOutput.value = JSON.stringify(result, null, 2);
+});
+
+clearBtn.addEventListener("click", () => {
+
+  seats = [];
+
+  document
+    .querySelectorAll(".seat-dot,.seat-label")
+    .forEach(el => el.remove());
+
+  updateCounter();
+
+  jsonOutput.value = "";
+});
+
+</script>
+
+</body>
+</html>
