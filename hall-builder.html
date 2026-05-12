@@ -221,6 +221,7 @@ const jsonOutput  = document.getElementById("jsonOutput");
 const counter     = document.getElementById("counter");
 
 const exportBtn   = document.getElementById("exportBtn");
+const importBtn = document.getElementById("importBtn");  
 const clearBtn    = document.getElementById("clearBtn");
 
 let seats = [];
@@ -343,6 +344,29 @@ exportBtn.addEventListener("click", () => {
   jsonOutput.value = JSON.stringify(result, null, 2);
 });
 
+importBtn.addEventListener("click", () => {
+  try {
+    const data = JSON.parse(jsonOutput.value);
+
+    seats = Array.isArray(data?.seats)
+      ? data.seats
+      : Array.isArray(data)
+        ? data
+        : [];
+
+    document
+      .querySelectorAll(".seat-dot,.seat-label")
+      .forEach(el => el.remove());
+
+    seats.forEach(renderSeat);
+    updateCounter();
+
+  } catch (e) {
+    alert("JSON не прочитался");
+    console.error(e);
+  }
+});
+  
 clearBtn.addEventListener("click", () => {
   seats = [];
 
