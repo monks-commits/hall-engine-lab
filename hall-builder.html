@@ -327,19 +327,19 @@ function updateCounter(){
 }
 
 exportBtn.addEventListener("click", () => {
-
   const result = {
     version: 1,
     generated: true,
     title: "Оперний театр",
     width: hallImage.naturalWidth || hallImage.width || 1200,
-    height: hallImage.naturalHeight || hallImage.height || 900, 
+    height: hallImage.naturalHeight || hallImage.height || 900,
     seats
   };
 
   jsonOutput.value = JSON.stringify(result, null, 2);
 });
 
+clearBtn.addEventListener("click", () => {
   seats = [];
 
   document
@@ -347,10 +347,8 @@ exportBtn.addEventListener("click", () => {
     .forEach(el => el.remove());
 
   updateCounter();
-
   jsonOutput.value = "";
 });
-
 </script>
 
 </body>
