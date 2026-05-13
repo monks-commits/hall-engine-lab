@@ -720,7 +720,8 @@ function clearRendered(){
 }
 
 function updateCounter(){
-  counter.innerHTML = `Мест: ${seats.length}<br>Decor: ${decor.length}`;
+  counter.innerHTML =
+  `Мест: ${seats.length}<br>Decor: ${decor.length}<br>Selected: ${selectedSeats.size}`;
 }
 
 exportBtn.addEventListener("click", () => {
