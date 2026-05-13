@@ -3,21 +3,20 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>VA Hall Studio V2 — Working Build</title>
+<title>VA Hall Studio SIMPLE — Align Build</title>
 
 <style>
 :root{
   --bg:#f3f4f6;
-  --panel:#fff;
+  --panel:#ffffff;
   --line:#d1d5db;
   --text:#111827;
   --muted:#6b7280;
   --blue:#2563eb;
   --red:#dc2626;
-  --orange:#f97316;
   --green:#16a34a;
+  --orange:#f97316;
   --purple:#7c3aed;
-  --gray:#6b7280;
 }
 
 *{box-sizing:border-box}
@@ -31,7 +30,7 @@ body{
 
 .layout{
   display:grid;
-  grid-template-columns:340px 1fr 340px;
+  grid-template-columns:330px 1fr 330px;
   height:100vh;
 }
 
@@ -47,7 +46,7 @@ body{
 
 h1{
   margin:0 0 12px;
-  font-size:22px;
+  font-size:21px;
 }
 
 h2{
@@ -79,7 +78,7 @@ h2{
 }
 
 .field textarea{
-  min-height:260px;
+  min-height:300px;
   font-family:Consolas,monospace;
   font-size:12px;
 }
@@ -109,12 +108,11 @@ h2{
 }
 
 .btn:hover{opacity:.92}
-
-.blue{background:var(--blue)}
-.red{background:var(--red)}
-.green{background:var(--green)}
-.orange{background:var(--orange)}
-.purple{background:var(--purple)}
+.btn.blue{background:var(--blue)}
+.btn.green{background:var(--green)}
+.btn.orange{background:var(--orange)}
+.btn.red{background:var(--red)}
+.btn.purple{background:var(--purple)}
 
 .canvas-wrap{
   position:relative;
@@ -125,124 +123,83 @@ h2{
 .topbar{
   position:sticky;
   top:0;
-  z-index:100;
+  z-index:50;
   background:#fff;
   border-bottom:1px solid var(--line);
   padding:10px 12px;
   display:flex;
+  gap:14px;
   justify-content:space-between;
-  gap:12px;
   font-size:14px;
 }
 
-.hint{
-  color:var(--muted);
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
+#zoomHost{
+  transform-origin:top left;
+  width:max-content;
+  height:max-content;
+  margin:30px auto;
 }
 
 #canvas{
   position:relative;
-  margin:30px auto;
-  background-color:#fff;
+  background:#fff;
   background-repeat:no-repeat;
-  background-position:0 0;
-  background-size:100% 100%;
-  box-shadow:0 10px 30px rgba(0,0,0,.13);
-  touch-action:none;
-  user-select:none;
+  box-shadow:0 10px 30px rgba(0,0,0,.15);
   overflow:hidden;
+  user-select:none;
+  cursor:crosshair;
 }
 
 .grid{
   position:absolute;
   inset:0;
-  pointer-events:none;
-  z-index:2;
   display:none;
+  pointer-events:none;
   background-image:
     linear-gradient(to right,rgba(37,99,235,.15) 1px,transparent 1px),
     linear-gradient(to bottom,rgba(37,99,235,.15) 1px,transparent 1px);
-  background-size:20px 20px;
+  z-index:1;
 }
 
 .select-box{
   position:absolute;
   border:2px dashed var(--blue);
   background:rgba(37,99,235,.12);
-  z-index:90;
   pointer-events:none;
+  z-index:50;
 }
 
 .seat-dot{
   position:absolute;
-  width:18px;
-  height:18px;
   border-radius:50%;
-  background:var(--red);
-  border:2px solid #fff;
+  background:#dc2626;
+  border:2px solid #ffffff;
   transform:translate(-50%,-50%);
+  box-shadow:0 2px 8px rgba(0,0,0,.25);
   cursor:pointer;
-  box-shadow:0 2px 8px rgba(0,0,0,.22);
-  z-index:20;
+  z-index:10;
 }
 
 .seat-dot.selected{
-  background:var(--blue)!important;
-  box-shadow:0 0 0 4px rgba(37,99,235,.22),0 2px 8px rgba(0,0,0,.22);
+  background:#2563eb!important;
+  box-shadow:0 0 0 4px rgba(37,99,235,.25),0 2px 8px rgba(0,0,0,.25);
+  z-index:20;
 }
-
-.seat-dot.sold{background:var(--gray)!important}
-.seat-dot.hold{background:var(--orange)!important}
-.seat-dot.reserved{background:#991b1b!important}
 
 .seat-label{
   position:absolute;
   transform:translate(-50%,-160%);
-  font-size:10px;
-  font-weight:900;
   background:#fff;
-  border:1px solid var(--line);
+  border:1px solid #d1d5db;
   border-radius:4px;
   padding:1px 4px;
+  font-weight:900;
   pointer-events:none;
-  z-index:21;
-}
-
-.decor-label,
-.decor-stage,
-.decor-path{
-  position:absolute;
-  z-index:10;
-  cursor:pointer;
-}
-
-.decor-label{
-  transform:translate(-50%,-50%);
-  font-size:40px;
-  font-weight:900;
-  white-space:nowrap;
-}
-
-.decor-stage{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:#7f1d1d;
-  color:#fff;
-  border-radius:999px;
-  font-weight:900;
-  letter-spacing:.08em;
-}
-
-.selected-decor{
-  outline:3px solid rgba(37,99,235,.45);
+  z-index:11;
 }
 
 .counter,
-.log,
-.preview{
+.log{
   font-size:13px;
   line-height:1.45;
   color:#374151;
@@ -255,32 +212,15 @@ h2{
 
 .log{
   white-space:pre-wrap;
-  min-height:120px;
+  min-height:100px;
   font-family:Consolas,monospace;
   font-size:12px;
-}
-
-.mini{
-  position:fixed;
-  right:355px;
-  bottom:18px;
-  width:180px;
-  height:130px;
-  background:#fff;
-  border:1px solid var(--line);
-  box-shadow:0 8px 20px rgba(0,0,0,.15);
-  z-index:120;
-}
-
-.mini canvas{
-  width:100%;
-  height:100%;
 }
 
 .note{
   font-size:12px;
   color:var(--muted);
-  line-height:1.4;
+  line-height:1.45;
 }
 </style>
 </head>
@@ -289,28 +229,53 @@ h2{
 <div class="layout">
 
   <aside class="sidebar">
-    <h1>VA Hall Studio V2</h1>
+    <h1>VA Hall Studio SIMPLE</h1>
+
+    <div class="note">
+      Ручной рабочий режим: загрузили схему, накликали точки, выделили ряд, выровняли, распределили, экспортировали JSON.
+    </div>
+
+    <h2>1. Фон / Canvas</h2>
 
     <div class="field">
-      <label>Завантажити фон / схему залу</label>
-      <input type="file" id="imageLoader" accept="image/png,image/jpeg,image/webp,image/*">
+      <label>Загрузить схему зала</label>
+      <input type="file" id="imageLoader" accept="image/*">
     </div>
 
     <div class="row2">
       <div class="field">
         <label>Canvas W</label>
-        <input type="number" id="canvasW" value="1200">
+        <input type="number" id="canvasW" value="1600">
       </div>
       <div class="field">
         <label>Canvas H</label>
-        <input type="number" id="canvasH" value="900">
+        <input type="number" id="canvasH" value="1000">
       </div>
     </div>
 
-    <button class="btn" id="applyCanvasBtn">APPLY CANVAS SIZE</button>
-    <button class="btn red" id="clearBgBtn">CLEAR BACKGROUND</button>
+    <button class="btn blue" id="applyCanvasBtn">ПРИМЕНИТЬ РАЗМЕР ХОЛСТА</button>
 
-    <h2>Seat Data</h2>
+    <div class="field">
+      <label>Background Mode</label>
+      <select id="bgMode">
+        <option value="contain">Вписать без искажений</option>
+        <option value="stretch">Растянуть под холст</option>
+        <option value="original">Оригинальный размер</option>
+      </select>
+    </div>
+
+    <button class="btn" id="applyBgBtn">ПРИМЕНИТЬ РЕЖИМ ФОНА</button>
+
+    <h2>2. Масштаб</h2>
+
+    <div class="field">
+      <label>Zoom</label>
+      <input type="range" id="zoom" min="25" max="300" value="100">
+    </div>
+
+    <div class="counter" id="zoomLabel">Zoom: 100%</div>
+
+    <h2>3. Данные места</h2>
 
     <div class="field">
       <label>Zone</label>
@@ -339,91 +304,32 @@ h2{
       </div>
       <div class="field">
         <label>Color</label>
-        <input id="seatColor" value="#dc2626">
+        <input id="color" value="#dc2626">
+      </div>
+    </div>
+
+    <h2>4. Вид точек</h2>
+
+    <div class="row2">
+      <div class="field">
+        <label>Seat Size</label>
+        <input type="number" id="seatSize" value="10">
+      </div>
+      <div class="field">
+        <label>Label Size</label>
+        <input type="number" id="labelSize" value="8">
       </div>
     </div>
 
     <div class="field">
-      <label>Mode</label>
-      <select id="mode">
-        <option value="seat">Seat</option>
-        <option value="row">Row</option>
-        <option value="arc">Arc</option>
-        <option value="label">Label</option>
-        <option value="stage">Stage</option>
-        <option value="path">Path</option>
-        <option value="select">Select</option>
-        <option value="move">Move</option>
+      <label>Show Labels</label>
+      <select id="showLabels">
+        <option value="1">Да</option>
+        <option value="0">Нет</option>
       </select>
     </div>
 
-    <h2>Row / Arc</h2>
-
-    <div class="row2">
-      <div class="field">
-        <label>Seats In Row</label>
-        <input type="number" id="rowCount" value="20">
-      </div>
-      <div class="field">
-        <label>Seat Step</label>
-        <input type="number" id="seatStep" value="36">
-      </div>
-    </div>
-
-    <div class="row2">
-      <div class="field">
-        <label>Aisle After Every</label>
-        <input type="number" id="aisleEvery" value="10">
-      </div>
-      <div class="field">
-        <label>Aisle Size px</label>
-        <input type="number" id="aisleSize" value="80">
-      </div>
-    </div>
-
-    <div class="row2">
-      <div class="field">
-        <label>Direction</label>
-        <select id="direction">
-          <option value="right">Right →</option>
-          <option value="left">Left ←</option>
-          <option value="center">From Center</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Arc Radius</label>
-        <input type="number" id="arcRadius" value="220">
-      </div>
-    </div>
-
-    <div class="field">
-      <label>Arc Angle</label>
-      <input type="number" id="arcAngle" value="120">
-    </div>
-
-    <h2>Decor</h2>
-
-    <div class="field">
-      <label>Decor Text</label>
-      <input id="decorText" value="ПАРТЕР">
-    </div>
-
-    <div class="row3">
-      <div class="field">
-        <label>Rotate</label>
-        <input type="number" id="decorRotate" value="0">
-      </div>
-      <div class="field">
-        <label>Stage W</label>
-        <input type="number" id="stageW" value="420">
-      </div>
-      <div class="field">
-        <label>Stage H</label>
-        <input type="number" id="stageH" value="70">
-      </div>
-    </div>
-
-    <h2>Grid</h2>
+    <h2>5. Сетка</h2>
 
     <div class="row2">
       <div class="field">
@@ -439,78 +345,55 @@ h2{
       </div>
     </div>
 
-    <button class="btn blue" id="gridBtn">TOGGLE GRID</button>
+    <button class="btn" id="gridBtn">СЕТКА ВКЛ / ВЫКЛ</button>
 
-    <h2>Actions</h2>
+    <h2>6. Редактирование</h2>
 
-    <button class="btn blue" id="moveBtn">MOVE SELECTED MODE</button>
-    <button class="btn green" id="copyBtn">COPY SELECTED</button>
-    <button class="btn green" id="pasteBtn">PASTE</button>
-    <button class="btn purple" id="mirrorBtn">MIRROR SELECTED</button>
-    <button class="btn orange" id="numberBtn">AUTO NUMBER SELECTED</button>
-    <button class="btn red" id="deleteBtn">DELETE SELECTED</button>
-    <button class="btn" id="undoBtn">UNDO</button>
-    <button class="btn red" id="clearBtn">CLEAR ALL</button>
+    <button class="btn orange" id="undoBtn">ОТМЕНИТЬ</button>
+    <button class="btn red" id="deleteBtn">УДАЛИТЬ ВЫДЕЛЕННОЕ</button>
+    <button class="btn red" id="clearBtn">ОЧИСТИТЬ ВСЁ</button>
 
     <div class="counter" id="counter"></div>
   </aside>
 
   <main class="canvas-wrap" id="canvasWrap">
     <div class="topbar">
-      <b id="modeTitle">Mode: Seat</b>
-      <span class="hint" id="hint">Клик по пустому месту = добавить место</span>
+      <b>Manual Mapper + Align</b>
+      <span>Клик = место. Shift+клик = добавить/убрать из выделения. Рамка = выделить группу. Alt+drag = двигать выделенное.</span>
     </div>
 
-    <div id="canvas">
-      <div class="grid" id="grid"></div>
+    <div id="zoomHost">
+      <div id="canvas">
+        <div class="grid" id="grid"></div>
+      </div>
     </div>
   </main>
 
   <aside class="rightbar">
+    <h2>Align / Distribute</h2>
+
+    <button class="btn blue" id="alignHBtn">ВЫРОВНЯТЬ ПО ГОРИЗОНТАЛИ</button>
+    <button class="btn blue" id="alignVBtn">ВЫРОВНЯТЬ ПО ВЕРТИКАЛИ</button>
+    <button class="btn purple" id="distHBtn">РАСПРЕДЕЛИТЬ ПО ГОРИЗОНТАЛИ</button>
+    <button class="btn purple" id="distVBtn">РАСПРЕДЕЛИТЬ ПО ВЕРТИКАЛИ</button>
+    <button class="btn green" id="autoNumberBtn">АВТО НУМЕРАЦИЯ</button>
+
+    <h2>Selection</h2>
+
+    <button class="btn" id="selectAllBtn">ВЫДЕЛИТЬ ВСЁ</button>
+    <button class="btn" id="clearSelectionBtn">СНЯТЬ ВЫДЕЛЕНИЕ</button>
+
     <h2>Export / Import</h2>
 
-    <button class="btn" id="exportBtn">EXPORT JSON</button>
-    <button class="btn" id="importBtn">IMPORT JSON</button>
-    <button class="btn green" id="cleanBtn">JSON CLEANER</button>
-    <button class="btn orange" id="validateBtn">HALL VALIDATOR</button>
-    <button class="btn purple" id="previewBtn">CASH PREVIEW</button>
+    <button class="btn green" id="exportBtn">ЭКСПОРТ JSON</button>
+    <button class="btn" id="importBtn">ИМПОРТ JSON</button>
+    <button class="btn orange" id="cleanBtn">ОЧИСТИТЬ / СОРТИРОВАТЬ</button>
+    <button class="btn" id="validateBtn">ПРОВЕРИТЬ</button>
 
     <div class="field">
       <label>JSON</label>
       <textarea id="jsonOutput"></textarea>
     </div>
-
-    <h2>Hybrid Test</h2>
-
-    <div class="row3">
-      <button class="btn orange" id="holdBtn">HOLD</button>
-      <button class="btn" id="soldBtn">SOLD</button>
-      <button class="btn red" id="reservedBtn">RESERVED</button>
-    </div>
-
-    <button class="btn green" id="statusClearBtn">CLEAR STATUS</button>
-
-    <h2>Image Trace</h2>
-
-    <div class="note">
-      Черновой режим: работает по контрастным тёмным точкам на чистой схеме.
-    </div>
-
-    <div class="row2">
-      <div class="field">
-        <label>Trace Step</label>
-        <input type="number" id="traceStep" value="14">
-      </div>
-      <div class="field">
-        <label>Threshold</label>
-        <input type="number" id="traceThreshold" value="80">
-      </div>
-    </div>
-
-    <button class="btn purple" id="traceBtn">RUN IMAGE TRACE</button>
-
-    <h2>Preview</h2>
-    <div class="preview" id="preview"></div>
 
     <h2>Log</h2>
     <div class="log" id="log"></div>
@@ -518,54 +401,46 @@ h2{
 
 </div>
 
-<div class="mini">
-  <canvas id="miniCanvas" width="180" height="130"></canvas>
-</div>
-
 <script>
 "use strict";
 
 const $ = id => document.getElementById(id);
 
-const imageLoader = $("imageLoader");
 const canvas = $("canvas");
+const zoomHost = $("zoomHost");
 const grid = $("grid");
-
-const mode = $("mode");
-const modeTitle = $("modeTitle");
-const hint = $("hint");
-
+const imageLoader = $("imageLoader");
 const counter = $("counter");
 const logBox = $("log");
-const preview = $("preview");
 const jsonOutput = $("jsonOutput");
-const miniCanvas = $("miniCanvas");
+const zoomLabel = $("zoomLabel");
 
 let seats = [];
-let decor = [];
-let paths = [];
 let selected = new Set();
 let history = [];
-let clipboard = [];
 let idn = 1;
+let bgDataUrl = "";
+let bgNaturalW = 0;
+let bgNaturalH = 0;
+let gridShown = false;
 
-let drag = null;
 let selectBox = null;
 let selectStart = null;
-let pathDraft = [];
-let gridShown = false;
-let backgroundDataUrl = "";
-let backgroundImage = null;
+let drag = null;
+let suppressClick = false;
 
-function uid(p){
-  return p + "_" + Date.now() + "_" + (idn++);
+function uid(){
+  return "seat_" + Date.now() + "_" + (idn++);
 }
 
-function n(id, fb = 0){
+function log(msg){
+  logBox.textContent = msg || "";
+}
+
+function n(id, fallback = 0){
   const el = $(id);
-  if (!el) return fb;
-  const v = parseFloat(el.value);
-  return Number.isFinite(v) ? v : fb;
+  const v = parseFloat(el ? el.value : "");
+  return Number.isFinite(v) ? v : fallback;
 }
 
 function val(id){
@@ -574,20 +449,20 @@ function val(id){
 }
 
 function save(){
-  history.push(JSON.stringify({ seats, decor, paths, backgroundDataUrl }));
-  if (history.length > 80) history.shift();
-}
-
-function log(t){
-  logBox.textContent = t || "";
+  history.push(JSON.stringify({ seats }));
+  if (history.length > 100) history.shift();
 }
 
 function cw(){
-  return parseInt(canvas.style.width, 10) || 1200;
+  return parseInt(canvas.style.width, 10) || 1600;
 }
 
 function ch(){
-  return parseInt(canvas.style.height, 10) || 900;
+  return parseInt(canvas.style.height, 10) || 1000;
+}
+
+function zoomValue(){
+  return Math.max(25, Math.min(300, n("zoom", 100))) / 100;
 }
 
 function snap(v){
@@ -597,10 +472,12 @@ function snap(v){
 }
 
 function point(e){
-  const r = canvas.getBoundingClientRect();
+  const rect = canvas.getBoundingClientRect();
+  const z = zoomValue();
+
   return {
-    x: snap(e.clientX - r.left),
-    y: snap(e.clientY - r.top)
+    x: snap((e.clientX - rect.left) / z),
+    y: snap((e.clientY - rect.top) / z)
   };
 }
 
@@ -608,241 +485,166 @@ function seatKey(s){
   return `${s.prefix || ""}${s.row}-M${s.seat}`;
 }
 
-function all(){
-  return [...seats, ...decor, ...paths];
-}
-
-function selSeats(){
+function selectedSeats(){
   return seats.filter(s => selected.has(s.id));
 }
 
-function applyCanvas(){
-  canvas.style.width = n("canvasW", 1200) + "px";
-  canvas.style.height = n("canvasH", 900) + "px";
-  grid.style.backgroundSize = n("gridSize", 20) + "px " + n("gridSize", 20) + "px";
-  drawMini();
+function seatById(id){
+  return seats.find(s => s.id === id);
 }
 
-$("applyCanvasBtn").onclick = applyCanvas;
-applyCanvas();
+function applyCanvas(){
+  const w = Math.max(100, n("canvasW", 1600));
+  const h = Math.max(100, n("canvasH", 1000));
 
-$("clearBgBtn").onclick = () => {
-  backgroundDataUrl = "";
-  backgroundImage = null;
-  canvas.style.backgroundImage = "";
-  log("BACKGROUND CLEARED");
-  drawMini();
-};
+  canvas.style.width = w + "px";
+  canvas.style.height = h + "px";
 
-imageLoader.addEventListener("change", e => {
-  const f = e.target.files && e.target.files[0];
+  applyBackgroundMode();
 
-  if (!f) {
-    log("Файл не выбран.");
+  log("CANVAS APPLIED: " + w + "x" + h);
+}
+
+function applyBackgroundMode(){
+  const mode = $("bgMode").value;
+
+  if (!bgDataUrl) {
+    canvas.style.backgroundImage = "";
     return;
   }
 
-  const r = new FileReader();
+  canvas.style.backgroundImage = `url("${bgDataUrl}")`;
+  canvas.style.backgroundRepeat = "no-repeat";
 
-  r.onerror = () => {
-    log("Ошибка чтения файла.");
-  };
+  if (mode === "stretch") {
+    canvas.style.backgroundSize = "100% 100%";
+    canvas.style.backgroundPosition = "0 0";
+  }
 
-  r.onload = ev => {
-    backgroundDataUrl = ev.target.result;
+  if (mode === "contain") {
+    canvas.style.backgroundSize = "contain";
+    canvas.style.backgroundPosition = "center top";
+  }
+
+  if (mode === "original") {
+    canvas.style.backgroundSize = bgNaturalW + "px " + bgNaturalH + "px";
+    canvas.style.backgroundPosition = "0 0";
+  }
+}
+
+function applyZoom(){
+  const z = Math.round(zoomValue() * 100);
+  zoomHost.style.transform = `scale(${z / 100})`;
+  zoomHost.style.transformOrigin = "top left";
+  zoomLabel.textContent = "Zoom: " + z + "%";
+}
+
+function render(){
+  canvas.querySelectorAll(".seat-dot,.seat-label").forEach(el => el.remove());
+
+  const size = Math.max(2, n("seatSize", 10));
+  const labelSize = Math.max(0, n("labelSize", 8));
+  const showLabels = $("showLabels").value === "1";
+
+  seats.forEach(s => {
+    const dot = document.createElement("div");
+    dot.className = "seat-dot";
+    dot.dataset.id = s.id;
+    dot.style.left = s.x + "px";
+    dot.style.top = s.y + "px";
+    dot.style.width = size + "px";
+    dot.style.height = size + "px";
+    dot.style.background = s.color || "#dc2626";
+
+    if (selected.has(s.id)) dot.classList.add("selected");
+
+    canvas.appendChild(dot);
+
+    if (showLabels && labelSize > 0) {
+      const label = document.createElement("div");
+      label.className = "seat-label";
+      label.style.left = s.x + "px";
+      label.style.top = s.y + "px";
+      label.style.fontSize = labelSize + "px";
+      label.textContent = s.row + "/" + s.seat;
+      canvas.appendChild(label);
+    }
+  });
+
+  counter.innerHTML =
+    "Мест: " + seats.length + "<br>" +
+    "Selected: " + selected.size + "<br>" +
+    "Canvas: " + cw() + "x" + ch();
+}
+
+function addSeatAt(x, y){
+  const seatNum = n("seat", 1);
+
+  seats.push({
+    id: uid(),
+    zone: val("zone"),
+    prefix: val("prefix"),
+    row: String(n("row", 1)),
+    seat: seatNum,
+    price: n("price", 0),
+    color: val("color") || "#dc2626",
+    x,
+    y
+  });
+
+  $("seat").value = seatNum + 1;
+}
+
+function getTargetSeatId(e){
+  const dot = e.target.closest(".seat-dot");
+  return dot ? dot.dataset.id : null;
+}
+
+imageLoader.addEventListener("change", e => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = ev => {
+    bgDataUrl = ev.target.result;
 
     const img = new Image();
 
     img.onload = () => {
-      backgroundImage = img;
+      bgNaturalW = img.naturalWidth || img.width;
+      bgNaturalH = img.naturalHeight || img.height;
 
-      $("canvasW").value = img.naturalWidth || img.width || 1200;
-      $("canvasH").value = img.naturalHeight || img.height || 900;
+      $("canvasW").value = 1600;
+      $("canvasH").value = Math.round(1600 * bgNaturalH / bgNaturalW);
 
       applyCanvas();
 
-      canvas.style.backgroundImage = `url("${backgroundDataUrl}")`;
-      canvas.style.backgroundSize = "100% 100%";
-      canvas.style.backgroundRepeat = "no-repeat";
-      canvas.style.backgroundPosition = "0 0";
-
-      log("BACKGROUND LOADED: " + f.name + " / " + $("canvasW").value + "x" + $("canvasH").value);
-      drawMini();
+      log(
+        "BACKGROUND LOADED: " +
+        file.name +
+        "\\nOriginal: " +
+        bgNaturalW +
+        "x" +
+        bgNaturalH +
+        "\\nStandard canvas: " +
+        $("canvasW").value +
+        "x" +
+        $("canvasH").value
+      );
     };
 
-    img.onerror = () => {
-      log("Картинка не загрузилась. Попробуйте PNG или JPG.");
-    };
-
-    img.src = backgroundDataUrl;
+    img.src = bgDataUrl;
   };
 
-  r.readAsDataURL(f);
+  reader.readAsDataURL(file);
 });
 
-function setMode(m){
-  mode.value = m;
-  modeTitle.textContent = "Mode: " + m;
-
-  hint.textContent = {
-    seat: "Клик = место. Повторный клик по месту = снять/поставить выделение. Double click = удалить.",
-    row: "Клик по пустому месту = построить ряд.",
-    arc: "Клик = построить дугу.",
-    label: "Клик = поставить подпись.",
-    stage: "Клик = поставить сцену.",
-    path: "Клики = точки контура. Double click = завершить контур.",
-    select: "Потянуть рамку = выделить группу.",
-    move: "Тянуть выделенный элемент = двигать всю группу."
-  }[m] || "";
-}
-
-mode.onchange = () => setMode(mode.value);
-setMode("seat");
-
-function clearDom(){
-  canvas
-    .querySelectorAll(".seat-dot,.seat-label,.decor-label,.decor-stage,.decor-path,.select-box")
-    .forEach(x => x.remove());
-}
-
-function render(){
-  clearDom();
-
-  seats.forEach(renderSeat);
-  decor.forEach(renderDecor);
-  paths.forEach(renderPath);
-
-  counter.innerHTML =
-    `Мест: ${seats.length}<br>` +
-    `Decor: ${decor.length}<br>` +
-    `Paths: ${paths.length}<br>` +
-    `Selected: ${selected.size}`;
-
-  drawMini();
-}
-
-function renderSeat(s){
-  if (!s.id) s.id = uid("seat");
-
-  const d = document.createElement("div");
-  d.className = "seat-dot";
-  d.dataset.id = s.id;
-  d.style.left = s.x + "px";
-  d.style.top = s.y + "px";
-  d.style.background = s.color || "#dc2626";
-
-  if (selected.has(s.id)) d.classList.add("selected");
-  if (s.status) d.classList.add(s.status);
-
-  const l = document.createElement("div");
-  l.className = "seat-label";
-  l.style.left = s.x + "px";
-  l.style.top = s.y + "px";
-  l.textContent = s.row + "/" + s.seat;
-
-  canvas.append(d, l);
-}
-
-function renderDecor(d){
-  if (!d.id) d.id = uid("decor");
-
-  const el = document.createElement("div");
-  el.dataset.id = d.id;
-
-  if (d.type === "stage") {
-    el.className = "decor-stage";
-    el.style.left = d.x + "px";
-    el.style.top = d.y + "px";
-    el.style.width = (d.w || 420) + "px";
-    el.style.height = (d.h || 70) + "px";
-    el.textContent = d.text || "СЦЕНА";
-  } else {
-    el.className = "decor-label";
-    el.style.left = d.x + "px";
-    el.style.top = d.y + "px";
-    el.style.transform = `translate(-50%,-50%) rotate(${d.rotate || 0}deg)`;
-    el.textContent = d.text || "LABEL";
-  }
-
-  if (selected.has(d.id)) el.classList.add("selected-decor");
-
-  canvas.append(el);
-}
-
-function renderPath(p){
-  if (!p.id) p.id = uid("path");
-  if (!p.points || p.points.length < 2) return;
-
-  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  svg.classList.add("decor-path");
-  svg.dataset.id = p.id;
-  svg.style.left = "0px";
-  svg.style.top = "0px";
-  svg.style.width = cw() + "px";
-  svg.style.height = ch() + "px";
-
-  const poly = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
-  poly.setAttribute("points", p.points.map(q => q.x + "," + q.y).join(" "));
-  poly.setAttribute("fill", "none");
-  poly.setAttribute("stroke", selected.has(p.id) ? "#2563eb" : "#111827");
-  poly.setAttribute("stroke-width", "4");
-  poly.setAttribute("stroke-linecap", "round");
-  poly.setAttribute("stroke-linejoin", "round");
-
-  svg.append(poly);
-  canvas.append(svg);
-}
-
-function targetId(e){
-  const el = e.target.closest(".seat-dot,.decor-label,.decor-stage,.decor-path");
-  return el && el.dataset ? el.dataset.id : null;
-}
-
-function objById(id){
-  return all().find(o => o.id === id);
-}
-
-function toggleSelect(id, add){
-  if (!id) return;
-
-  if (add) {
-    if (selected.has(id)) selected.delete(id);
-    else selected.add(id);
-    return;
-  }
-
-  if (selected.has(id)) {
-    selected.delete(id);
-  } else {
-    selected.clear();
-    selected.add(id);
-  }
-}
-
 canvas.addEventListener("pointerdown", e => {
-  try {
-    canvas.setPointerCapture(e.pointerId);
-  } catch (_) {}
-
-  const id = targetId(e);
+  const id = getTargetSeatId(e);
   const p = point(e);
 
-  if (mode.value === "select" && !id) {
-    selected.clear();
-
-    selectStart = p;
-    selectBox = document.createElement("div");
-    selectBox.className = "select-box";
-    selectBox.style.left = p.x + "px";
-    selectBox.style.top = p.y + "px";
-    selectBox.style.width = "0px";
-    selectBox.style.height = "0px";
-
-    canvas.append(selectBox);
-    return;
-  }
-
-  if (mode.value === "move" && id) {
+  if (e.altKey && id) {
     if (!selected.has(id)) {
       selected.clear();
       selected.add(id);
@@ -851,463 +653,309 @@ canvas.addEventListener("pointerdown", e => {
 
     drag = {
       start: p,
-      originals: all()
-        .filter(o => selected.has(o.id))
-        .map(o => ({
-          id: o.id,
-          x: o.x,
-          y: o.y,
-          points: o.points ? JSON.parse(JSON.stringify(o.points)) : null
-        }))
+      original: selectedSeats().map(s => ({ id: s.id, x: s.x, y: s.y }))
     };
 
+    suppressClick = true;
     return;
+  }
+
+  if (!id) {
+    selectStart = p;
+    selectBox = document.createElement("div");
+    selectBox.className = "select-box";
+    selectBox.style.left = p.x + "px";
+    selectBox.style.top = p.y + "px";
+    selectBox.style.width = "0px";
+    selectBox.style.height = "0px";
+    canvas.appendChild(selectBox);
   }
 });
 
 canvas.addEventListener("pointermove", e => {
   const p = point(e);
 
-  if (selectBox && selectStart) {
-    const left = Math.min(selectStart.x, p.x);
-    const top = Math.min(selectStart.y, p.y);
-    const w = Math.abs(p.x - selectStart.x);
-    const h = Math.abs(p.y - selectStart.y);
-
-    selectBox.style.left = left + "px";
-    selectBox.style.top = top + "px";
-    selectBox.style.width = w + "px";
-    selectBox.style.height = h + "px";
-    return;
-  }
-
   if (drag) {
     const dx = p.x - drag.start.x;
     const dy = p.y - drag.start.y;
 
-    drag.originals.forEach(o => {
-      const ob = objById(o.id);
-      if (!ob) return;
-
-      if (o.points) {
-        ob.points = o.points.map(pt => ({
-          x: snap(pt.x + dx),
-          y: snap(pt.y + dy)
-        }));
-      } else {
-        ob.x = snap(o.x + dx);
-        ob.y = snap(o.y + dy);
-      }
+    drag.original.forEach(o => {
+      const s = seatById(o.id);
+      if (!s) return;
+      s.x = snap(o.x + dx);
+      s.y = snap(o.y + dy);
     });
 
     render();
     return;
   }
+
+  if (selectBox && selectStart) {
+    const left = Math.min(selectStart.x, p.x);
+    const top = Math.min(selectStart.y, p.y);
+    const width = Math.abs(p.x - selectStart.x);
+    const height = Math.abs(p.y - selectStart.y);
+
+    selectBox.style.left = left + "px";
+    selectBox.style.top = top + "px";
+    selectBox.style.width = width + "px";
+    selectBox.style.height = height + "px";
+  }
 });
 
-canvas.addEventListener("pointerup", () => {
-  if (selectBox) {
-    const b = selectBox.getBoundingClientRect();
+canvas.addEventListener("pointerup", e => {
+  if (drag) {
+    save();
+    drag = null;
+    setTimeout(() => { suppressClick = false; }, 0);
+    render();
+    return;
+  }
 
-    canvas
-      .querySelectorAll(".seat-dot,.decor-label,.decor-stage,.decor-path")
-      .forEach(el => {
-        const r = el.getBoundingClientRect();
+  if (selectBox && selectStart) {
+    const box = selectBox.getBoundingClientRect();
+    const z = zoomValue();
 
-        if (
-          r.left >= b.left &&
-          r.right <= b.right &&
-          r.top >= b.top &&
-          r.bottom <= b.bottom
-        ) {
-          selected.add(el.dataset.id);
-        }
-      });
+    const canvasRect = canvas.getBoundingClientRect();
+    const left = (box.left - canvasRect.left) / z;
+    const top = (box.top - canvasRect.top) / z;
+    const right = left + box.width / z;
+    const bottom = top + box.height / z;
+
+    const width = Math.abs(right - left);
+    const height = Math.abs(bottom - top);
 
     selectBox.remove();
     selectBox = null;
     selectStart = null;
 
-    render();
-    return;
-  }
+    if (width > 5 && height > 5) {
+      if (!e.shiftKey) selected.clear();
 
-  if (drag) {
-    save();
-    drag = null;
-    render();
+      seats.forEach(s => {
+        if (s.x >= Math.min(left, right) && s.x <= Math.max(left, right) &&
+            s.y >= Math.min(top, bottom) && s.y <= Math.max(top, bottom)) {
+          selected.add(s.id);
+        }
+      });
+
+      suppressClick = true;
+      setTimeout(() => { suppressClick = false; }, 0);
+      render();
+    }
   }
 });
 
 canvas.addEventListener("click", e => {
-  const id = targetId(e);
+  if (suppressClick) return;
+
+  const id = getTargetSeatId(e);
 
   if (id) {
-    if (mode.value !== "move") {
-      toggleSelect(id, e.shiftKey);
-      render();
+    if (e.shiftKey) {
+      if (selected.has(id)) selected.delete(id);
+      else selected.add(id);
+    } else {
+      if (selected.has(id) && selected.size === 1) {
+        selected.clear();
+      } else {
+        selected.clear();
+        selected.add(id);
+      }
     }
 
+    render();
     return;
   }
-
-  const p = point(e);
-  const m = mode.value;
-
-  if (m === "select" || m === "move") return;
 
   save();
 
-  if (m === "seat") {
-    addSeat(p.x, p.y);
-    render();
-    return;
-  }
-
-  if (m === "row") {
-    buildRow(p.x, p.y);
-    render();
-    return;
-  }
-
-  if (m === "arc") {
-    buildArc(p.x, p.y);
-    render();
-    return;
-  }
-
-  if (m === "label") {
-    decor.push({
-      id: uid("decor"),
-      type: "label",
-      text: val("decorText") || "LABEL",
-      x: p.x,
-      y: p.y,
-      rotate: n("decorRotate", 0)
-    });
-
-    render();
-    return;
-  }
-
-  if (m === "stage") {
-    decor.push({
-      id: uid("decor"),
-      type: "stage",
-      text: val("decorText") || "СЦЕНА",
-      x: p.x,
-      y: p.y,
-      w: n("stageW", 420),
-      h: n("stageH", 70)
-    });
-
-    render();
-    return;
-  }
-
-  if (m === "path") {
-    pathDraft.push({ x: p.x, y: p.y });
-
-    paths = paths.filter(x => x.id !== "temp_path");
-
-    if (pathDraft.length > 1) {
-      paths.push({
-        id: "temp_path",
-        points: pathDraft
-      });
-    }
-
-    log("PATH POINTS: " + pathDraft.length + ". Double click = завершить.");
-    render();
-    return;
-  }
+  const p = point(e);
+  addSeatAt(p.x, p.y);
+  selected.clear();
+  render();
 });
 
 canvas.addEventListener("dblclick", e => {
-  const id = targetId(e);
+  const id = getTargetSeatId(e);
+  if (!id) return;
 
-  if (id && mode.value !== "path") {
-    save();
+  e.preventDefault();
+  save();
 
-    seats = seats.filter(s => s.id !== id);
-    decor = decor.filter(d => d.id !== id);
-    paths = paths.filter(p => p.id !== id);
-
-    selected.delete(id);
-
-    render();
-    return;
-  }
-
-  if (mode.value === "path" && pathDraft.length > 1) {
-    save();
-
-    paths = paths.filter(x => x.id !== "temp_path");
-    paths.push({
-      id: uid("path"),
-      points: pathDraft
-    });
-
-    pathDraft = [];
-    log("PATH CREATED");
-    render();
-  }
+  seats = seats.filter(s => s.id !== id);
+  selected.delete(id);
+  render();
 });
 
-function addSeat(x, y){
-  const seat = n("seat", 1);
+$("applyCanvasBtn").addEventListener("click", () => {
+  applyCanvas();
+  render();
+});
 
-  seats.push({
-    id: uid("seat"),
-    zone: val("zone"),
-    prefix: val("prefix"),
-    row: String(n("row", 1)),
-    seat: seat,
-    price: n("price", 0),
-    color: val("seatColor") || "#dc2626",
-    x,
-    y
-  });
+$("applyBgBtn").addEventListener("click", () => {
+  applyBackgroundMode();
+  log("BACKGROUND MODE APPLIED: " + $("bgMode").value);
+});
 
-  $("seat").value = seat + 1;
-}
+$("zoom").addEventListener("input", applyZoom);
 
-function buildRow(x, y){
-  const row = String(n("row", 1));
-  const start = n("seat", 1);
-  const count = Math.max(1, n("rowCount", 1));
-  const step = Math.max(1, n("seatStep", 36));
-  const aisleEvery = Math.max(0, n("aisleEvery", 0));
-  const aisleSize = Math.max(0, n("aisleSize", 0));
-  const dir = val("direction");
+$("seatSize").addEventListener("input", render);
+$("labelSize").addEventListener("input", render);
+$("showLabels").addEventListener("change", render);
 
-  for (let i = 0; i < count; i++) {
-    const gaps = aisleEvery ? Math.floor(i / aisleEvery) : 0;
-    const dx = i * step + gaps * aisleSize;
+$("gridSize").addEventListener("input", () => {
+  grid.style.backgroundSize = n("gridSize", 20) + "px " + n("gridSize", 20) + "px";
+});
 
-    let px = x + dx;
-
-    if (dir === "left") {
-      px = x - dx;
-    }
-
-    if (dir === "center") {
-      px = x + (i - (count - 1) / 2) * step;
-
-      if (aisleEvery && i >= aisleEvery) {
-        px += aisleSize / 2;
-      }
-
-      if (aisleEvery && i < aisleEvery) {
-        px -= aisleSize / 2;
-      }
-    }
-
-    seats.push({
-      id: uid("seat"),
-      zone: val("zone"),
-      prefix: val("prefix"),
-      row,
-      seat: start + i,
-      price: n("price", 0),
-      color: val("seatColor") || "#dc2626",
-      x: snap(px),
-      y: snap(y)
-    });
-  }
-
-  $("seat").value = start + count;
-}
-
-function buildArc(x, y){
-  const row = String(n("row", 1));
-  const start = n("seat", 1);
-  const count = Math.max(1, n("rowCount", 1));
-  const radius = n("arcRadius", 220);
-  const angle = n("arcAngle", 120);
-  const sa = -angle / 2;
-
-  for (let i = 0; i < count; i++) {
-    const t = count <= 1 ? 0 : i / (count - 1);
-    const a = (sa + t * angle) * Math.PI / 180;
-
-    seats.push({
-      id: uid("seat"),
-      zone: val("zone"),
-      prefix: val("prefix"),
-      row,
-      seat: start + i,
-      price: n("price", 0),
-      color: val("seatColor") || "#dc2626",
-      x: snap(x + Math.cos(a) * radius),
-      y: snap(y + Math.sin(a) * radius)
-    });
-  }
-
-  $("seat").value = start + count;
-}
-
-$("gridBtn").onclick = () => {
+$("gridBtn").addEventListener("click", () => {
   gridShown = !gridShown;
   grid.style.display = gridShown ? "block" : "none";
   grid.style.backgroundSize = n("gridSize", 20) + "px " + n("gridSize", 20) + "px";
-};
+});
 
-$("moveBtn").onclick = () => setMode("move");
+$("undoBtn").addEventListener("click", () => {
+  const prev = history.pop();
+  if (!prev) return;
 
-$("copyBtn").onclick = () => {
-  clipboard = all()
-    .filter(o => selected.has(o.id))
-    .map(o => JSON.parse(JSON.stringify(o)));
-
-  log("COPIED: " + clipboard.length);
-};
-
-$("pasteBtn").onclick = () => {
-  if (!clipboard.length) return;
-
-  save();
+  const data = JSON.parse(prev);
+  seats = data.seats || [];
   selected.clear();
-
-  clipboard.forEach(o => {
-    const c = JSON.parse(JSON.stringify(o));
-    c.id = uid(c.points ? "path" : c.type ? "decor" : "seat");
-
-    if (c.points) {
-      c.points = c.points.map(p => ({
-        x: p.x + 30,
-        y: p.y + 30
-      }));
-    } else {
-      c.x += 30;
-      c.y += 30;
-    }
-
-    if (c.points) paths.push(c);
-    else if (c.type) decor.push(c);
-    else seats.push(c);
-
-    selected.add(c.id);
-  });
-
   render();
-};
+});
 
-$("mirrorBtn").onclick = () => {
-  const list = all().filter(o => selected.has(o.id));
-  if (!list.length) return;
-
-  save();
-  selected.clear();
-
-  list.forEach(o => {
-    const c = JSON.parse(JSON.stringify(o));
-    c.id = uid(c.points ? "path" : c.type ? "decor" : "seat");
-
-    if (c.points) {
-      c.points = c.points.map(p => ({
-        x: cw() - p.x,
-        y: p.y
-      }));
-
-      paths.push(c);
-    } else {
-      c.x = cw() - c.x;
-
-      if (c.type) decor.push(c);
-      else seats.push(c);
-    }
-
-    selected.add(c.id);
-  });
-
-  render();
-};
-
-$("numberBtn").onclick = () => {
-  const list = selSeats().sort((a, b) => a.y - b.y || a.x - b.x);
-  if (!list.length) return;
-
-  save();
-
-  const row = String(n("row", 1));
-  const st = n("seat", 1);
-
-  list.forEach((s, i) => {
-    s.zone = val("zone");
-    s.prefix = val("prefix");
-    s.row = row;
-    s.seat = st + i;
-    s.price = n("price", 0);
-    s.color = val("seatColor") || s.color;
-  });
-
-  $("seat").value = st + list.length;
-  render();
-};
-
-$("deleteBtn").onclick = () => {
+$("deleteBtn").addEventListener("click", () => {
   if (!selected.size) return;
 
   save();
 
   seats = seats.filter(s => !selected.has(s.id));
-  decor = decor.filter(d => !selected.has(d.id));
-  paths = paths.filter(p => !selected.has(p.id));
-
   selected.clear();
   render();
-};
+});
 
-$("undoBtn").onclick = () => {
-  const p = history.pop();
-  if (!p) return;
-
-  const d = JSON.parse(p);
-
-  seats = d.seats || [];
-  decor = d.decor || [];
-  paths = d.paths || [];
-  backgroundDataUrl = d.backgroundDataUrl || backgroundDataUrl;
-
-  if (backgroundDataUrl) {
-    canvas.style.backgroundImage = `url("${backgroundDataUrl}")`;
-  }
-
-  selected.clear();
-  render();
-};
-
-$("clearBtn").onclick = () => {
+$("clearBtn").addEventListener("click", () => {
   save();
 
   seats = [];
-  decor = [];
-  paths = [];
   selected.clear();
-  pathDraft = [];
   jsonOutput.value = "";
-
   render();
-  log("CLEARED");
-};
+  log("ALL SEATS CLEARED");
+});
 
-function setStatus(st){
+$("selectAllBtn").addEventListener("click", () => {
+  selected = new Set(seats.map(s => s.id));
+  render();
+});
+
+$("clearSelectionBtn").addEventListener("click", () => {
+  selected.clear();
+  render();
+});
+
+$("alignHBtn").addEventListener("click", () => {
+  const list = selectedSeats();
+  if (list.length < 2) {
+    log("ВЫРОВНЯТЬ ПО ГОРИЗОНТАЛИ: нужно выделить минимум 2 места.");
+    return;
+  }
+
   save();
 
-  selSeats().forEach(s => {
-    s.status = st;
+  const avgY = Math.round(list.reduce((sum, s) => sum + s.y, 0) / list.length);
+  list.forEach(s => { s.y = avgY; });
+
+  render();
+  log("ВЫРОВНЯТЬ ПО ГОРИЗОНТАЛИ OK: y = " + avgY);
+});
+
+$("alignVBtn").addEventListener("click", () => {
+  const list = selectedSeats();
+  if (list.length < 2) {
+    log("ВЫРОВНЯТЬ ПО ВЕРТИКАЛИ: нужно выделить минимум 2 места.");
+    return;
+  }
+
+  save();
+
+  const avgX = Math.round(list.reduce((sum, s) => sum + s.x, 0) / list.length);
+  list.forEach(s => { s.x = avgX; });
+
+  render();
+  log("ВЫРОВНЯТЬ ПО ВЕРТИКАЛИ OK: x = " + avgX);
+});
+
+$("distHBtn").addEventListener("click", () => {
+  const list = selectedSeats().sort((a,b) => a.x - b.x);
+  if (list.length < 3) {
+    log("РАСПРЕДЕЛИТЬ ПО ГОРИЗОНТАЛИ: нужно выделить минимум 3 места.");
+    return;
+  }
+
+  save();
+
+  const first = list[0].x;
+  const last = list[list.length - 1].x;
+  const step = (last - first) / (list.length - 1);
+
+  list.forEach((s, i) => {
+    s.x = Math.round(first + step * i);
   });
 
   render();
-}
+  log("РАСПРЕДЕЛИТЬ ПО ГОРИЗОНТАЛИ OK. Step: " + Math.round(step));
+});
 
-$("holdBtn").onclick = () => setStatus("hold");
-$("soldBtn").onclick = () => setStatus("sold");
-$("reservedBtn").onclick = () => setStatus("reserved");
-$("statusClearBtn").onclick = () => setStatus("");
+$("distVBtn").addEventListener("click", () => {
+  const list = selectedSeats().sort((a,b) => a.y - b.y);
+  if (list.length < 3) {
+    log("РАСПРЕДЕЛИТЬ ПО ВЕРТИКАЛИ: нужно выделить минимум 3 места.");
+    return;
+  }
 
-function clean(){
+  save();
+
+  const first = list[0].y;
+  const last = list[list.length - 1].y;
+  const step = (last - first) / (list.length - 1);
+
+  list.forEach((s, i) => {
+    s.y = Math.round(first + step * i);
+  });
+
+  render();
+  log("РАСПРЕДЕЛИТЬ ПО ВЕРТИКАЛИ OK. Step: " + Math.round(step));
+});
+
+$("autoNumberBtn").addEventListener("click", () => {
+  const list = selectedSeats().sort((a,b) => a.x - b.x || a.y - b.y);
+  if (!list.length) {
+    log("AUTO NUMBER: ничего не выделено.");
+    return;
+  }
+
+  save();
+
+  const row = String(n("row", 1));
+  const startSeat = n("seat", 1);
+
+  list.forEach((s, i) => {
+    s.zone = val("zone");
+    s.prefix = val("prefix");
+    s.row = row;
+    s.seat = startSeat + i;
+    s.price = n("price", 0);
+    s.color = val("color") || s.color;
+  });
+
+  $("seat").value = startSeat + list.length;
+
+  render();
+  log("AUTO NUMBER OK: row " + row + ", seats " + startSeat + "–" + (startSeat + list.length - 1));
+});
+
+function cleanSeats(){
   const seen = new Set();
 
   seats = seats
@@ -1319,209 +967,103 @@ function clean(){
       y: Number(s.y)
     }))
     .filter(s => {
-      const k = `${s.prefix}|${s.row}|${s.seat}`;
-
-      if (seen.has(k)) return false;
-
-      seen.add(k);
+      const key = `${s.prefix}|${s.row}|${s.seat}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
       return true;
     })
-    .sort((a, b) =>
+    .sort((a,b) =>
       String(a.zone).localeCompare(String(b.zone)) ||
       Number(a.row) - Number(b.row) ||
       Number(a.seat) - Number(b.seat)
     );
 }
 
-function exp(){
-  clean();
+function exportObject(){
+  cleanSeats();
 
   return {
     version: 2,
-    format: "va-hall-studio-working",
+    format: "va-hall-studio-simple-align",
     title: "Назва залу",
     width: cw(),
     height: ch(),
-    background: backgroundDataUrl ? "embedded-in-session-not-exported" : "",
+    background_mode: $("bgMode").value,
     seats: seats.map(s => ({
       ...s,
       key: seatKey(s)
-    })),
-    decor,
-    paths
+    }))
   };
 }
 
-$("exportBtn").onclick = () => {
-  jsonOutput.value = JSON.stringify(exp(), null, 2);
+$("exportBtn").addEventListener("click", () => {
+  jsonOutput.value = JSON.stringify(exportObject(), null, 2);
   render();
-};
+  log("JSON EXPORTED");
+});
 
-$("importBtn").onclick = () => {
+$("importBtn").addEventListener("click", () => {
   try {
-    const d = JSON.parse(jsonOutput.value);
+    const data = JSON.parse(jsonOutput.value);
 
     save();
 
-    seats = Array.isArray(d.seats)
-      ? d.seats
-      : Array.isArray(d)
-        ? d
+    seats = Array.isArray(data.seats)
+      ? data.seats
+      : Array.isArray(data)
+        ? data
         : [];
 
-    decor = Array.isArray(d.decor) ? d.decor : [];
-    paths = Array.isArray(d.paths) ? d.paths : [];
-
-    if (d.width && d.height) {
-      $("canvasW").value = d.width;
-      $("canvasH").value = d.height;
+    if (data.width && data.height) {
+      $("canvasW").value = data.width;
+      $("canvasH").value = data.height;
       applyCanvas();
     }
 
     selected.clear();
     render();
-    log("IMPORTED OK");
+    log("JSON IMPORTED");
   } catch (e) {
     alert("JSON не прочитался");
     console.error(e);
   }
-};
+});
 
-$("cleanBtn").onclick = () => {
+$("cleanBtn").addEventListener("click", () => {
   save();
-  clean();
-  jsonOutput.value = JSON.stringify(exp(), null, 2);
+  cleanSeats();
+  jsonOutput.value = JSON.stringify(exportObject(), null, 2);
+  selected.clear();
   render();
-  log("JSON CLEANED");
-};
+  log("CLEANED / SORTED");
+});
 
-$("validateBtn").onclick = () => {
-  const err = [];
+$("validateBtn").addEventListener("click", () => {
+  const errors = [];
   const keys = new Set();
-  const pos = new Set();
+  const positions = new Set();
 
   seats.forEach(s => {
-    const k = `${s.prefix}|${s.row}|${s.seat}`;
+    const key = `${s.prefix}|${s.row}|${s.seat}`;
+    if (keys.has(key)) errors.push("DUPLICATE SEAT: " + key);
+    keys.add(key);
 
-    if (keys.has(k)) err.push("DUPLICATE: " + k);
-    keys.add(k);
+    const pos = `${s.x}|${s.y}`;
+    if (positions.has(pos)) errors.push("POSITION OVERLAP: " + pos);
+    positions.add(pos);
 
-    const p = `${s.x}|${s.y}`;
-
-    if (pos.has(p)) err.push("POSITION OVERLAP: " + p);
-    pos.add(p);
-
-    if (!s.zone) err.push("EMPTY ZONE: " + k);
-    if (!s.prefix) err.push("EMPTY PREFIX: row " + s.row + " seat " + s.seat);
+    if (!s.zone) errors.push("EMPTY ZONE: " + key);
+    if (!s.prefix) errors.push("EMPTY PREFIX: " + key);
   });
 
-  log(err.length ? err.join("\n") : "VALIDATION OK");
-};
+  log(errors.length ? errors.join("\\n") : "VALIDATION OK");
+});
 
-$("previewBtn").onclick = () => {
-  const z = {};
-
-  seats.forEach(s => {
-    z[s.zone || "—"] = (z[s.zone || "—"] || 0) + 1;
-  });
-
-  preview.innerHTML =
-    "<b>VA CASH PREVIEW</b><br>" +
-    "Seats: " + seats.length + "<br>" +
-    "Decor: " + decor.length + "<br>" +
-    "Paths: " + paths.length + "<br><br>" +
-    Object.entries(z).map(([k, v]) => k + ": " + v).join("<br>");
-};
-
-$("traceBtn").onclick = () => {
-  if (!backgroundImage) {
-    alert("Сначала загрузите фон");
-    return;
-  }
-
-  const w = backgroundImage.naturalWidth || backgroundImage.width;
-  const h = backgroundImage.naturalHeight || backgroundImage.height;
-
-  const c = document.createElement("canvas");
-  c.width = w;
-  c.height = h;
-
-  const ctx = c.getContext("2d");
-  ctx.drawImage(backgroundImage, 0, 0, w, h);
-
-  const data = ctx.getImageData(0, 0, w, h).data;
-  const step = Math.max(4, n("traceStep", 14));
-  const thr = n("traceThreshold", 80);
-
-  const found = [];
-
-  for (let y = step; y < h - step; y += step) {
-    for (let x = step; x < w - step; x += step) {
-      const i = (y * w + x) * 4;
-      const lum = (data[i] + data[i + 1] + data[i + 2]) / 3;
-
-      if (
-        lum < thr &&
-        !found.some(p => Math.hypot(p.x - x, p.y - y) < step * 1.7)
-      ) {
-        found.push({ x, y });
-      }
-    }
-  }
-
-  save();
-
-  const start = n("seat", 1);
-
-  found.slice(0, 500).forEach((p, i) => {
-    seats.push({
-      id: uid("seat"),
-      zone: val("zone"),
-      prefix: val("prefix"),
-      row: String(n("row", 1)),
-      seat: start + i,
-      price: n("price", 0),
-      color: val("seatColor") || "#dc2626",
-      x: p.x,
-      y: p.y
-    });
-  });
-
-  $("seat").value = start + Math.min(found.length, 500);
-
-  render();
-  log("TRACE FOUND: " + found.length + " / ADDED: " + Math.min(found.length, 500));
-};
-
-function drawMini(){
-  const ctx = miniCanvas.getContext("2d");
-  const mw = miniCanvas.width;
-  const mh = miniCanvas.height;
-  const w = cw();
-  const h = ch();
-
-  const sc = Math.min(mw / w, mh / h);
-  const ox = (mw - w * sc) / 2;
-  const oy = (mh - h * sc) / 2;
-
-  ctx.clearRect(0, 0, mw, mh);
-  ctx.fillStyle = "#fff";
-  ctx.fillRect(0, 0, mw, mh);
-
-  ctx.strokeStyle = "#d1d5db";
-  ctx.strokeRect(ox, oy, w * sc, h * sc);
-
-  seats.forEach(s => {
-    ctx.fillStyle = selected.has(s.id)
-      ? "#2563eb"
-      : (s.color || "#dc2626");
-
-    ctx.fillRect(ox + s.x * sc - 1, oy + s.y * sc - 1, 2, 2);
-  });
-}
-
+applyCanvas();
+applyZoom();
 render();
-log("READY. Загрузите фон или сразу стройте места на пустом canvas.");
+log("READY. Workflow: накликать ряд → рамкой выделить → ВЫРОВНЯТЬ ПО ГОРИЗОНТАЛИ → РАСПРЕДЕЛИТЬ ПО ГОРИЗОНТАЛИ → AUTO NUMBER.");
 </script>
+
 </body>
 </html>
