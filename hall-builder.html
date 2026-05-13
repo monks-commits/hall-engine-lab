@@ -340,7 +340,9 @@ const mode = modeInput.value;
       prefix: prefixInput.value.trim(),
       row,
       seat: startSeat + i,
-      x: x + (i * step),
+      x: rowDirectionInput.value === "left"
+  ? x - (i * step)
+  : x + (i * step),
       y
     };
 
