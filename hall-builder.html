@@ -315,6 +315,37 @@ canvas.addEventListener("click", e => {
 
 const mode = modeInput.value;
 
+  if (mode === "row") {
+
+  const row = parseInt(rowInput.value, 10);
+  const startSeat = parseInt(seatInput.value, 10);
+
+  const count = parseInt(rowCountInput.value, 10);
+  const step = parseInt(seatStepInput.value, 10);
+
+  for (let i = 0; i < count; i++) {
+
+    const item = {
+      zone: zoneInput.value.trim(),
+      prefix: prefixInput.value.trim(),
+      row,
+      seat: startSeat + i,
+      x: x + (i * step),
+      y
+    };
+
+    seats.push(item);
+
+    renderSeat(item);
+  }
+
+  seatInput.value = startSeat + count;
+
+  updateCounter();
+
+  return;
+}
+
 if (mode === "label") {
 
   const item = {
