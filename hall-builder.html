@@ -490,7 +490,8 @@ function renderSeat(item){
 
   const dot = document.createElement("div");
   dot.className = "seat-dot";
-
+dot.draggable = true;
+  
   dot.style.left = item.x + "px";
   dot.style.top  = item.y + "px";
 
