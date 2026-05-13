@@ -338,6 +338,55 @@ const mode = modeInput.value;
 
   if (mode === "row") {
 
+if (mode === "arc") {
+
+  const row = parseInt(rowInput.value, 10);
+  const startSeat = parseInt(seatInput.value, 10);
+
+  const count = parseInt(rowCountInput.value, 10);
+
+  const radius = parseInt(arcRadiusInput.value, 10);
+
+  const totalAngle = parseFloat(arcAngleInput.value);
+
+  const startAngle = -totalAngle / 2;
+
+  for (let i = 0; i < count; i++) {
+
+    const t = count <= 1 ? 0 : i / (count - 1);
+
+    const angle =
+      (startAngle + (t * totalAngle)) * Math.PI / 180;
+
+    const sx = Math.round(
+      x + Math.cos(angle) * radius
+    );
+
+    const sy = Math.round(
+      y + Math.sin(angle) * radius
+    );
+
+    const item = {
+      zone: zoneInput.value.trim(),
+      prefix: prefixInput.value.trim(),
+      row,
+      seat: startSeat + i,
+      x: sx,
+      y: sy
+    };
+
+    seats.push(item);
+
+    renderSeat(item);
+  }
+
+  seatInput.value = startSeat + count;
+
+  updateCounter();
+
+  return;
+}
+    
   const row = parseInt(rowInput.value, 10);
   const startSeat = parseInt(seatInput.value, 10);
 
