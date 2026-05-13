@@ -782,6 +782,25 @@ undoBtn.addEventListener("click", () => {
   updateCounter();
 });
 
+deleteSelectedBtn.addEventListener("click", () => {
+  if (!selectedSeats.size) return;
+
+  seats = seats.filter(s => {
+    const key = `${s.x}:${s.y}`;
+    return !selectedSeats.has(key);
+  });
+
+  selectedSeats.clear();
+
+  clearRendered();
+  seats.forEach(renderSeat);
+  decor.forEach(renderDecorItem);
+
+  updateCounter();
+});
+
+clearBtn.addEventListener("click", () => {
+  
 clearBtn.addEventListener("click", () => {
   seats = [];
   decor = [];
