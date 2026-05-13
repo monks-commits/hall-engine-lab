@@ -377,6 +377,22 @@ h2{
     <button class="btn purple" id="distHBtn">РАСПРЕДЕЛИТЬ ПО ГОРИЗОНТАЛИ</button>
     <button class="btn purple" id="distVBtn">РАСПРЕДЕЛИТЬ ПО ВЕРТИКАЛИ</button>
     <button class="btn green" id="autoNumberBtn">АВТО НУМЕРАЦИЯ</button>
+    <button class="btn orange" id="copyBtn">КОПИРОВАТЬ ВЫДЕЛЕННОЕ</button>
+    <button class="btn orange" id="pasteBtn">ВСТАВИТЬ КОПИЮ</button>
+
+    <div class="row2">
+      <div class="field">
+        <label>Offset X</label>
+        <input type="number" id="dupOffsetX" value="0">
+      </div>
+      <div class="field">
+        <label>Offset Y</label>
+        <input type="number" id="dupOffsetY" value="40">
+      </div>
+    </div>
+
+    <button class="btn purple" id="duplicateBtn">ДУБЛИРОВАТЬ СО СМЕЩЕНИЕМ</button>
+
 
     <h2>Selection</h2>
 
@@ -618,7 +634,97 @@ imageLoader.addEventListener("change", e => {
       $("canvasW").value = 1600;
       $("canvasH").value = Math.round(1600 * bgNaturalH / bgNaturalW);
 
-      applyCanvas();
+      
+let clipboard = [];
+
+$("copyBtn").addEventListener("click", () => {
+
+  const list = selectedSeats();
+
+  if (!list.length) {
+    log("КОПИРОВАНИЕ: ничего не выделено.");
+    return;
+  }
+
+  clipboard = list.map(s => ({ ...s }));
+
+  log("СКОПИРОВАНО: " + clipboard.length + " мест");
+});
+
+$("pasteBtn").addEventListener("click", () => {
+
+  if (!clipboard.length) {
+    log("ВСТАВКА: буфер пуст.");
+    return;
+  }
+
+  save();
+
+  selected.clear();
+
+  clipboard.forEach(s => {
+
+    const ns = {
+      ...s,
+      id: uid(),
+      x: s.x + 40,
+      y: s.y + 40
+    };
+
+    seats.push(ns);
+    selected.add(ns.id);
+  });
+
+  render();
+
+  log("ВСТАВЛЕНО: " + clipboard.length + " мест");
+});
+
+$("duplicateBtn").addEventListener("click", () => {
+
+  const list = selectedSeats();
+
+  if (!list.length) {
+    log("ДУБЛИРОВАНИЕ: ничего не выделено.");
+    return;
+  }
+
+  save();
+
+  const dx = n("dupOffsetX", 0);
+  const dy = n("dupOffsetY", 40);
+
+  const created = [];
+
+  list.forEach(s => {
+
+    const ns = {
+      ...s,
+      id: uid(),
+      x: s.x + dx,
+      y: s.y + dy
+    };
+
+    seats.push(ns);
+    created.push(ns.id);
+  });
+
+  selected = new Set(created);
+
+  render();
+
+  log(
+    "ДУБЛИРОВАНО: " +
+    list.length +
+    " мест. Offset: " +
+    dx +
+    "/" +
+    dy
+  );
+});
+
+
+applyCanvas();
 
       log(
         "BACKGROUND LOADED: " +
