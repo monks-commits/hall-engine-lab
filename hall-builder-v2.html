@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<title>VA Hall Studio v2</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#e5e7eb;
+  color:#111827;
+}
+
+.app{
+  display:grid;
+  grid-template-columns:340px 1fr;
+  height:100vh;
+}
+
+.panel{
+  background:#fff;
+  border-right:1px solid #d1d5db;
+  padding:14px;
+  overflow:auto;
+}
+
+.panel h1{
+  margin:0 0 12px;
+  font-size:22px;
+}
+
+.field{
+  margin-bottom:10px;
+}
+
+.field label{
+  display:block;
+  font-size:12px;
+  font-weight:700;
+  color:#4b5563;
+  margin-bottom:4px;
+}
+
+input,select,textarea,button{
+  width:100%;
+  box-sizing:border-box;
+  font-size:14px;
+}
+
+input,select,textarea{
+  padding:8px;
+  border:1px solid #d1d5db;
+  border-radius:8px;
+}
+
+textarea{
+  height:180px;
+  font-family:monospace;
+}
+
+button{
+  padding:10px;
+  border:0;
+  border-radius:10px;
+  background:#111827;
+  color:#fff;
+  font-weight:800;
+  cursor:pointer;
+  margin-bottom:8px;
+}
+
+button.secondary{
+  background:#374151;
+}
+
+button.danger{
+  background:#991b1b;
+}
+
+.workspace{
+  position:relative;
+  overflow:auto;
+}
+
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:20;
+  background:#fff;
+  padding:8px 12px;
+  border-bottom:1px solid #d1d5db;
+  font-size:13px;
+  font-weight:700;
+}
+
+#canvas{
+  position:relative;
+  margin:20px auto;
+  transform-origin:top left;
+}
+
+#hallImage{
+  display:block;
+  pointer-events:none;
+  user-select:none;
+}
+
+.seat-dot{
+  position:absolute;
+  width:18px;
+  height:18px;
+  border-radius:50%;
+  background:#dc2626;
+  border:2px solid #fff;
+  transform:translate(-50%,-50%);
+  cursor:pointer;
+  box-shadow:0 2px 8px rgba(0,0,0,.25);
+  z-index:5;
+}
+
+.seat-dot.selected{
+  background:#2563eb;
+  box-shadow:0 0 0 4px rgba(37,99,235,.25);
+}
+
+.seat-label{
+  position:absolute;
+  transform:translate(-50%,-160%);
+  font-size:10px;
+  font-weight:800;
+  background:#fff;
+  border:1px solid #d1d5db;
+  border-radius:4px;
+  padding:1px 4px;
+  pointer-events:none;
+  z-index:6;
+}
+
+.decor-label{
+  position:absolute;
+  transform:translate(-50%,-50%);
+  font-size:42px;
+  font-weight:900;
+  letter-spacing:2px;
+  color:#111827;
+  cursor:pointer;
+  user-select:none;
+  z-index:3;
+}
+
+.decor-stage{
+  position:absolute;
+  background:#7f1d1d;
+  color:#fff;
+  border-radius:999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:900;
+  letter-spacing:.08em;
+  cursor:pointer;
+  user-select:none;
+  z-index:2;
+}
+
+.select-box{
+  position:absolute;
+  border:2px dashed #2563eb;
+  background:rgba(37,99,235,.12);
+  pointer-events:none;
+  z-index:30;
+}
+
+.status{
+  font-size:13px;
+  line-height:1.45;
+  color:#374151;
+  background:#f3f4f6;
+  border-radius:10px;
+  padding:10px;
+  margin:10px 0;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <aside class="panel">
+    <h1>VA Hall Studio v2</h1>
+
+    <div class="field">
+      <label>Завантажити схему</label>
+      <input type="file" id="imageInput" accept="image/*">
+    </div>
+
+    <div class="field">
+      <label>Mode</label>
+      <select id="mode">
+        <option value="seat">Seat</option>
+        <option value="row">Row</option>
+        <option value="arc">Arc</option>
+        <option value="label">Label</option>
+        <option value="stage">Stage</option>
+        <option value="move">Move</option>
+        <option value="select">Select</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Zone</label>
+      <input id="zone" value="Партер">
+    </div>
+
+    <div class="field">
+      <label>Prefix</label>
+      <input id="prefix" value="P">
+    </div>
+
+    <div class="field">
+      <label>Row</label>
+      <input id="row" value="1">
+    </div>
+
+    <div class="field">
+      <label>Seat</label>
+      <input id="seat" value="1">
+    </div>
+
+    <div class="field">
+      <label>Seats in Row / Arc</label>
+      <input id="count" value="20">
+    </div>
+
+    <div class="field">
+      <label>Step</label>
+      <input id="step" value="36">
+    </div>
+
+    <div class="field">
+      <label>Direction</label>
+      <select id="direction">
+        <option value="right">Right →</option>
+        <option value="left">Left ←</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Arc Radius</label>
+      <input id="radius" value="220">
+    </div>
+
+    <div class="field">
+      <label>Arc Angle</label>
+      <input id="angle" value="120">
+    </div>
+
+    <div class="field">
+      <label>Decor Text</label>
+      <input id="decorText" value="ПАРТЕР">
+    </div>
+
+    <div class="field">
+      <label>Decor Rotate</label>
+      <input id="decorRotate" value="0">
+    </div>
+
+    <div class="field">
+      <label>Stage Width</label>
+      <input id="stageW" value="420">
+    </div>
+
+    <div class="field">
+      <label>Stage Height</label>
+      <input id="stageH" value="70">
+    </div>
+
+    <button id="exportBtn">EXPORT JSON</button>
+    <button id="importBtn" class="secondary">IMPORT JSON</button>
+    <button id="undoBtn" class="secondary">UNDO</button>
+    <button id="deleteSelectedBtn" class="danger">DELETE SELECTED</button>
+    <button id="clearBtn" class="danger">CLEAR ALL</button>
+
+    <div class="status" id="status">
+      Seats: 0<br>
+      Decor: 0<br>
+      Selected: 0
+    </div>
+
+    <div class="field">
+      <label>JSON</label>
+      <textarea id="jsonBox"></textarea>
+    </div>
+  </aside>
+
+  <main class="workspace">
+    <div class="topbar">
+      Seat / Row / Arc / Label / Stage / Move / Select
+    </div>
+
+    <div id="canvas">
+      <img id="hallImage">
+    </div>
+  </main>
+
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+const state = {
+  seats: [],
+  decor: [],
+  selected: new Set(),
+  history: [],
+  dragged: null,
+  selectBox: null,
+  selectStart: null
+};
+
+const canvas = $("canvas");
+const hallImage = $("hallImage");
+
+function num(id, fallback = 0){
+  const n = Number($(id).value);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function val(id){
+  return String($(id).value || "").trim();
+}
+
+function pushHistory(){
+  state.history.push(JSON.stringify({
+    seats: state.seats,
+    decor: state.decor
+  }));
+
+  if (state.history.length > 50) state.history.shift();
+}
+
+$("imageInput").addEventListener("change", e => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = ev => {
+    hallImage.src = ev.target.result;
+    hallImage.onload = () => {
+      canvas.style.width = hallImage.naturalWidth + "px";
+      canvas.style.height = hallImage.naturalHeight + "px";
+    };
+  };
+
+  reader.readAsDataURL(file);
+});
+
+function pointFromEvent(e){
+  const r = canvas.getBoundingClientRect();
+  return {
+    x: Math.round(e.clientX - r.left),
+    y: Math.round(e.clientY - r.top)
+  };
+}
+
+canvas.addEventListener("click", e => {
+  if (!hallImage.src) return;
+
+  if (
+    e.target.classList.contains("seat-dot") ||
+    e.target.classList.contains("decor-label") ||
+    e.target.classList.contains("decor-stage")
+  ) return;
+
+  const mode = val("mode");
+  const p = pointFromEvent(e);
+
+  if (mode === "move" || mode === "select") return;
+
+  pushHistory();
+
+  if (mode === "seat") addSeatAt(p.x, p.y);
+
+  if (mode === "row") addRowAt(p.x, p.y);
+
+  if (mode === "arc") addArcAt(p.x, p.y);
+
+  if (mode === "label") {
+    state.decor.push({
+      type:"label",
+      text:val("decorText") || "LABEL",
+      x:p.x,
+      y:p.y,
+      rotate:num("decorRotate",0)
+    });
+  }
+
+  if (mode === "stage") {
+    state.decor.push({
+      type:"stage",
+      text:val("decorText") || "СЦЕНА",
+      x:p.x,
+      y:p.y,
+      w:num("stageW",420),
+      h:num("stageH",70)
+    });
+  }
+
+  renderAll();
+});
+
+function addSeatAt(x,y){
+  const row = num("row",1);
+  const seat = num("seat",1);
+
+  state.seats.push({
+    zone:val("zone"),
+    prefix:val("prefix"),
+    row,
+    seat,
+    x,
+    y
+  });
+
+  $("seat").value = seat + 1;
+}
+
+function addRowAt(x,y){
+  const row = num("row",1);
+  const start = num("seat",1);
+  const count = num("count",1);
+  const step = num("step",36);
+  const dir = val("direction");
+
+  for(let i=0;i<count;i++){
+    state.seats.push({
+      zone:val("zone"),
+      prefix:val("prefix"),
+      row,
+      seat:start+i,
+      x: dir === "left" ? x - i*step : x + i*step,
+      y
+    });
+  }
+
+  $("seat").value = start + count;
+}
+
+function addArcAt(x,y){
+  const row = num("row",1);
+  const start = num("seat",1);
+  const count = num("count",1);
+  const radius = num("radius",220);
+  const total = num("angle",120);
+  const startAngle = -total / 2;
+
+  for(let i=0;i<count;i++){
+    const t = count <= 1 ? 0 : i / (count - 1);
+    const a = (startAngle + t * total) * Math.PI / 180;
+
+    state.seats.push({
+      zone:val("zone"),
+      prefix:val("prefix"),
+      row,
+      seat:start+i,
+      x:Math.round(x + Math.cos(a) * radius),
+      y:Math.round(y + Math.sin(a) * radius)
+    });
+  }
+
+  $("seat").value = start + count;
+}
+
+function renderAll(){
+  canvas.querySelectorAll(".seat-dot,.seat-label,.decor-label,.decor-stage")
+    .forEach(el => el.remove());
+
+  state.seats.forEach(renderSeat);
+  state.decor.forEach(renderDecor);
+  updateStatus();
+}
+
+function seatKey(s){
+  return `${s.x}:${s.y}`;
+}
+
+function renderSeat(item){
+  const dot = document.createElement("div");
+  dot.className = "seat-dot";
+  dot.style.left = item.x + "px";
+  dot.style.top = item.y + "px";
+  dot.draggable = true;
+
+  if (state.selected.has(seatKey(item))) {
+    dot.classList.add("selected");
+  }
+
+  const label = document.createElement("div");
+  label.className = "seat-label";
+  label.style.left = item.x + "px";
+  label.style.top = item.y + "px";
+  label.textContent = `${item.row}/${item.seat}`;
+
+  dot.addEventListener("click", e => {
+    e.stopPropagation();
+
+    if (val("mode") === "select") {
+      const key = seatKey(item);
+      if (state.selected.has(key)) state.selected.delete(key);
+      else state.selected.add(key);
+      renderAll();
+      return;
+    }
+
+    if (val("mode") !== "move") {
+      pushHistory();
+      state.seats = state.seats.filter(s => seatKey(s) !== seatKey(item));
+      renderAll();
+    }
+  });
+
+  dot.addEventListener("dragstart", () => {
+    if (val("mode") !== "move") return;
+
+    state.dragged = {
+      type:"seat",
+      item
+    };
+  });
+
+  canvas.appendChild(dot);
+  canvas.appendChild(label);
+}
+
+function renderDecor(item){
+  if (item.type === "label") {
+    const el = document.createElement("div");
+    el.className = "decor-label";
+    el.style.left = item.x + "px";
+    el.style.top = item.y + "px";
+    el.style.transform = `translate(-50%,-50%) rotate(${Number(item.rotate || 0)}deg)`;
+    el.textContent = item.text || "";
+
+    el.draggable = true;
+    el.addEventListener("dragstart", () => {
+      if (val("mode") === "move") state.dragged = { type:"decor", item };
+    });
+
+    el.addEventListener("click", e => {
+      e.stopPropagation();
+      if (val("mode") !== "move") {
+        pushHistory();
+        state.decor = state.decor.filter(d => d !== item);
+        renderAll();
+      }
+    });
+
+    canvas.appendChild(el);
+  }
+
+  if (item.type === "stage") {
+    const el = document.createElement("div");
+    el.className = "decor-stage";
+    el.style.left = item.x + "px";
+    el.style.top = item.y + "px";
+    el.style.width = (item.w || 420) + "px";
+    el.style.height = (item.h || 70) + "px";
+    el.textContent = item.text || "СЦЕНА";
+
+    el.draggable = true;
+    el.addEventListener("dragstart", () => {
+      if (val("mode") === "move") state.dragged = { type:"decor", item };
+    });
+
+    el.addEventListener("click", e => {
+      e.stopPropagation();
+      if (val("mode") !== "move") {
+        pushHistory();
+        state.decor = state.decor.filter(d => d !== item);
+        renderAll();
+      }
+    });
+
+    canvas.appendChild(el);
+  }
+}
+
+canvas.addEventListener("dragover", e => e.preventDefault());
+
+canvas.addEventListener("drop", e => {
+  e.preventDefault();
+  if (!state.dragged) return;
+
+  pushHistory();
+
+  const p = pointFromEvent(e);
+  state.dragged.item.x = p.x;
+  state.dragged.item.y = p.y;
+  state.dragged = null;
+
+  renderAll();
+});
+
+canvas.addEventListener("mousedown", e => {
+  if (val("mode") !== "select") return;
+  if (!hallImage.src) return;
+
+  const p = pointFromEvent(e);
+  state.selectStart = p;
+
+  const box = document.createElement("div");
+  box.className = "select-box";
+  box.style.left = p.x + "px";
+  box.style.top = p.y + "px";
+  box.style.width = "0px";
+  box.style.height = "0px";
+
+  state.selectBox = box;
+  canvas.appendChild(box);
+});
+
+canvas.addEventListener("mousemove", e => {
+  if (!state.selectBox || !state.selectStart) return;
+
+  const p = pointFromEvent(e);
+
+  const left = Math.min(state.selectStart.x, p.x);
+  const top = Math.min(state.selectStart.y, p.y);
+  const w = Math.abs(p.x - state.selectStart.x);
+  const h = Math.abs(p.y - state.selectStart.y);
+
+  state.selectBox.style.left = left + "px";
+  state.selectBox.style.top = top + "px";
+  state.selectBox.style.width = w + "px";
+  state.selectBox.style.height = h + "px";
+});
+
+canvas.addEventListener("mouseup", () => {
+  if (!state.selectBox) return;
+
+  const box = state.selectBox.getBoundingClientRect();
+
+  state.seats.forEach(s => {
+    const inside =
+      s.x >= Number(state.selectBox.style.left.replace("px","")) &&
+      s.x <= Number(state.selectBox.style.left.replace("px","")) + Number(state.selectBox.style.width.replace("px","")) &&
+      s.y >= Number(state.selectBox.style.top.replace("px","")) &&
+      s.y <= Number(state.selectBox.style.top.replace("px","")) + Number(state.selectBox.style.height.replace("px",""));
+
+    if (inside) state.selected.add(seatKey(s));
+  });
+
+  state.selectBox.remove();
+  state.selectBox = null;
+  state.selectStart = null;
+
+  renderAll();
+});
+
+$("deleteSelectedBtn").addEventListener("click", () => {
+  if (!state.selected.size) return;
+
+  pushHistory();
+
+  state.seats = state.seats.filter(s => !state.selected.has(seatKey(s)));
+  state.selected.clear();
+
+  renderAll();
+});
+
+$("undoBtn").addEventListener("click", () => {
+  const last = state.history.pop();
+  if (!last) return;
+
+  const data = JSON.parse(last);
+  state.seats = data.seats || [];
+  state.decor = data.decor || [];
+  state.selected.clear();
+
+  renderAll();
+});
+
+$("exportBtn").addEventListener("click", () => {
+  const result = {
+    version:1,
+    format:"builder",
+    generated:true,
+    title:"Назва залу",
+    width:hallImage.naturalWidth || hallImage.width || 1200,
+    height:hallImage.naturalHeight || hallImage.height || 900,
+    seats:state.seats,
+    decor:state.decor
+  };
+
+  $("jsonBox").value = JSON.stringify(result,null,2);
+});
+
+$("importBtn").addEventListener("click", () => {
+  try{
+    const data = JSON.parse($("jsonBox").value);
+
+    state.seats = Array.isArray(data.seats)
+      ? data.seats
+      : Array.isArray(data)
+        ? data
+        : [];
+
+    state.decor = Array.isArray(data.decor) ? data.decor : [];
+    state.selected.clear();
+
+    renderAll();
+  }catch(e){
+    alert("JSON не прочитался");
+    console.error(e);
+  }
+});
+
+$("clearBtn").addEventListener("click", () => {
+  if (!confirm("Очистить всё?")) return;
+
+  pushHistory();
+
+  state.seats = [];
+  state.decor = [];
+  state.selected.clear();
+
+  renderAll();
+});
+
+function updateStatus(){
+  $("status").innerHTML =
+    `Seats: ${state.seats.length}<br>` +
+    `Decor: ${state.decor.length}<br>` +
+    `Selected: ${state.selected.size}`;
+}
+</script>
+
+</body>
+</html>
