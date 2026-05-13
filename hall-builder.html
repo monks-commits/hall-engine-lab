@@ -304,6 +304,10 @@ let seats = [];
 let decor = [];
 let draggedElement = null;
 
+let selectedSeats = new Set();
+let selectBox = null;
+let selectStart = null;  
+
 function toInt(el, fallback = 0){
   const n = parseInt(el?.value, 10);
   return Number.isFinite(n) ? n : fallback;
