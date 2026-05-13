@@ -390,6 +390,65 @@ function renderSeat(item){
   canvas.appendChild(label);
 }
 
+function renderDecorItem(item){
+
+  if (item.type === "label") {
+
+    const el = document.createElement("div");
+
+    el.className = "decor-label";
+
+    el.style.position = "absolute";
+    el.style.left = item.x + "px";
+    el.style.top = item.y + "px";
+
+    el.style.transform = "translate(-50%, -50%)";
+
+    el.style.fontSize = "42px";
+    el.style.fontWeight = "900";
+
+    el.style.color = "#111827";
+
+    el.textContent = item.text || "";
+
+    canvas.appendChild(el);
+
+    return;
+  }
+
+  if (item.type === "stage") {
+
+    const stage = document.createElement("div");
+
+    stage.className = "decor-stage";
+
+    stage.style.position = "absolute";
+
+    stage.style.left = item.x + "px";
+    stage.style.top = item.y + "px";
+
+    stage.style.width = (item.w || 420) + "px";
+    stage.style.height = (item.h || 70) + "px";
+
+    stage.style.borderRadius = "999px";
+
+    stage.style.background = "#7f1d1d";
+
+    stage.style.color = "#fff";
+
+    stage.style.display = "flex";
+    stage.style.alignItems = "center";
+    stage.style.justifyContent = "center";
+
+    stage.style.fontWeight = "800";
+    stage.style.letterSpacing = ".08em";
+
+    stage.textContent = item.text || "СЦЕНА";
+
+    canvas.appendChild(stage);
+  }
+}
+  
 function updateCounter(){
 
   counter.textContent = "Мест: " + seats.length;
