@@ -326,8 +326,8 @@ if (mode === "stage") {
     text: decorTextInput.value || "СЦЕНА",
     x,
     y,
-    w: 420,
-    h: 70
+    w: Number(stageWInput.value || 420),
+h: Number(stageHInput.value || 70)
   };
 
   decor.push(item);
