@@ -1005,7 +1005,15 @@ canvas.addEventListener("mouseup", () => {
 });
 
 canvas.addEventListener("click", e => {
-  if (e.target !== canvas && e.target !== hallImage && e.target !== gridLayer) return;
+  const blocked =
+    e.target.classList.contains("seat-dot") ||
+    e.target.classList.contains("seat-label") ||
+    e.target.classList.contains("decor-label") ||
+    e.target.classList.contains("decor-stage") ||
+    e.target.classList.contains("decor-path") ||
+    e.target.classList.contains("select-box");
+
+  if (blocked) return;
 
   const p = getCanvasPoint(e);
   const mode = modeInput.value;
@@ -1016,60 +1024,70 @@ canvas.addEventListener("click", e => {
 
   if (mode === "label" || mode === "curvedLabel") {
     decor.push({
-      id:uid("decor"),
-      type:mode === "curvedLabel" ? "curvedLabel" : "label",
-      text:decorTextInput.value.trim() || "LABEL",
-      x:p.x,
-      y:p.y,
-      rotate:toFloat(decorRotateInput,0),
-      size:42
+      id: uid("decor"),
+      type: mode === "curvedLabel" ? "curvedLabel" : "label",
+      text: decorTextInput.value.trim() || "LABEL",
+      x: p.x,
+      y: p.y,
+      rotate: toFloat(decorRotateInput, 0),
+      size: 42
     });
+
     renderAll();
     return;
   }
 
   if (mode === "stage") {
     decor.push({
-      id:uid("decor"),
-      type:"stage",
-      text:decorTextInput.value.trim() || "СЦЕНА",
-      x:p.x,
-      y:p.y,
-      w:toInt(stageWInput,420),
-      h:toInt(stageHInput,70)
+      id: uid("decor"),
+      type: "stage",
+      text: decorTextInput.value.trim() || "СЦЕНА",
+      x: p.x,
+      y: p.y,
+      w: toInt(stageWInput, 420),
+      h: toInt(stageHInput, 70)
     });
+
     renderAll();
     return;
   }
 
   if (mode === "path") {
-    pathDraft.push({x:p.x,y:p.y});
+    pathDraft.push({ x: p.x, y: p.y });
     log(`PATH POINTS: ${pathDraft.length}. Double click для завершення.`);
+
     if (pathDraft.length > 1) {
-      const temp = {id:"temp_path", points:pathDraft, stroke:"#2563eb", strokeWidth:3};
+      const temp = {
+        id: "temp_path",
+        points: pathDraft,
+        stroke: "#2563eb",
+        strokeWidth: 3
+      };
+
       paths = paths.filter(x => x.id !== "temp_path");
       paths.push(temp);
       renderAll();
     }
+
     return;
   }
 
   if (mode === "row") {
-    buildRow(p.x,p.y);
+    buildRow(p.x, p.y);
     renderAll();
     return;
   }
 
   if (mode === "arc") {
-    buildArc(p.x,p.y);
+    buildArc(p.x, p.y);
     renderAll();
     return;
   }
 
-  addSeat(p.x,p.y);
+  addSeat(p.x, p.y);
   renderAll();
 });
-
+  
 canvas.addEventListener("dblclick", e => {
   if (modeInput.value !== "path") return;
   e.preventDefault();
