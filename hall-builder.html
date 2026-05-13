@@ -498,6 +498,18 @@ dot.draggable = true;
   dot.dataset.row  = item.row;
   dot.dataset.seat = item.seat;
 
+  dot.dataset.x = item.x;
+dot.dataset.y = item.y;
+
+dot.addEventListener("dragstart", () => {
+  draggedElement = {
+    type: "seat",
+    item,
+    dot,
+    label
+  };
+});
+
   const label = document.createElement("div");
   label.className = "seat-label";
 
