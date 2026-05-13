@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>VA Hall Studio SIMPLE — Align Build</title>
+<title>VA Hall Studio SIMPLE — Geometry Build RU</title>
 
 <style>
 :root{
@@ -198,6 +198,37 @@ h2{
   z-index:11;
 }
 
+.decor-text{
+  position:absolute;
+  transform:translate(-50%,-50%);
+  font-weight:700;
+  color:#111827;
+  white-space:nowrap;
+  cursor:pointer;
+  z-index:8;
+  user-select:none;
+}
+
+.decor-stage{
+  position:absolute;
+  background:#04a9e8;
+  color:#ffffff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:900;
+  letter-spacing:.08em;
+  cursor:pointer;
+  z-index:7;
+  user-select:none;
+}
+
+.decor-text.selected,
+.decor-stage.selected{
+  outline:3px solid rgba(37,99,235,.45);
+  outline-offset:3px;
+}
+
 .counter,
 .log{
   font-size:13px;
@@ -232,10 +263,10 @@ h2{
     <h1>VA Hall Studio SIMPLE</h1>
 
     <div class="note">
-      Ручной рабочий режим: загрузили схему, накликали точки, выделили ряд, выровняли, распределили, экспортировали JSON.
+      Чистая геометрия зала: места, подписи, сцена. Без цен и цветов мест.
     </div>
 
-    <h2>1. Фон / Canvas</h2>
+    <h2>1. Фон / Холст</h2>
 
     <div class="field">
       <label>Загрузить схему зала</label>
@@ -256,7 +287,7 @@ h2{
     <button class="btn blue" id="applyCanvasBtn">ПРИМЕНИТЬ РАЗМЕР ХОЛСТА</button>
 
     <div class="field">
-      <label>Background Mode</label>
+      <label>Режим фона</label>
       <select id="bgMode">
         <option value="contain">Вписать без искажений</option>
         <option value="stretch">Растянуть под холст</option>
@@ -275,7 +306,18 @@ h2{
 
     <div class="counter" id="zoomLabel">Zoom: 100%</div>
 
-    <h2>3. Данные места</h2>
+    <h2>3. Режим</h2>
+
+    <div class="field">
+      <label>Что ставим кликом</label>
+      <select id="mode">
+        <option value="seat">Место</option>
+        <option value="text">Текст</option>
+        <option value="stage">Сцена</option>
+      </select>
+    </div>
+
+    <h2>4. Данные места</h2>
 
     <div class="field">
       <label>Zone</label>
@@ -297,18 +339,44 @@ h2{
       </div>
     </div>
 
-    <div class="row2">
+    <h2>5. Текст / Сцена</h2>
+
+    <div class="field">
+      <label>Текст</label>
+      <input id="decorText" value="ПАРТЕР">
+    </div>
+
+    <div class="row3">
       <div class="field">
-        <label>Price</label>
-        <input type="number" id="price" value="0">
+        <label>Размер</label>
+        <input type="number" id="decorSize" value="24">
       </div>
       <div class="field">
-        <label>Color</label>
-        <input id="color" value="#dc2626">
+        <label>Поворот</label>
+        <input type="number" id="decorRotate" value="0">
+      </div>
+      <div class="field">
+        <label>Жирность</label>
+        <select id="decorWeight">
+          <option value="400">Обычный</option>
+          <option value="700" selected>Жирный</option>
+          <option value="900">Очень жирный</option>
+        </select>
       </div>
     </div>
 
-    <h2>4. Вид точек</h2>
+    <div class="row2">
+      <div class="field">
+        <label>Stage W</label>
+        <input type="number" id="stageW" value="1500">
+      </div>
+      <div class="field">
+        <label>Stage H</label>
+        <input type="number" id="stageH" value="120">
+      </div>
+    </div>
+
+    <h2>6. Вид точек</h2>
 
     <div class="row2">
       <div class="field">
@@ -322,14 +390,14 @@ h2{
     </div>
 
     <div class="field">
-      <label>Show Labels</label>
+      <label>Показывать номера</label>
       <select id="showLabels">
         <option value="1">Да</option>
         <option value="0">Нет</option>
       </select>
     </div>
 
-    <h2>5. Сетка</h2>
+    <h2>7. Сетка</h2>
 
     <div class="row2">
       <div class="field">
@@ -347,7 +415,7 @@ h2{
 
     <button class="btn" id="gridBtn">СЕТКА ВКЛ / ВЫКЛ</button>
 
-    <h2>6. Редактирование</h2>
+    <h2>8. Редактирование</h2>
 
     <button class="btn orange" id="undoBtn">ОТМЕНИТЬ</button>
     <button class="btn red" id="deleteBtn">УДАЛИТЬ ВЫДЕЛЕННОЕ</button>
@@ -358,8 +426,8 @@ h2{
 
   <main class="canvas-wrap" id="canvasWrap">
     <div class="topbar">
-      <b>Manual Mapper + Align</b>
-      <span>Клик = место. Shift+клик = добавить/убрать из выделения. Рамка = выделить группу. Alt+drag = двигать выделенное.</span>
+      <b>Manual Mapper + Text + Stage</b>
+      <span>Клик = добавить. Shift+клик = выделить. Рамка = выделить группу. Alt+drag = двигать выделенное.</span>
     </div>
 
     <div id="zoomHost">
@@ -370,13 +438,16 @@ h2{
   </main>
 
   <aside class="rightbar">
-    <h2>Align / Distribute</h2>
+    <h2>Выравнивание мест</h2>
 
     <button class="btn blue" id="alignHBtn">ВЫРОВНЯТЬ ПО ГОРИЗОНТАЛИ</button>
     <button class="btn blue" id="alignVBtn">ВЫРОВНЯТЬ ПО ВЕРТИКАЛИ</button>
     <button class="btn purple" id="distHBtn">РАСПРЕДЕЛИТЬ ПО ГОРИЗОНТАЛИ</button>
     <button class="btn purple" id="distVBtn">РАСПРЕДЕЛИТЬ ПО ВЕРТИКАЛИ</button>
-    <button class="btn green" id="autoNumberBtn">АВТО НУМЕРАЦИЯ</button>
+    <button class="btn green" id="autoNumberBtn">АВТО НУМЕРАЦИЯ МЕСТ</button>
+
+    <h2>Копия / зеркало</h2>
+
     <button class="btn orange" id="copyBtn">КОПИРОВАТЬ ВЫДЕЛЕННОЕ</button>
     <button class="btn orange" id="pasteBtn">ВСТАВИТЬ КОПИЮ</button>
 
@@ -392,9 +463,10 @@ h2{
     </div>
 
     <button class="btn purple" id="duplicateBtn">ДУБЛИРОВАТЬ СО СМЕЩЕНИЕМ</button>
+    <button class="btn blue" id="mirrorHBtn">ЗЕРКАЛИТЬ ПО ГОРИЗОНТАЛИ</button>
+    <button class="btn blue" id="mirrorVBtn">ЗЕРКАЛИТЬ ПО ВЕРТИКАЛИ</button>
 
-
-    <h2>Selection</h2>
+    <h2>Выделение</h2>
 
     <button class="btn" id="selectAllBtn">ВЫДЕЛИТЬ ВСЁ</button>
     <button class="btn" id="clearSelectionBtn">СНЯТЬ ВЫДЕЛЕНИЕ</button>
@@ -432,8 +504,10 @@ const jsonOutput = $("jsonOutput");
 const zoomLabel = $("zoomLabel");
 
 let seats = [];
+let decor = [];
 let selected = new Set();
 let history = [];
+let clipboard = [];
 let idn = 1;
 let bgDataUrl = "";
 let bgNaturalW = 0;
@@ -445,8 +519,8 @@ let selectStart = null;
 let drag = null;
 let suppressClick = false;
 
-function uid(){
-  return "seat_" + Date.now() + "_" + (idn++);
+function uid(prefix){
+  return prefix + "_" + Date.now() + "_" + (idn++);
 }
 
 function log(msg){
@@ -465,7 +539,7 @@ function val(id){
 }
 
 function save(){
-  history.push(JSON.stringify({ seats }));
+  history.push(JSON.stringify({ seats, decor }));
   if (history.length > 100) history.shift();
 }
 
@@ -501,12 +575,20 @@ function seatKey(s){
   return `${s.prefix || ""}${s.row}-M${s.seat}`;
 }
 
+function allObjects(){
+  return [...seats, ...decor];
+}
+
 function selectedSeats(){
   return seats.filter(s => selected.has(s.id));
 }
 
-function seatById(id){
-  return seats.find(s => s.id === id);
+function selectedObjects(){
+  return allObjects().filter(o => selected.has(o.id));
+}
+
+function objectById(id){
+  return allObjects().find(o => o.id === id);
 }
 
 function applyCanvas(){
@@ -556,11 +638,43 @@ function applyZoom(){
 }
 
 function render(){
-  canvas.querySelectorAll(".seat-dot,.seat-label").forEach(el => el.remove());
+  canvas.querySelectorAll(".seat-dot,.seat-label,.decor-text,.decor-stage").forEach(el => el.remove());
 
   const size = Math.max(2, n("seatSize", 10));
   const labelSize = Math.max(0, n("labelSize", 8));
   const showLabels = $("showLabels").value === "1";
+
+  decor.forEach(d => {
+    if (d.type === "stage") {
+      const el = document.createElement("div");
+      el.className = "decor-stage";
+      el.dataset.id = d.id;
+      el.style.left = d.x + "px";
+      el.style.top = d.y + "px";
+      el.style.width = d.w + "px";
+      el.style.height = d.h + "px";
+      el.style.fontSize = (d.size || 44) + "px";
+      el.textContent = d.text || "СЦЕНА";
+
+      if (selected.has(d.id)) el.classList.add("selected");
+      canvas.appendChild(el);
+    }
+
+    if (d.type === "text") {
+      const el = document.createElement("div");
+      el.className = "decor-text";
+      el.dataset.id = d.id;
+      el.style.left = d.x + "px";
+      el.style.top = d.y + "px";
+      el.style.fontSize = (d.size || 24) + "px";
+      el.style.fontWeight = d.weight || "700";
+      el.style.transform = `translate(-50%,-50%) rotate(${d.rotate || 0}deg)`;
+      el.textContent = d.text || "Текст";
+
+      if (selected.has(d.id)) el.classList.add("selected");
+      canvas.appendChild(el);
+    }
+  });
 
   seats.forEach(s => {
     const dot = document.createElement("div");
@@ -570,7 +684,6 @@ function render(){
     dot.style.top = s.y + "px";
     dot.style.width = size + "px";
     dot.style.height = size + "px";
-    dot.style.background = s.color || "#dc2626";
 
     if (selected.has(s.id)) dot.classList.add("selected");
 
@@ -589,7 +702,8 @@ function render(){
 
   counter.innerHTML =
     "Мест: " + seats.length + "<br>" +
-    "Selected: " + selected.size + "<br>" +
+    "Декор: " + decor.length + "<br>" +
+    "Выделено: " + selected.size + "<br>" +
     "Canvas: " + cw() + "x" + ch();
 }
 
@@ -597,13 +711,12 @@ function addSeatAt(x, y){
   const seatNum = n("seat", 1);
 
   seats.push({
-    id: uid(),
+    id: uid("seat"),
+    type: "seat",
     zone: val("zone"),
     prefix: val("prefix"),
     row: String(n("row", 1)),
     seat: seatNum,
-    price: n("price", 0),
-    color: val("color") || "#dc2626",
     x,
     y
   });
@@ -611,9 +724,35 @@ function addSeatAt(x, y){
   $("seat").value = seatNum + 1;
 }
 
-function getTargetSeatId(e){
-  const dot = e.target.closest(".seat-dot");
-  return dot ? dot.dataset.id : null;
+function addTextAt(x, y){
+  decor.push({
+    id: uid("text"),
+    type: "text",
+    text: val("decorText") || "Текст",
+    x,
+    y,
+    size: n("decorSize", 24),
+    rotate: n("decorRotate", 0),
+    weight: val("decorWeight") || "700"
+  });
+}
+
+function addStageAt(x, y){
+  decor.push({
+    id: uid("stage"),
+    type: "stage",
+    text: val("decorText") || "СЦЕНА",
+    x,
+    y,
+    w: n("stageW", 1500),
+    h: n("stageH", 120),
+    size: n("decorSize", 44)
+  });
+}
+
+function getTargetId(e){
+  const el = e.target.closest(".seat-dot,.decor-text,.decor-stage");
+  return el ? el.dataset.id : null;
 }
 
 imageLoader.addEventListener("change", e => {
@@ -634,97 +773,7 @@ imageLoader.addEventListener("change", e => {
       $("canvasW").value = 1600;
       $("canvasH").value = Math.round(1600 * bgNaturalH / bgNaturalW);
 
-      
-let clipboard = [];
-
-$("copyBtn").addEventListener("click", () => {
-
-  const list = selectedSeats();
-
-  if (!list.length) {
-    log("КОПИРОВАНИЕ: ничего не выделено.");
-    return;
-  }
-
-  clipboard = list.map(s => ({ ...s }));
-
-  log("СКОПИРОВАНО: " + clipboard.length + " мест");
-});
-
-$("pasteBtn").addEventListener("click", () => {
-
-  if (!clipboard.length) {
-    log("ВСТАВКА: буфер пуст.");
-    return;
-  }
-
-  save();
-
-  selected.clear();
-
-  clipboard.forEach(s => {
-
-    const ns = {
-      ...s,
-      id: uid(),
-      x: s.x + 40,
-      y: s.y + 40
-    };
-
-    seats.push(ns);
-    selected.add(ns.id);
-  });
-
-  render();
-
-  log("ВСТАВЛЕНО: " + clipboard.length + " мест");
-});
-
-$("duplicateBtn").addEventListener("click", () => {
-
-  const list = selectedSeats();
-
-  if (!list.length) {
-    log("ДУБЛИРОВАНИЕ: ничего не выделено.");
-    return;
-  }
-
-  save();
-
-  const dx = n("dupOffsetX", 0);
-  const dy = n("dupOffsetY", 40);
-
-  const created = [];
-
-  list.forEach(s => {
-
-    const ns = {
-      ...s,
-      id: uid(),
-      x: s.x + dx,
-      y: s.y + dy
-    };
-
-    seats.push(ns);
-    created.push(ns.id);
-  });
-
-  selected = new Set(created);
-
-  render();
-
-  log(
-    "ДУБЛИРОВАНО: " +
-    list.length +
-    " мест. Offset: " +
-    dx +
-    "/" +
-    dy
-  );
-});
-
-
-applyCanvas();
+      applyCanvas();
 
       log(
         "BACKGROUND LOADED: " +
@@ -747,7 +796,7 @@ applyCanvas();
 });
 
 canvas.addEventListener("pointerdown", e => {
-  const id = getTargetSeatId(e);
+  const id = getTargetId(e);
   const p = point(e);
 
   if (e.altKey && id) {
@@ -759,7 +808,11 @@ canvas.addEventListener("pointerdown", e => {
 
     drag = {
       start: p,
-      original: selectedSeats().map(s => ({ id: s.id, x: s.x, y: s.y }))
+      original: selectedObjects().map(o => ({
+        id: o.id,
+        x: o.x,
+        y: o.y
+      }))
     };
 
     suppressClick = true;
@@ -786,10 +839,10 @@ canvas.addEventListener("pointermove", e => {
     const dy = p.y - drag.start.y;
 
     drag.original.forEach(o => {
-      const s = seatById(o.id);
-      if (!s) return;
-      s.x = snap(o.x + dx);
-      s.y = snap(o.y + dy);
+      const obj = objectById(o.id);
+      if (!obj) return;
+      obj.x = snap(o.x + dx);
+      obj.y = snap(o.y + dy);
     });
 
     render();
@@ -838,10 +891,10 @@ canvas.addEventListener("pointerup", e => {
     if (width > 5 && height > 5) {
       if (!e.shiftKey) selected.clear();
 
-      seats.forEach(s => {
-        if (s.x >= Math.min(left, right) && s.x <= Math.max(left, right) &&
-            s.y >= Math.min(top, bottom) && s.y <= Math.max(top, bottom)) {
-          selected.add(s.id);
+      allObjects().forEach(o => {
+        if (o.x >= Math.min(left, right) && o.x <= Math.max(left, right) &&
+            o.y >= Math.min(top, bottom) && o.y <= Math.max(top, bottom)) {
+          selected.add(o.id);
         }
       });
 
@@ -855,7 +908,7 @@ canvas.addEventListener("pointerup", e => {
 canvas.addEventListener("click", e => {
   if (suppressClick) return;
 
-  const id = getTargetSeatId(e);
+  const id = getTargetId(e);
 
   if (id) {
     if (e.shiftKey) {
@@ -877,19 +930,25 @@ canvas.addEventListener("click", e => {
   save();
 
   const p = point(e);
-  addSeatAt(p.x, p.y);
+  const mode = val("mode");
+
+  if (mode === "seat") addSeatAt(p.x, p.y);
+  if (mode === "text") addTextAt(p.x, p.y);
+  if (mode === "stage") addStageAt(p.x, p.y);
+
   selected.clear();
   render();
 });
 
 canvas.addEventListener("dblclick", e => {
-  const id = getTargetSeatId(e);
+  const id = getTargetId(e);
   if (!id) return;
 
   e.preventDefault();
   save();
 
   seats = seats.filter(s => s.id !== id);
+  decor = decor.filter(d => d.id !== id);
   selected.delete(id);
   render();
 });
@@ -926,6 +985,7 @@ $("undoBtn").addEventListener("click", () => {
 
   const data = JSON.parse(prev);
   seats = data.seats || [];
+  decor = data.decor || [];
   selected.clear();
   render();
 });
@@ -936,6 +996,7 @@ $("deleteBtn").addEventListener("click", () => {
   save();
 
   seats = seats.filter(s => !selected.has(s.id));
+  decor = decor.filter(d => !selected.has(d.id));
   selected.clear();
   render();
 });
@@ -944,14 +1005,15 @@ $("clearBtn").addEventListener("click", () => {
   save();
 
   seats = [];
+  decor = [];
   selected.clear();
   jsonOutput.value = "";
   render();
-  log("ALL SEATS CLEARED");
+  log("ALL CLEARED");
 });
 
 $("selectAllBtn").addEventListener("click", () => {
-  selected = new Set(seats.map(s => s.id));
+  selected = new Set(allObjects().map(o => o.id));
   render();
 });
 
@@ -963,7 +1025,7 @@ $("clearSelectionBtn").addEventListener("click", () => {
 $("alignHBtn").addEventListener("click", () => {
   const list = selectedSeats();
   if (list.length < 2) {
-    log("ВЫРОВНЯТЬ ПО ГОРИЗОНТАЛИ: нужно выделить минимум 2 места.");
+    log("Нужно выделить минимум 2 места.");
     return;
   }
 
@@ -973,13 +1035,13 @@ $("alignHBtn").addEventListener("click", () => {
   list.forEach(s => { s.y = avgY; });
 
   render();
-  log("ВЫРОВНЯТЬ ПО ГОРИЗОНТАЛИ OK: y = " + avgY);
+  log("ВЫРОВНЕНО ПО ГОРИЗОНТАЛИ: y = " + avgY);
 });
 
 $("alignVBtn").addEventListener("click", () => {
   const list = selectedSeats();
   if (list.length < 2) {
-    log("ВЫРОВНЯТЬ ПО ВЕРТИКАЛИ: нужно выделить минимум 2 места.");
+    log("Нужно выделить минимум 2 места.");
     return;
   }
 
@@ -989,13 +1051,13 @@ $("alignVBtn").addEventListener("click", () => {
   list.forEach(s => { s.x = avgX; });
 
   render();
-  log("ВЫРОВНЯТЬ ПО ВЕРТИКАЛИ OK: x = " + avgX);
+  log("ВЫРОВНЕНО ПО ВЕРТИКАЛИ: x = " + avgX);
 });
 
 $("distHBtn").addEventListener("click", () => {
   const list = selectedSeats().sort((a,b) => a.x - b.x);
   if (list.length < 3) {
-    log("РАСПРЕДЕЛИТЬ ПО ГОРИЗОНТАЛИ: нужно выделить минимум 3 места.");
+    log("Нужно выделить минимум 3 места.");
     return;
   }
 
@@ -1010,13 +1072,13 @@ $("distHBtn").addEventListener("click", () => {
   });
 
   render();
-  log("РАСПРЕДЕЛИТЬ ПО ГОРИЗОНТАЛИ OK. Step: " + Math.round(step));
+  log("РАСПРЕДЕЛЕНО ПО ГОРИЗОНТАЛИ. Шаг: " + Math.round(step));
 });
 
 $("distVBtn").addEventListener("click", () => {
   const list = selectedSeats().sort((a,b) => a.y - b.y);
   if (list.length < 3) {
-    log("РАСПРЕДЕЛИТЬ ПО ВЕРТИКАЛИ: нужно выделить минимум 3 места.");
+    log("Нужно выделить минимум 3 места.");
     return;
   }
 
@@ -1031,13 +1093,13 @@ $("distVBtn").addEventListener("click", () => {
   });
 
   render();
-  log("РАСПРЕДЕЛИТЬ ПО ВЕРТИКАЛИ OK. Step: " + Math.round(step));
+  log("РАСПРЕДЕЛЕНО ПО ВЕРТИКАЛИ. Шаг: " + Math.round(step));
 });
 
 $("autoNumberBtn").addEventListener("click", () => {
   const list = selectedSeats().sort((a,b) => a.x - b.x || a.y - b.y);
   if (!list.length) {
-    log("AUTO NUMBER: ничего не выделено.");
+    log("Ничего не выделено.");
     return;
   }
 
@@ -1051,14 +1113,151 @@ $("autoNumberBtn").addEventListener("click", () => {
     s.prefix = val("prefix");
     s.row = row;
     s.seat = startSeat + i;
-    s.price = n("price", 0);
-    s.color = val("color") || s.color;
   });
 
   $("seat").value = startSeat + list.length;
 
   render();
-  log("AUTO NUMBER OK: row " + row + ", seats " + startSeat + "–" + (startSeat + list.length - 1));
+  log("АВТО НУМЕРАЦИЯ: row " + row + ", seats " + startSeat + "–" + (startSeat + list.length - 1));
+});
+
+$("copyBtn").addEventListener("click", () => {
+  const list = selectedObjects();
+
+  if (!list.length) {
+    log("КОПИРОВАНИЕ: ничего не выделено.");
+    return;
+  }
+
+  clipboard = list.map(o => JSON.parse(JSON.stringify(o)));
+
+  log("СКОПИРОВАНО: " + clipboard.length + " объектов");
+});
+
+$("pasteBtn").addEventListener("click", () => {
+  if (!clipboard.length) {
+    log("ВСТАВКА: буфер пуст.");
+    return;
+  }
+
+  save();
+
+  selected.clear();
+
+  clipboard.forEach(o => {
+    const copy = JSON.parse(JSON.stringify(o));
+    copy.id = uid(copy.type || "obj");
+    copy.x += 40;
+    copy.y += 40;
+
+    if (copy.type === "seat") seats.push(copy);
+    else decor.push(copy);
+
+    selected.add(copy.id);
+  });
+
+  render();
+  log("ВСТАВЛЕНО: " + clipboard.length + " объектов");
+});
+
+$("duplicateBtn").addEventListener("click", () => {
+  const list = selectedObjects();
+
+  if (!list.length) {
+    log("ДУБЛИРОВАНИЕ: ничего не выделено.");
+    return;
+  }
+
+  save();
+
+  const dx = n("dupOffsetX", 0);
+  const dy = n("dupOffsetY", 40);
+  const created = [];
+
+  list.forEach(o => {
+    const copy = JSON.parse(JSON.stringify(o));
+    copy.id = uid(copy.type || "obj");
+    copy.x += dx;
+    copy.y += dy;
+
+    if (copy.type === "seat") seats.push(copy);
+    else decor.push(copy);
+
+    created.push(copy.id);
+  });
+
+  selected = new Set(created);
+  render();
+
+  log("ДУБЛИРОВАНО: " + created.length + " объектов. Offset: " + dx + "/" + dy);
+});
+
+$("mirrorHBtn").addEventListener("click", () => {
+  const list = selectedObjects();
+
+  if (!list.length) {
+    log("ЗЕРКАЛО H: ничего не выделено.");
+    return;
+  }
+
+  save();
+
+  const minX = Math.min(...list.map(o => o.x));
+  const maxX = Math.max(...list.map(o => o.x));
+  const centerX = (minX + maxX) / 2;
+  const created = [];
+
+  list.forEach(o => {
+    const copy = JSON.parse(JSON.stringify(o));
+    const dx = copy.x - centerX;
+
+    copy.id = uid(copy.type || "obj");
+    copy.x = Math.round(centerX - dx);
+
+    if (copy.type === "seat") seats.push(copy);
+    else decor.push(copy);
+
+    created.push(copy.id);
+  });
+
+  selected = new Set(created);
+  render();
+
+  log("ЗЕРКАЛО ПО ГОРИЗОНТАЛИ: создано " + created.length + " объектов");
+});
+
+$("mirrorVBtn").addEventListener("click", () => {
+  const list = selectedObjects();
+
+  if (!list.length) {
+    log("ЗЕРКАЛО V: ничего не выделено.");
+    return;
+  }
+
+  save();
+
+  const minY = Math.min(...list.map(o => o.y));
+  const maxY = Math.max(...list.map(o => o.y));
+  const centerY = (minY + maxY) / 2;
+  const created = [];
+
+  list.forEach(o => {
+    const copy = JSON.parse(JSON.stringify(o));
+    const dy = copy.y - centerY;
+
+    copy.id = uid(copy.type || "obj");
+    copy.y = Math.round(centerY - dy);
+
+    if (copy.type === "seat") seats.push(copy);
+    else decor.push(copy);
+
+    created.push(copy.id);
+  });
+
+  selected = new Set(created);
+  render();
+
+  log("ЗЕРКАЛО ПО ВЕРТИКАЛИ: создано " + created.length + " объектов");
 });
 
 function cleanSeats(){
@@ -1089,16 +1288,24 @@ function exportObject(){
   cleanSeats();
 
   return {
-    version: 2,
-    format: "va-hall-studio-simple-align",
+    version: 3,
+    format: "va-hall-studio-geometry",
     title: "Назва залу",
     width: cw(),
     height: ch(),
     background_mode: $("bgMode").value,
     seats: seats.map(s => ({
-      ...s,
-      key: seatKey(s)
-    }))
+      id: s.id,
+      type: "seat",
+      zone: s.zone,
+      prefix: s.prefix,
+      row: String(s.row),
+      seat: Number(s.seat),
+      key: seatKey(s),
+      x: Number(s.x),
+      y: Number(s.y)
+    })),
+    decor: decor.map(d => ({ ...d }))
   };
 }
 
@@ -1115,10 +1322,12 @@ $("importBtn").addEventListener("click", () => {
     save();
 
     seats = Array.isArray(data.seats)
-      ? data.seats
+      ? data.seats.map(s => ({ ...s, type: "seat" }))
       : Array.isArray(data)
-        ? data
+        ? data.map(s => ({ ...s, type: "seat" }))
         : [];
+
+    decor = Array.isArray(data.decor) ? data.decor : [];
 
     if (data.width && data.height) {
       $("canvasW").value = data.width;
@@ -1168,7 +1377,7 @@ $("validateBtn").addEventListener("click", () => {
 applyCanvas();
 applyZoom();
 render();
-log("READY. Workflow: накликать ряд → рамкой выделить → ВЫРОВНЯТЬ ПО ГОРИЗОНТАЛИ → РАСПРЕДЕЛИТЬ ПО ГОРИЗОНТАЛИ → AUTO NUMBER.");
+log("READY. Режимы: место / текст / сцена. Цена и цвет мест удалены.");
 </script>
 
 </body>
