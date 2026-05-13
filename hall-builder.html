@@ -327,7 +327,36 @@ imageLoader.addEventListener("change", e => {
 });
 
 canvas.addEventListener("click", e => {
+canvas.addEventListener("dragover", e => {
 
+ canvas.addEventListener("drop", e => {
+
+  e.preventDefault();
+
+  if (!draggedElement) return;
+
+  const rect = canvas.getBoundingClientRect();
+
+  const x = Math.round(e.clientX - rect.left);
+  const y = Math.round(e.clientY - rect.top);
+
+  if (draggedElement.type === "seat") {
+
+    draggedElement.item.x = x;
+    draggedElement.item.y = y;
+
+    draggedElement.dot.style.left = x + "px";
+    draggedElement.dot.style.top = y + "px";
+
+    draggedElement.label.style.left = x + "px";
+    draggedElement.label.style.top = y + "px";
+  }
+
+  draggedElement = null;
+}); 
+  
+  e.preventDefault();
+});
   if (!hallImage.src) return;
 
   if (e.target.classList.contains("seat-dot")) return;
