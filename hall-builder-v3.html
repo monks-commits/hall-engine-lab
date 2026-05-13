@@ -427,7 +427,7 @@ h2{
   <main class="canvas-wrap" id="canvasWrap">
     <div class="topbar">
       <b>Manual Mapper + Text + Stage</b>
-      <span>Клик = добавить. Shift+клик = выделить. Рамка = выделить группу. Alt+drag = двигать выделенное.</span>
+      <span>Клик = добавить. Shift+клик = выделить. Рамка = выделить группу. Выделенный объект можно просто тянуть мышкой.</span>
     </div>
 
     <div id="zoomHost">
@@ -799,7 +799,9 @@ canvas.addEventListener("pointerdown", e => {
   const id = getTargetId(e);
   const p = point(e);
 
-  if (e.altKey && id) {
+  // Если нажали на объект — сразу готовим перемещение.
+  // Без Alt. Это работает для мест, текста и сцены.
+  if (id) {
     if (!selected.has(id)) {
       selected.clear();
       selected.add(id);
@@ -808,6 +810,7 @@ canvas.addEventListener("pointerdown", e => {
 
     drag = {
       start: p,
+      moved: false,
       original: selectedObjects().map(o => ({
         id: o.id,
         x: o.x,
@@ -819,16 +822,15 @@ canvas.addEventListener("pointerdown", e => {
     return;
   }
 
-  if (!id) {
-    selectStart = p;
-    selectBox = document.createElement("div");
-    selectBox.className = "select-box";
-    selectBox.style.left = p.x + "px";
-    selectBox.style.top = p.y + "px";
-    selectBox.style.width = "0px";
-    selectBox.style.height = "0px";
-    canvas.appendChild(selectBox);
-  }
+  // Если нажали по пустому месту — начинаем рамку выделения.
+  selectStart = p;
+  selectBox = document.createElement("div");
+  selectBox.className = "select-box";
+  selectBox.style.left = p.x + "px";
+  selectBox.style.top = p.y + "px";
+  selectBox.style.width = "0px";
+  selectBox.style.height = "0px";
+  canvas.appendChild(selectBox);
 });
 
 canvas.addEventListener("pointermove", e => {
@@ -837,6 +839,10 @@ canvas.addEventListener("pointermove", e => {
   if (drag) {
     const dx = p.x - drag.start.x;
     const dy = p.y - drag.start.y;
+
+    if (Math.abs(dx) > 2 || Math.abs(dy) > 2) {
+      drag.moved = true;
+    }
 
     drag.original.forEach(o => {
       const obj = objectById(o.id);
@@ -864,9 +870,16 @@ canvas.addEventListener("pointermove", e => {
 
 canvas.addEventListener("pointerup", e => {
   if (drag) {
-    save();
+    if (drag.moved) {
+      save();
+    }
+
     drag = null;
-    setTimeout(() => { suppressClick = false; }, 0);
+
+    setTimeout(() => {
+      suppressClick = false;
+    }, 80);
+
     render();
     return;
   }
@@ -1377,7 +1390,7 @@ $("validateBtn").addEventListener("click", () => {
 applyCanvas();
 applyZoom();
 render();
-log("READY. Режимы: место / текст / сцена. Цена и цвет мест удалены.");
+log("READY. Режимы: место / текст / сцена. Объекты двигаются обычным перетаскиванием.");
 </script>
 
 </body>
