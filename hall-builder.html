@@ -461,7 +461,8 @@ exportBtn.addEventListener("click", () => {
     title: "Оперний театр",
     width: hallImage.naturalWidth || hallImage.width || 1200,
     height: hallImage.naturalHeight || hallImage.height || 900,
-    seats
+    seats,
+decor
   };
 
   jsonOutput.value = JSON.stringify(result, null, 2);
@@ -472,6 +473,9 @@ importBtn.addEventListener("click", () => {
     const data = JSON.parse(jsonOutput.value);
 
     seats = Array.isArray(data?.seats)
+      decor = Array.isArray(data?.decor)
+  ? data.decor
+  : [];
       ? data.seats
       : Array.isArray(data)
         ? data
@@ -482,6 +486,7 @@ importBtn.addEventListener("click", () => {
       .forEach(el => el.remove());
 
     seats.forEach(renderSeat);
+    decor.forEach(renderDecorItem);
     updateCounter();
 
   } catch (e) {
