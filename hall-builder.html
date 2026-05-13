@@ -270,7 +270,6 @@
 </div>
 
 <script>
-
 const imageLoader = document.getElementById("imageLoader");
 const hallImage   = document.getElementById("hall-image");
 const canvas      = document.getElementById("canvas");
@@ -279,47 +278,53 @@ const rowInput    = document.getElementById("row");
 const seatInput   = document.getElementById("seat");
 const zoneInput   = document.getElementById("zone");
 const prefixInput = document.getElementById("prefix");
-const modeInput = document.getElementById("mode");
-const decorTextInput = document.getElementById("decorText");
-const decorRotateInput = document.getElementById("decorRotate");  
-const stageWInput = document.getElementById("stageW");
-const stageHInput = document.getElementById("stageH");  
-const rowCountInput = document.getElementById("rowCount");
-const seatStepInput = document.getElementById("seatStep");  
-const rowDirectionInput = document.getElementById("rowDirection");
-const arcRadiusInput = document.getElementById("arcRadius");
-const arcAngleInput = document.getElementById("arcAngle");  
-  
-const jsonOutput  = document.getElementById("jsonOutput");
-const counter     = document.getElementById("counter");
+const modeInput   = document.getElementById("mode");
 
-const exportBtn   = document.getElementById("exportBtn");
-const importBtn = document.getElementById("importBtn");  
-const undoBtn = document.getElementById("undoBtn");  
-const clearBtn    = document.getElementById("clearBtn");
+const decorTextInput   = document.getElementById("decorText");
+const decorRotateInput = document.getElementById("decorRotate");
+const stageWInput      = document.getElementById("stageW");
+const stageHInput      = document.getElementById("stageH");
+
+const rowCountInput     = document.getElementById("rowCount");
+const seatStepInput     = document.getElementById("seatStep");
+const rowDirectionInput = document.getElementById("rowDirection");
+const arcRadiusInput    = document.getElementById("arcRadius");
+const arcAngleInput     = document.getElementById("arcAngle");
+
+const jsonOutput = document.getElementById("jsonOutput");
+const counter    = document.getElementById("counter");
+
+const exportBtn = document.getElementById("exportBtn");
+const importBtn = document.getElementById("importBtn");
+const undoBtn   = document.getElementById("undoBtn");
+const clearBtn  = document.getElementById("clearBtn");
 
 let seats = [];
-
 let decor = [];
+let draggedElement = null;
 
-let draggedElement = null;  
-  
+function toInt(el, fallback = 0){
+  const n = parseInt(el?.value, 10);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function toFloat(el, fallback = 0){
+  const n = parseFloat(el?.value);
+  return Number.isFinite(n) ? n : fallback;
+}
+
 imageLoader.addEventListener("change", e => {
-
   const file = e.target.files[0];
   if (!file) return;
 
   const reader = new FileReader();
 
   reader.onload = ev => {
-
     hallImage.src = ev.target.result;
 
     hallImage.onload = () => {
-
-      canvas.style.width  = hallImage.width + "px";
-      canvas.style.height = hallImage.height + "px";
-
+      canvas.style.width  = hallImage.naturalWidth + "px";
+      canvas.style.height = hallImage.naturalHeight + "px";
     };
   };
 
@@ -327,178 +332,117 @@ imageLoader.addEventListener("change", e => {
 });
 
 canvas.addEventListener("click", e => {
-canvas.addEventListener("dragover", e => {
-
- canvas.addEventListener("drop", e => {
-
-  e.preventDefault();
-
-  if (!draggedElement) return;
-
-  const rect = canvas.getBoundingClientRect();
-
-  const x = Math.round(e.clientX - rect.left);
-  const y = Math.round(e.clientY - rect.top);
-
-  if (draggedElement.type === "seat") {
-
-    draggedElement.item.x = x;
-    draggedElement.item.y = y;
-
-    draggedElement.dot.style.left = x + "px";
-    draggedElement.dot.style.top = y + "px";
-
-    draggedElement.label.style.left = x + "px";
-    draggedElement.label.style.top = y + "px";
-  }
-
-  draggedElement = null;
-}); 
-  
-  e.preventDefault();
-});
   if (!hallImage.src) return;
 
-  if (e.target.classList.contains("seat-dot")) return;
+  if (
+    e.target.classList.contains("seat-dot") ||
+    e.target.classList.contains("decor-label") ||
+    e.target.classList.contains("decor-stage")
+  ) {
+    return;
+  }
 
   const rect = canvas.getBoundingClientRect();
-
   const x = Math.round(e.clientX - rect.left);
   const y = Math.round(e.clientY - rect.top);
 
-const mode = modeInput.value;
+  const mode = modeInput.value;
+
+  if (mode === "label") {
+    const item = {
+      type: "label",
+      text: decorTextInput.value.trim() || "LABEL",
+      x,
+      y,
+      rotate: Number(decorRotateInput.value || 0)
+    };
+
+    decor.push(item);
+    renderDecorItem(item);
+    updateCounter();
+    return;
+  }
+
+  if (mode === "stage") {
+    const item = {
+      type: "stage",
+      text: decorTextInput.value.trim() || "СЦЕНА",
+      x,
+      y,
+      w: Number(stageWInput.value || 420),
+      h: Number(stageHInput.value || 70)
+    };
+
+    decor.push(item);
+    renderDecorItem(item);
+    updateCounter();
+    return;
+  }
 
   if (mode === "row") {
+    const row = toInt(rowInput);
+    const startSeat = toInt(seatInput);
+    const count = toInt(rowCountInput, 1);
+    const step = toInt(seatStepInput, 36);
+    const dir = rowDirectionInput.value;
 
-if (mode === "arc") {
+    for (let i = 0; i < count; i++) {
+      const item = {
+        zone: zoneInput.value.trim(),
+        prefix: prefixInput.value.trim(),
+        row,
+        seat: startSeat + i,
+        x: dir === "left" ? x - (i * step) : x + (i * step),
+        y
+      };
 
-  const row = parseInt(rowInput.value, 10);
-  const startSeat = parseInt(seatInput.value, 10);
+      seats.push(item);
+      renderSeat(item);
+    }
 
-  const count = parseInt(rowCountInput.value, 10);
-
-  const radius = parseInt(arcRadiusInput.value, 10);
-
-  const totalAngle = parseFloat(arcAngleInput.value);
-
-  const startAngle = -totalAngle / 2;
-
-  for (let i = 0; i < count; i++) {
-
-    const t = count <= 1 ? 0 : i / (count - 1);
-
-    const angle =
-      (startAngle + (t * totalAngle)) * Math.PI / 180;
-
-    const sx = Math.round(
-      x + Math.cos(angle) * radius
-    );
-
-    const sy = Math.round(
-      y + Math.sin(angle) * radius
-    );
-
-    const item = {
-      zone: zoneInput.value.trim(),
-      prefix: prefixInput.value.trim(),
-      row,
-      seat: startSeat + i,
-      x: sx,
-      y: sy
-    };
-
-    seats.push(item);
-
-    renderSeat(item);
+    seatInput.value = startSeat + count;
+    updateCounter();
+    return;
   }
 
-  seatInput.value = startSeat + count;
+  if (mode === "arc") {
+    const row = toInt(rowInput);
+    const startSeat = toInt(seatInput);
+    const count = toInt(rowCountInput, 1);
+    const radius = toInt(arcRadiusInput, 220);
+    const totalAngle = toFloat(arcAngleInput, 120);
+    const startAngle = -totalAngle / 2;
 
-  updateCounter();
+    for (let i = 0; i < count; i++) {
+      const t = count <= 1 ? 0 : i / (count - 1);
+      const angle = (startAngle + (t * totalAngle)) * Math.PI / 180;
 
-  return;
-}
-    
-  const row = parseInt(rowInput.value, 10);
-  const startSeat = parseInt(seatInput.value, 10);
+      const item = {
+        zone: zoneInput.value.trim(),
+        prefix: prefixInput.value.trim(),
+        row,
+        seat: startSeat + i,
+        x: Math.round(x + Math.cos(angle) * radius),
+        y: Math.round(y + Math.sin(angle) * radius)
+      };
 
-  const count = parseInt(rowCountInput.value, 10); 
-  const step = parseInt(seatStepInput.value, 10);
+      seats.push(item);
+      renderSeat(item);
+    }
 
-  for (let i = 0; i < count; i++) {
-
-    const item = {
-      zone: zoneInput.value.trim(),
-      prefix: prefixInput.value.trim(),
-      row,
-      seat: startSeat + i,
-      x: rowDirectionInput.value === "left"
-  ? x - (i * step)
-  : x + (i * step),
-      y
-    };
-
-    seats.push(item);
-
-    renderSeat(item);
+    seatInput.value = startSeat + count;
+    updateCounter();
+    return;
   }
 
-  seatInput.value = startSeat + count;
+  if (mode === "move") return;
 
-  updateCounter();
-
-  return;
-}
-
-if (mode === "label") {
+  const row = toInt(rowInput);
+  const seat = toInt(seatInput);
 
   const item = {
-    type: "label",
-    text: decorTextInput.value || "LABEL",
-    x,
-y,
-rotate: Number(decorRotateInput.value || 0)
-  };
-
-  decor.push(item);
-
-  renderDecorItem(item);
-
-  return;
-}
-
-if (mode === "stage") {
-
-  const item = {
-    type: "stage",
-    text: decorTextInput.value || "СЦЕНА",
-    x,
-    y,
-    w: Number(stageWInput.value || 420),
-h: Number(stageHInput.value || 70)
-  };
-
-  decor.push(item);
-
-  renderDecorItem(item);
-
-  return;
-}
-  
-  const row  = parseInt(rowInput.value, 10);
-const seat = parseInt(seatInput.value, 10);
-
-if (!Number.isFinite(row) || !Number.isFinite(seat)) {
-  alert("Ряд або місце вказано неправильно");
-  return;
-}
-
-  const zone   = zoneInput.value.trim();
-  const prefix = prefixInput.value.trim();
-
-  const item = {
-    zone,
-    prefix,
+    zone: zoneInput.value.trim(),
+    prefix: prefixInput.value.trim(),
     row,
     seat,
     x,
@@ -506,63 +450,76 @@ if (!Number.isFinite(row) || !Number.isFinite(seat)) {
   };
 
   seats.push(item);
-
   renderSeat(item);
 
   seatInput.value = seat + 1;
-
   updateCounter();
+});
 
+canvas.addEventListener("dragover", e => {
+  e.preventDefault();
+});
+
+canvas.addEventListener("drop", e => {
+  e.preventDefault();
+
+  if (!draggedElement) return;
+
+  const rect = canvas.getBoundingClientRect();
+  const x = Math.round(e.clientX - rect.left);
+  const y = Math.round(e.clientY - rect.top);
+
+  draggedElement.item.x = x;
+  draggedElement.item.y = y;
+
+  draggedElement.el.style.left = x + "px";
+  draggedElement.el.style.top = y + "px";
+
+  if (draggedElement.label) {
+    draggedElement.label.style.left = x + "px";
+    draggedElement.label.style.top = y + "px";
+  }
+
+  draggedElement = null;
 });
 
 function renderSeat(item){
-
   const dot = document.createElement("div");
   dot.className = "seat-dot";
-dot.draggable = true;
-  
+  dot.draggable = true;
+
   dot.style.left = item.x + "px";
   dot.style.top  = item.y + "px";
 
-  dot.dataset.row  = item.row;
+  dot.dataset.row = item.row;
   dot.dataset.seat = item.seat;
-
   dot.dataset.x = item.x;
-dot.dataset.y = item.y;
-
-dot.addEventListener("dragstart", () => {
-  draggedElement = {
-    type: "seat",
-    item,
-    dot,
-    label
-  };
-});
+  dot.dataset.y = item.y;
 
   const label = document.createElement("div");
   label.className = "seat-label";
-
   label.style.left = item.x + "px";
   label.style.top  = item.y + "px";
-
   label.textContent = item.row + "/" + item.seat;
 
-  dot.addEventListener("click", ev => {
+  dot.addEventListener("dragstart", () => {
+    draggedElement = {
+      type: "seat",
+      item,
+      el: dot,
+      label
+    };
+  });
 
+  dot.addEventListener("click", ev => {
     ev.stopPropagation();
 
     seats = seats.filter(s =>
-      !(
-        s.x === item.x &&
-        s.y === item.y &&
-        s.row === item.row &&
-        s.seat === item.seat
-      )
+      !(Number(s.x) === Number(item.x) && Number(s.y) === Number(item.y))
     );
 
     dot.remove();
     label.remove();
-
     updateCounter();
   });
 
@@ -571,78 +528,115 @@ dot.addEventListener("dragstart", () => {
 }
 
 function renderDecorItem(item){
-
   if (item.type === "label") {
-
     const el = document.createElement("div");
-
     el.className = "decor-label";
 
     el.style.position = "absolute";
     el.style.left = item.x + "px";
     el.style.top = item.y + "px";
-
-    el.style.transform = "translate(-50%, -50%)";
-
+    el.style.transform = `translate(-50%, -50%) rotate(${Number(item.rotate || 0)}deg)`;
     el.style.fontSize = "42px";
     el.style.fontWeight = "900";
-
     el.style.color = "#111827";
+    el.style.cursor = "pointer";
+    el.style.userSelect = "none";
 
     el.textContent = item.text || "";
 
-    canvas.appendChild(el);
+    el.draggable = true;
 
+    el.addEventListener("dragstart", () => {
+      draggedElement = {
+        type: "decor",
+        item,
+        el,
+        label: null
+      };
+    });
+
+    el.addEventListener("click", ev => {
+      ev.stopPropagation();
+
+      decor = decor.filter(d =>
+        !(Number(d.x) === Number(item.x) && Number(d.y) === Number(item.y))
+      );
+
+      el.remove();
+      updateCounter();
+    });
+
+    canvas.appendChild(el);
     return;
   }
 
   if (item.type === "stage") {
-
     const stage = document.createElement("div");
-
     stage.className = "decor-stage";
 
     stage.style.position = "absolute";
-
     stage.style.left = item.x + "px";
     stage.style.top = item.y + "px";
-
     stage.style.width = (item.w || 420) + "px";
     stage.style.height = (item.h || 70) + "px";
-
     stage.style.borderRadius = "999px";
-
     stage.style.background = "#7f1d1d";
-
     stage.style.color = "#fff";
-
     stage.style.display = "flex";
     stage.style.alignItems = "center";
     stage.style.justifyContent = "center";
-
     stage.style.fontWeight = "800";
     stage.style.letterSpacing = ".08em";
+    stage.style.cursor = "pointer";
+    stage.style.userSelect = "none";
 
     stage.textContent = item.text || "СЦЕНА";
+    stage.draggable = true;
+
+    stage.addEventListener("dragstart", () => {
+      draggedElement = {
+        type: "decor",
+        item,
+        el: stage,
+        label: null
+      };
+    });
+
+    stage.addEventListener("click", ev => {
+      ev.stopPropagation();
+
+      decor = decor.filter(d =>
+        !(Number(d.x) === Number(item.x) && Number(d.y) === Number(item.y))
+      );
+
+      stage.remove();
+      updateCounter();
+    });
 
     canvas.appendChild(stage);
   }
 }
-  
-function updateCounter(){
 
-  counter.textContent = "Мест: " + seats.length;
+function clearRendered(){
+  document
+    .querySelectorAll(".seat-dot,.seat-label,.decor-label,.decor-stage")
+    .forEach(el => el.remove());
+}
+
+function updateCounter(){
+  counter.innerHTML = `Мест: ${seats.length}<br>Decor: ${decor.length}`;
 }
 
 exportBtn.addEventListener("click", () => {
   const result = {
     version: 1,
+    format: "builder",
     generated: true,
-    title: "Оперний театр",
+    title: "Назва залу",
     width: hallImage.naturalWidth || hallImage.width || 1200,
     height: hallImage.naturalHeight || hallImage.height || 900,
     seats,
-decor
+    decor
   };
 
   jsonOutput.value = JSON.stringify(result, null, 2);
@@ -653,22 +647,21 @@ importBtn.addEventListener("click", () => {
     const data = JSON.parse(jsonOutput.value);
 
     seats = Array.isArray(data?.seats)
-      decor = Array.isArray(data?.decor)
-  ? data.decor
-  : [];
       ? data.seats
       : Array.isArray(data)
         ? data
         : [];
 
-    document
-      .querySelectorAll(".seat-dot,.seat-label")
-      .forEach(el => el.remove());
+    decor = Array.isArray(data?.decor)
+      ? data.decor
+      : [];
+
+    clearRendered();
 
     seats.forEach(renderSeat);
     decor.forEach(renderDecorItem);
-    updateCounter();
 
+    updateCounter();
   } catch (e) {
     alert("JSON не прочитался");
     console.error(e);
@@ -676,38 +669,26 @@ importBtn.addEventListener("click", () => {
 });
 
 undoBtn.addEventListener("click", () => {
-  if (!seats.length) return;
+  const mode = modeInput.value;
 
-  const last = seats.pop();
+  if (mode !== "seat" && decor.length) {
+    decor.pop();
+  } else if (seats.length) {
+    const last = seats.pop();
+    rowInput.value = last.row;
+    seatInput.value = last.seat;
+  }
 
-  const dots = Array.from(document.querySelectorAll(".seat-dot"));
-  const labels = Array.from(document.querySelectorAll(".seat-label"));
-
-  const dot = dots.find(el =>
-    Number(el.dataset.row) === Number(last.row) &&
-    Number(el.dataset.seat) === Number(last.seat)
-  );
-
-  const label = labels.find(el =>
-    el.textContent === `${last.row}/${last.seat}`
-  );
-
-  if (dot) dot.remove();
-  if (label) label.remove();
-
-  seatInput.value = last.seat;
-  rowInput.value = last.row;
-
+  clearRendered();
+  seats.forEach(renderSeat);
+  decor.forEach(renderDecorItem);
   updateCounter();
 });
-  
+
 clearBtn.addEventListener("click", () => {
   seats = [];
-
-  document
-    .querySelectorAll(".seat-dot,.seat-label")
-    .forEach(el => el.remove());
-
+  decor = [];
+  clearRendered();
   updateCounter();
   jsonOutput.value = "";
 });
