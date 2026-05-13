@@ -207,6 +207,14 @@
   <label>Seat Step</label>
   <input type="text" id="seatStep" value="36">
 </div>
+
+<div class="field">
+  <label>Row Direction</label>
+  <select id="rowDirection">
+    <option value="right">Right →</option>
+    <option value="left">Left ←</option>
+  </select>
+</div>
     
     <button class="btn" id="exportBtn">
       EXPORT JSON
@@ -268,6 +276,8 @@ const stageWInput = document.getElementById("stageW");
 const stageHInput = document.getElementById("stageH");  
 const rowCountInput = document.getElementById("rowCount");
 const seatStepInput = document.getElementById("seatStep");  
+const rowDirectionInput = document.getElementById("rowDirection");
+  
 const jsonOutput  = document.getElementById("jsonOutput");
 const counter     = document.getElementById("counter");
 
