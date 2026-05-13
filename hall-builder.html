@@ -371,6 +371,32 @@ importBtn.addEventListener("click", () => {
     console.error(e);
   }
 });
+
+undoBtn.addEventListener("click", () => {
+  if (!seats.length) return;
+
+  const last = seats.pop();
+
+  const dots = Array.from(document.querySelectorAll(".seat-dot"));
+  const labels = Array.from(document.querySelectorAll(".seat-label"));
+
+  const dot = dots.find(el =>
+    Number(el.dataset.row) === Number(last.row) &&
+    Number(el.dataset.seat) === Number(last.seat)
+  );
+
+  const label = labels.find(el =>
+    el.textContent === `${last.row}/${last.seat}`
+  );
+
+  if (dot) dot.remove();
+  if (label) label.remove();
+
+  seatInput.value = last.seat;
+  rowInput.value = last.row;
+
+  updateCounter();
+});
   
 clearBtn.addEventListener("click", () => {
   seats = [];
