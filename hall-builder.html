@@ -242,6 +242,7 @@ const zoneInput   = document.getElementById("zone");
 const prefixInput = document.getElementById("prefix");
 const modeInput = document.getElementById("mode");
 const decorTextInput = document.getElementById("decorText");
+const decorRotateInput = document.getElementById("decorRotate");  
 const jsonOutput  = document.getElementById("jsonOutput");
 const counter     = document.getElementById("counter");
 
@@ -295,7 +296,8 @@ if (mode === "label") {
     type: "label",
     text: decorTextInput.value || "LABEL",
     x,
-    y
+y,
+rotate: Number(decorRotateInput.value || 0)
   };
 
   decor.push(item);
