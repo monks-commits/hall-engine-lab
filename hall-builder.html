@@ -282,6 +282,42 @@ canvas.addEventListener("click", e => {
   const x = Math.round(e.clientX - rect.left);
   const y = Math.round(e.clientY - rect.top);
 
+const mode = modeInput.value;
+
+if (mode === "label") {
+
+  const item = {
+    type: "label",
+    text: decorTextInput.value || "LABEL",
+    x,
+    y
+  };
+
+  decor.push(item);
+
+  renderDecorItem(item);
+
+  return;
+}
+
+if (mode === "stage") {
+
+  const item = {
+    type: "stage",
+    text: decorTextInput.value || "СЦЕНА",
+    x,
+    y,
+    w: 420,
+    h: 70
+  };
+
+  decor.push(item);
+
+  renderDecorItem(item);
+
+  return;
+}
+  
   const row  = parseInt(rowInput.value, 10);
 const seat = parseInt(seatInput.value, 10);
 
