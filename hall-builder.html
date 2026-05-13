@@ -350,6 +350,78 @@ imageLoader.addEventListener("change", e => {
   reader.readAsDataURL(file);
 });
 
+canvas.addEventListener("mousedown", e => {
+  if (modeInput.value !== "select") return;
+  if (!hallImage.src) return;
+
+  const rect = canvas.getBoundingClientRect();
+
+  selectStart = {
+    x: Math.round(e.clientX - rect.left),
+    y: Math.round(e.clientY - rect.top)
+  };
+
+  selectedSeats.clear();
+  document.querySelectorAll(".seat-dot").forEach(el => {
+    el.classList.remove("is-selected");
+  });
+
+  selectBox = document.createElement("div");
+  selectBox.className = "select-box";
+  selectBox.style.left = selectStart.x + "px";
+  selectBox.style.top = selectStart.y + "px";
+  selectBox.style.width = "0px";
+  selectBox.style.height = "0px";
+
+  canvas.appendChild(selectBox);
+});
+
+canvas.addEventListener("mousemove", e => {
+  if (!selectBox || !selectStart) return;
+
+  const rect = canvas.getBoundingClientRect();
+
+  const x = Math.round(e.clientX - rect.left);
+  const y = Math.round(e.clientY - rect.top);
+
+  const left = Math.min(selectStart.x, x);
+  const top = Math.min(selectStart.y, y);
+  const width = Math.abs(x - selectStart.x);
+  const height = Math.abs(y - selectStart.y);
+
+  selectBox.style.left = left + "px";
+  selectBox.style.top = top + "px";
+  selectBox.style.width = width + "px";
+  selectBox.style.height = height + "px";
+});
+
+canvas.addEventListener("mouseup", () => {
+  if (!selectBox) return;
+
+  const box = selectBox.getBoundingClientRect();
+
+  document.querySelectorAll(".seat-dot").forEach(dot => {
+    const r = dot.getBoundingClientRect();
+
+    const inside =
+      r.left >= box.left &&
+      r.right <= box.right &&
+      r.top >= box.top &&
+      r.bottom <= box.bottom;
+
+    if (inside) {
+      dot.classList.add("is-selected");
+      selectedSeats.add(`${dot.dataset.x}:${dot.dataset.y}`);
+    }
+  });
+
+  selectBox.remove();
+  selectBox = null;
+  selectStart = null;
+
+  updateCounter();
+});
+  
 canvas.addEventListener("click", e => {
   if (!hallImage.src) return;
 
