@@ -444,6 +444,17 @@ h2{
     <button class="btn blue" id="alignVBtn">ВЫРОВНЯТЬ ПО ВЕРТИКАЛИ</button>
     <button class="btn purple" id="distHBtn">РАСПРЕДЕЛИТЬ ПО ГОРИЗОНТАЛИ</button>
     <button class="btn purple" id="distVBtn">РАСПРЕДЕЛИТЬ ПО ВЕРТИКАЛИ</button>
+    
+    <div class="field">
+      <label>Направление нумерации</label>
+      <select id="numberDirection">
+        <option value="left-right">Слева → направо</option>
+        <option value="right-left">Справа → налево</option>
+        <option value="top-bottom">Сверху → вниз</option>
+        <option value="bottom-top">Снизу → вверх</option>
+      </select>
+    </div>
+
     <button class="btn green" id="autoNumberBtn">АВТО НУМЕРАЦИЯ МЕСТ</button>
 
     <h2>Копия / зеркало</h2>
@@ -1110,13 +1121,24 @@ $("distVBtn").addEventListener("click", () => {
 });
 
 $("autoNumberBtn").addEventListener("click", () => {
-  const list = selectedSeats().sort((a,b) => a.x - b.x || a.y - b.y);
+  let list = selectedSeats();
+
   if (!list.length) {
-    log("Ничего не выделено.");
+    log("АВТО НУМЕРАЦИЯ: ничего не выделено.");
     return;
   }
 
   save();
+
+  const dir = val("numberDirection") || "left-right";
+
+  list = [...list].sort((a, b) => {
+    if (dir === "left-right") return a.x - b.x || a.y - b.y;
+    if (dir === "right-left") return b.x - a.x || a.y - b.y;
+    if (dir === "top-bottom") return a.y - b.y || a.x - b.x;
+    if (dir === "bottom-top") return b.y - a.y || a.x - b.x;
+    return a.x - b.x || a.y - b.y;
+  });
 
   const row = String(n("row", 1));
   const startSeat = n("seat", 1);
@@ -1131,7 +1153,24 @@ $("autoNumberBtn").addEventListener("click", () => {
   $("seat").value = startSeat + list.length;
 
   render();
-  log("АВТО НУМЕРАЦИЯ: row " + row + ", seats " + startSeat + "–" + (startSeat + list.length - 1));
+
+  const labels = {
+    "left-right": "слева направо",
+    "right-left": "справа налево",
+    "top-bottom": "сверху вниз",
+    "bottom-top": "снизу вверх"
+  };
+
+  log(
+    "АВТО НУМЕРАЦИЯ OK: " +
+    labels[dir] +
+    ". Row " +
+    row +
+    ", seats " +
+    startSeat +
+    "–" +
+    (startSeat + list.length - 1)
+  );
 });
 
 $("copyBtn").addEventListener("click", () => {
@@ -1273,10 +1312,10 @@ $("mirrorVBtn").addEventListener("click", () => {
   log("ЗЕРКАЛО ПО ВЕРТИКАЛИ: создано " + created.length + " объектов");
 });
 
-function cleanSeats(){
+function getCleanSeatsCopy(){
   const seen = new Set();
 
-  seats = seats
+  return seats
     .map(s => ({
       ...s,
       row: String(s.row),
@@ -1297,17 +1336,45 @@ function cleanSeats(){
     );
 }
 
+function getCleanSeatsCopy(){
+  const seen = new Set();
+
+  return seats
+    .map(s => ({
+      ...s,
+      row: String(s.row),
+      seat: Number(s.seat),
+      x: Number(s.x),
+      y: Number(s.y)
+    }))
+    .filter(s => {
+      const key = `${s.prefix}|${s.row}|${s.seat}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .sort((a,b) =>
+      String(a.zone).localeCompare(String(b.zone)) ||
+      Number(a.row) - Number(b.row) ||
+      Number(a.seat) - Number(b.seat)
+    );
+}
+
+function cleanSeats(){
+  seats = getCleanSeatsCopy();
+}
+
 function exportObject(){
-  cleanSeats();
+  const exportSeats = getCleanSeatsCopy();
 
   return {
-    version: 3,
+    version: 4,
     format: "va-hall-studio-geometry",
     title: "Назва залу",
     width: cw(),
     height: ch(),
     background_mode: $("bgMode").value,
-    seats: seats.map(s => ({
+    seats: exportSeats.map(s => ({
       id: s.id,
       type: "seat",
       zone: s.zone,
@@ -1324,8 +1391,7 @@ function exportObject(){
 
 $("exportBtn").addEventListener("click", () => {
   jsonOutput.value = JSON.stringify(exportObject(), null, 2);
-  render();
-  log("JSON EXPORTED");
+  log("JSON EXPORTED. Экспорт не меняет схему на холсте.");
 });
 
 $("importBtn").addEventListener("click", () => {
@@ -1390,7 +1456,7 @@ $("validateBtn").addEventListener("click", () => {
 applyCanvas();
 applyZoom();
 render();
-log("READY. Режимы: место / текст / сцена. Объекты двигаются обычным перетаскиванием.");
+log("READY. Есть направление нумерации и безопасный экспорт JSON.");
 </script>
 
 </body>
