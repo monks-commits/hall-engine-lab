@@ -485,6 +485,9 @@ h2{
     <h2>Export / Import</h2>
 
     <button class="btn green" id="exportBtn">ЭКСПОРТ JSON</button>
+    <button class="btn green" id="downloadJsonBtn">СКАЧАТЬ JSON ФАЙЛ</button>
+    <button class="btn orange" id="saveBrowserBtn">СОХРАНИТЬ В БРАУЗЕРЕ</button>
+    <button class="btn orange" id="restoreBrowserBtn">ВОССТАНОВИТЬ ИЗ БРАУЗЕРА</button>
     <button class="btn" id="importBtn">ИМПОРТ JSON</button>
     <button class="btn orange" id="cleanBtn">ОЧИСТИТЬ / СОРТИРОВАТЬ</button>
     <button class="btn" id="validateBtn">ПРОВЕРИТЬ</button>
@@ -1452,6 +1455,102 @@ $("validateBtn").addEventListener("click", () => {
 
   log(errors.length ? errors.join("\\n") : "VALIDATION OK");
 });
+
+
+function buildJsonNow(){
+  const exportSeats = seats.map(s => ({
+    id: s.id || "",
+    type: "seat",
+    zone: s.zone || "",
+    prefix: s.prefix || "",
+    row: String(s.row || ""),
+    seat: Number(s.seat || 0),
+    key: seatKey(s),
+    x: Number(s.x || 0),
+    y: Number(s.y || 0)
+  }));
+
+  return {
+    version: 5,
+    format: "va-hall-studio-geometry",
+    title: "Назва залу",
+    width: cw(),
+    height: ch(),
+    background_mode: $("bgMode") ? $("bgMode").value : "",
+    seats: exportSeats,
+    decor: decor.map(d => ({ ...d }))
+  };
+}
+
+function exportJsonToTextarea(){
+  const data = buildJsonNow();
+  jsonOutput.value = JSON.stringify(data, null, 2);
+  log("JSON ГОТОВ: " + data.seats.length + " мест, decor: " + data.decor.length);
+  return data;
+}
+
+function downloadJsonFile(){
+  const data = exportJsonToTextarea();
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "hall-geometry.json";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(a.href);
+  log("JSON ФАЙЛ СКАЧАН: hall-geometry.json");
+}
+
+function saveToBrowser(){
+  const data = buildJsonNow();
+  localStorage.setItem("va_hall_studio_autosave", JSON.stringify(data));
+  log("СОХРАНЕНО В БРАУЗЕРЕ: " + data.seats.length + " мест, decor: " + data.decor.length);
+}
+
+function restoreFromBrowser(){
+  const raw = localStorage.getItem("va_hall_studio_autosave");
+  if (!raw) {
+    log("В БРАУЗЕРЕ НЕТ СОХРАНЁННОЙ СХЕМЫ.");
+    return;
+  }
+
+  const data = JSON.parse(raw);
+
+  seats = Array.isArray(data.seats)
+    ? data.seats.map(s => ({ ...s, type: "seat" }))
+    : [];
+
+  decor = Array.isArray(data.decor) ? data.decor : [];
+
+  if (data.width && data.height) {
+    $("canvasW").value = data.width;
+    $("canvasH").value = data.height;
+    applyCanvas();
+  }
+
+  selected.clear();
+  render();
+
+  jsonOutput.value = JSON.stringify(data, null, 2);
+  log("ВОССТАНОВЛЕНО ИЗ БРАУЗЕРА: " + seats.length + " мест, decor: " + decor.length);
+}
+
+// Полностью перебиваем старый экспорт, даже если выше был битый обработчик.
+$("exportBtn").onclick = exportJsonToTextarea;
+$("downloadJsonBtn").onclick = downloadJsonFile;
+$("saveBrowserBtn").onclick = saveToBrowser;
+$("restoreBrowserBtn").onclick = restoreFromBrowser;
+
+// Автосохранение после каждого изменения состояния.
+// Это не мешает работе, но спасает от потерь.
+const originalRender = render;
+render = function(){
+  originalRender();
+  try {
+    localStorage.setItem("va_hall_studio_autosave", JSON.stringify(buildJsonNow()));
+  } catch (e) {}
+};
 
 applyCanvas();
 applyZoom();
