@@ -652,65 +652,92 @@ function applyZoom(){
 }
 
 function render(){
-  canvas.querySelectorAll(".seat-dot,.seat-label,.decor-text,.decor-stage").forEach(el => el.remove());
+  canvas
+    .querySelectorAll(".seat-dot,.seat-label,.decor-text,.decor-stage")
+    .forEach(el => el.remove());
 
-  const size = Math.max(2, n("seatSize", 10));
+  const seatSize = Math.max(2, n("seatSize", 10));
   const labelSize = Math.max(0, n("labelSize", 8));
   const showLabels = $("showLabels").value === "1";
 
-  decor.forEach(d => {
-    if (d.type === "stage") {
-      const el = document.createElement("div");
-      el.className = "decor-stage";
-      el.dataset.id = d.id;
-      el.style.left = d.x + "px";
-      el.style.top = d.y + "px";
-      el.style.width = d.w + "px";
-      el.style.height = d.h + "px";
-      el.style.fontSize = (d.size || 44) + "px";
-      el.textContent = d.text || "СЦЕНА";
-
-      if (selected.has(d.id)) el.classList.add("selected");
-      canvas.appendChild(el);
-    }
-
-    if (d.type === "text") {
-      const el = document.createElement("div");
-      el.className = "decor-text";
-      el.dataset.id = d.id;
-      el.style.left = d.x + "px";
-      el.style.top = d.y + "px";
-      el.style.fontSize = (d.size || 24) + "px";
-      el.style.fontWeight = d.weight || "700";
-      el.style.transform = `translate(-50%,-50%) rotate(${d.rotate || 0}deg)`;
-      el.textContent = d.text || "Текст";
-
-      if (selected.has(d.id)) el.classList.add("selected");
-      canvas.appendChild(el);
-    }
-  });
-
+  // 1. Сначала рисуем места
   seats.forEach(s => {
     const dot = document.createElement("div");
-    dot.className = "seat-dot";
+    dot.className = "seat-dot obj";
     dot.dataset.id = s.id;
+
     dot.style.left = s.x + "px";
     dot.style.top = s.y + "px";
-    dot.style.width = size + "px";
-    dot.style.height = size + "px";
+    dot.style.width = seatSize + "px";
+    dot.style.height = seatSize + "px";
+    dot.style.zIndex = "10";
 
-    if (selected.has(s.id)) dot.classList.add("selected");
+    if (selected.has(s.id)) {
+      dot.classList.add("selected");
+    }
 
     canvas.appendChild(dot);
 
     if (showLabels && labelSize > 0) {
       const label = document.createElement("div");
       label.className = "seat-label";
+
       label.style.left = s.x + "px";
       label.style.top = s.y + "px";
       label.style.fontSize = labelSize + "px";
+      label.style.zIndex = "11";
+
       label.textContent = s.row + "/" + s.seat;
+
       canvas.appendChild(label);
+    }
+  });
+
+  // 2. Потом рисуем подписи и сцену ПОВЕРХ мест
+  decor.forEach(d => {
+    if (d.type === "text") {
+      const el = document.createElement("div");
+
+      el.className = "decor-text obj";
+      el.dataset.id = d.id;
+
+      el.style.left = d.x + "px";
+      el.style.top = d.y + "px";
+      el.style.fontSize = (d.size || 24) + "px";
+      el.style.fontWeight = d.weight || "700";
+      el.style.transform =
+        `translate(-50%,-50%) rotate(${d.rotate || 0}deg)`;
+      el.style.zIndex = "40";
+
+      el.textContent = d.text || "Текст";
+
+      if (selected.has(d.id)) {
+        el.classList.add("selected");
+      }
+
+      canvas.appendChild(el);
+    }
+
+    if (d.type === "stage") {
+      const el = document.createElement("div");
+
+      el.className = "decor-stage obj";
+      el.dataset.id = d.id;
+
+      el.style.left = d.x + "px";
+      el.style.top = d.y + "px";
+      el.style.width = (d.w || 1500) + "px";
+      el.style.height = (d.h || 120) + "px";
+      el.style.fontSize = (d.size || 44) + "px";
+      el.style.zIndex = "35";
+
+      el.textContent = d.text || "СЦЕНА";
+
+      if (selected.has(d.id)) {
+        el.classList.add("selected");
+      }
+
+      canvas.appendChild(el);
     }
   });
 
@@ -719,8 +746,10 @@ function render(){
     "Декор: " + decor.length + "<br>" +
     "Выделено: " + selected.size + "<br>" +
     "Canvas: " + cw() + "x" + ch();
-}
 
+  autoSaveToBrowser();
+}
+  
 function addSeatAt(x, y){
   const seatNum = n("seat", 1);
 
