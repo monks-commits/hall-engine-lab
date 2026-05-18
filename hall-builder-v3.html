@@ -793,6 +793,27 @@ function addStageAt(x, y){
   });
 }
 
+function addTableAt(x, y){
+  const num = n("tableNum", 1);
+  const shape = val("tableShape") || "round";
+
+  tables.push({
+    id: uid("table"),
+    type: "table",
+    table_id: `T${num}`,
+    title: `Стіл №${num}`,
+    x,
+    y,
+    shape,
+    capacity: n("tableCapacity", 6),
+    booking_mode: val("tableBookingMode") || "table_only",
+    deposit: n("tableDeposit", 0),
+    price_per_seat: n("tablePricePerSeat", 0)
+  });
+
+  $("tableNum").value = num + 1;
+}
+  
 function getTargetId(e){
   const el = e.target.closest(".seat-dot,.decor-text,.decor-stage");
   return el ? el.dataset.id : null;
