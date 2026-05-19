@@ -694,6 +694,65 @@ function render(){
     }
   });
 
+// TABLES
+tables.forEach(t => {
+
+  const el = document.createElement("div");
+
+  el.className = "table-dot obj";
+  el.dataset.id = t.id;
+
+  el.style.position = "absolute";
+  el.style.left = t.x + "px";
+  el.style.top = t.y + "px";
+  el.style.transform = "translate(-50%,-50%)";
+
+  el.style.width =
+    (t.shape === "rect" ? "180px" : "140px");
+
+  el.style.height =
+    (t.shape === "rect" ? "110px" : "140px");
+
+  el.style.borderRadius =
+    (t.shape === "rect" ? "18px" : "50%");
+
+  el.style.background = "#193766";
+  el.style.border = "3px solid rgba(255,255,255,.15)";
+  el.style.color = "#fff";
+
+  el.style.display = "flex";
+  el.style.flexDirection = "column";
+  el.style.alignItems = "center";
+  el.style.justifyContent = "center";
+
+  el.style.fontWeight = "800";
+  el.style.cursor = "pointer";
+  el.style.zIndex = "25";
+
+  if (selected.has(t.id)) {
+    el.style.outline = "4px solid #60a5fa";
+  }
+
+  const modeText =
+    t.booking_mode === "table_only"
+      ? `${t.deposit} грн депозит`
+      : t.booking_mode === "seat_only"
+      ? `${t.price_per_seat} грн / місце`
+      : `депозит + місця`;
+
+  el.innerHTML = `
+    <div style="font-size:34px;">${t.title}</div>
+    <div style="font-size:22px;margin-top:6px;">
+      ${t.capacity} місць
+    </div>
+    <div style="font-size:20px;margin-top:6px;">
+      ${modeText}
+    </div>
+  `;
+
+  canvas.appendChild(el);
+});
+  
   // 2. Потом рисуем подписи и сцену ПОВЕРХ мест 
   decor.forEach(d => {
     if (d.type === "text") {
