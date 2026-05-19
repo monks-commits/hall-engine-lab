@@ -1498,7 +1498,11 @@ function exportObject(){
       x: Number(s.x),
       y: Number(s.y)
     })),
-    decor: decor.map(d => ({ ...d }))
+    decor: decor.map(d => ({ ...d })),
+
+tables: tables.map(t => ({
+  ...t
+}))
   };
 }
 
