@@ -1584,15 +1584,7 @@ $("downloadJsonBtn").onclick = downloadJsonFile;
 $("saveBrowserBtn").onclick = saveToBrowser;
 $("restoreBrowserBtn").onclick = restoreFromBrowser;
 
-// Автосохранение после каждого изменения состояния.
-// Это не мешает работе, но спасает от потерь.
-const originalRender = render;
-render = function(){
-  originalRender();
-  try {
-    localStorage.setItem("va_hall_studio_autosave", JSON.stringify(buildJsonNow()));
-  } catch (e) {}
-};
+
 
 
 /* ===== HARD FIX 2026-05-14: single export/import system ===== */
