@@ -651,6 +651,19 @@ function applyZoom(){
   zoomLabel.textContent = "Zoom: " + z + "%";
 }
 
+function autoSaveToBrowser(){
+  try {
+    if (typeof buildJsonNow === "function") {
+      localStorage.setItem(
+        "va_hall_studio_autosave",
+        JSON.stringify(buildJsonNow())
+      );
+    }
+  } catch(e) {
+    console.warn("autosave skipped", e);
+  }
+}
+  
 function render(){
   canvas
     .querySelectorAll(".seat-dot,.seat-label,.decor-text,.decor-stage")
