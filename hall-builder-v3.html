@@ -816,7 +816,7 @@ function addTableAt(x, y){
 }
   
 function getTargetId(e){
-  const el = e.target.closest(".seat-dot,.decor-text,.decor-stage");
+  const el = e.target.closest(".seat-dot,.decor-text,.decor-stage,.table-dot");
   return el ? el.dataset.id : null;
 }
 
