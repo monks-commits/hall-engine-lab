@@ -1013,7 +1013,7 @@ canvas.addEventListener("click", e => {
   if (mode === "seat") addSeatAt(p.x, p.y);
   if (mode === "text") addTextAt(p.x, p.y);
   if (mode === "stage") addStageAt(p.x, p.y);
-
+if (mode === "table") addTableAt(p.x, p.y);
   selected.clear();
   render();
 });
