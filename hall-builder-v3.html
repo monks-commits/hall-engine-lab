@@ -519,7 +519,6 @@ const zoomLabel = $("zoomLabel");
 
 let seats = [];
 let decor = [];
-let tables = [];  
 let selected = new Set();
 let history = [];
 let clipboard = [];
@@ -591,7 +590,7 @@ function seatKey(s){
 }
 
 function allObjects(){
-  return [...seats, ...decor, ...tables];
+  return [...seats, ...decor];
 }
 
 function selectedSeats(){
@@ -694,66 +693,7 @@ function render(){
     }
   });
 
-// TABLES
-tables.forEach(t => {
-
-  const el = document.createElement("div");
-
-  el.className = "table-dot obj";
-  el.dataset.id = t.id;
-
-  el.style.position = "absolute";
-  el.style.left = t.x + "px";
-  el.style.top = t.y + "px";
-  el.style.transform = "translate(-50%,-50%)";
-
-  el.style.width =
-    (t.shape === "rect" ? "180px" : "140px");
-
-  el.style.height =
-    (t.shape === "rect" ? "110px" : "140px");
-
-  el.style.borderRadius =
-    (t.shape === "rect" ? "18px" : "50%");
-
-  el.style.background = "#193766";
-  el.style.border = "3px solid rgba(255,255,255,.15)";
-  el.style.color = "#fff";
-
-  el.style.display = "flex";
-  el.style.flexDirection = "column";
-  el.style.alignItems = "center";
-  el.style.justifyContent = "center";
-
-  el.style.fontWeight = "800";
-  el.style.cursor = "pointer";
-  el.style.zIndex = "25";
-
-  if (selected.has(t.id)) {
-    el.style.outline = "4px solid #60a5fa";
-  }
-
-  const modeText =
-    t.booking_mode === "table_only"
-      ? `${t.deposit} грн депозит`
-      : t.booking_mode === "seat_only"
-      ? `${t.price_per_seat} грн / місце`
-      : `депозит + місця`;
-
-  el.innerHTML = `
-    <div style="font-size:34px;">${t.title}</div>
-    <div style="font-size:22px;margin-top:6px;">
-      ${t.capacity} місць
-    </div>
-    <div style="font-size:20px;margin-top:6px;">
-      ${modeText}
-    </div>
-  `;
-
-  canvas.appendChild(el);
-});
-  
-  // 2. Потом рисуем подписи и сцену ПОВЕРХ мест 
+  // 2. Потом рисуем подписи и сцену ПОВЕРХ мест
   decor.forEach(d => {
     if (d.type === "text") {
       const el = document.createElement("div");
@@ -853,29 +793,8 @@ function addStageAt(x, y){
   });
 }
 
-function addTableAt(x, y){
-  const num = n("tableNum", 1);
-  const shape = val("tableShape") || "round";
-
-  tables.push({
-    id: uid("table"),
-    type: "table",
-    table_id: `T${num}`,
-    title: `Стіл №${num}`,
-    x,
-    y,
-    shape,
-    capacity: n("tableCapacity", 6),
-    booking_mode: val("tableBookingMode") || "table_only",
-    deposit: n("tableDeposit", 0),
-    price_per_seat: n("tablePricePerSeat", 0)
-  });
-
-  $("tableNum").value = num + 1;
-}
-  
 function getTargetId(e){
-  const el = e.target.closest(".seat-dot,.decor-text,.decor-stage,.table-dot");
+  const el = e.target.closest(".seat-dot,.decor-text,.decor-stage");
   return el ? el.dataset.id : null;
 }
 
@@ -1056,7 +975,7 @@ canvas.addEventListener("click", e => {
         selected.clear();
       } else {
         selected.clear();
-        selected.add(id); 
+        selected.add(id);
       }
     }
 
@@ -1072,7 +991,7 @@ canvas.addEventListener("click", e => {
   if (mode === "seat") addSeatAt(p.x, p.y);
   if (mode === "text") addTextAt(p.x, p.y);
   if (mode === "stage") addStageAt(p.x, p.y);
-if (mode === "table") addTableAt(p.x, p.y);
+
   selected.clear();
   render();
 });
@@ -1478,7 +1397,7 @@ function cleanSeats(){
 }
 
 function exportObject(){
-  const exportSeats = getCleanSeatsCopy(); 
+  const exportSeats = getCleanSeatsCopy();
 
   return {
     version: 4,
@@ -1498,11 +1417,7 @@ function exportObject(){
       x: Number(s.x),
       y: Number(s.y)
     })),
-    decor: decor.map(d => ({ ...d })),
-
-tables: tables.map(t => ({
-  ...t
-}))
+    decor: decor.map(d => ({ ...d }))
   };
 }
 
@@ -1684,7 +1599,7 @@ render = function(){
       title: "Назва залу",
       width: cw(),
       height: ch(),
-      background_mode: $("bgMode") ? $("bgMode").value : "", 
+      background_mode: $("bgMode") ? $("bgMode").value : "",
       seats: seats.map(s => ({
         id: s.id || uid("seat"),
         type: "seat",
