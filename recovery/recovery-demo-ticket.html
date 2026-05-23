@@ -185,48 +185,19 @@ input{
 </div>
 
 <script>
-async function makeTicket(){
-
+function makeTicket(){
   const token =
     document.getElementById("tokenInput").value.trim()
     || "2787601013";
 
-  document.getElementById("tokenText").textContent =
-    token;
+  document.getElementById("tokenText").textContent = token;
 
-  const canvas =
-    document.getElementById("qrcode");
-
-  try {
-
-    await QRCode.toCanvas(canvas, token, {
-      width:220,
-      margin:2
-    });
-
-  } catch(e){
-
-    console.error(e);
-
-    canvas.outerHTML = `
-      <div style="
-        width:220px;
-        height:220px;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        border:1px solid #ccc;
-        border-radius:16px;
-        font-weight:700;
-      ">
-        QR ERROR
-      </div>
-    `;
-  }
+  document.getElementById("qrcode").src =
+    "https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=" +
+    encodeURIComponent(token);
 }
 
 window.addEventListener("load", makeTicket);
 </script>
-
 </body>
 </html>
