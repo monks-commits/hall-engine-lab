@@ -199,7 +199,43 @@ function makeTicket(){
   });
 }
 
-window.addEventListener("load", makeTicket);
+window.addEventListener("load", async () => {
+
+  const token =
+    document.getElementById("tokenInput").value.trim();
+
+  document.getElementById("tokenText").textContent = token;
+
+  const canvas =
+    document.getElementById("qrcode");
+
+  try {
+
+    await QRCode.toCanvas(canvas, token, {
+      width:220,
+      margin:2
+    });
+
+  } catch(e){
+
+    console.error(e);
+
+    canvas.outerHTML = `
+      <div style="
+        width:220px;
+        height:220px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        border:1px solid #ccc;
+        border-radius:16px;
+        font-weight:700;
+      ">
+        QR ERROR
+      </div>
+    `;
+  }
+});
 </script>
 
 </body>
