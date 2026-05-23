@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<title>VA Recovery Cabinet</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script src="./recovery-config.js"></script>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#061a3a;
+  color:#fff;
+}
+
+.wrap{
+  max-width:920px;
+  margin:0 auto;
+  padding:32px 24px;
+}
+
+.hero h1{
+  margin:0 0 10px;
+  font-size:42px;
+}
+
+.hero p{
+  margin:0 0 24px;
+  color:#b8c4d6;
+  font-size:18px;
+  line-height:1.45;
+}
+
+.card{
+  background:#1d2d47;
+  border-radius:24px;
+  padding:24px;
+  box-shadow:0 18px 40px rgba(0,0,0,.22);
+  margin-bottom:20px;
+}
+
+.row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+
+label{
+  display:block;
+  margin:12px 0 6px;
+  color:#b8c4d6;
+  font-size:14px;
+}
+
+input,textarea{
+  width:100%;
+  box-sizing:border-box;
+  border:1px solid rgba(255,255,255,.14);
+  background:#10233f;
+  color:#fff;
+  border-radius:14px;
+  padding:12px;
+  font:inherit;
+}
+
+textarea{
+  min-height:120px;
+  resize:vertical;
+}
+
+.actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:18px;
+}
+
+button,a.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  text-decoration:none;
+  min-height:46px;
+  padding:0 18px;
+  border:none;
+  border-radius:14px;
+  font:inherit;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.btn-primary{
+  background:#4c86f7;
+  color:#fff;
+}
+
+.btn-success{
+  background:#22c55e;
+  color:#08111f;
+}
+
+.btn-neutral{
+  background:#e5e7eb;
+  color:#111827;
+}
+
+.result{
+  margin-top:18px;
+  background:#223552;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:18px;
+  padding:18px;
+  color:#e5e7eb;
+  white-space:pre-wrap;
+}
+
+@media(max-width:760px){
+  .row{
+    grid-template-columns:1fr;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+  <section class="hero">
+    <h1>🟡 VA Recovery Cabinet</h1>
+    <p>
+      Кабінет компенсаційного доступу:
+      створення recovery-події, імпорт квитків,
+      активація повторного проходу та контроль використання.
+    </p>
+  </section>
+
+  <section class="card">
+
+    <h2>1. Recovery-подія</h2>
+
+    <div class="row">
+      <div>
+        <label>Назва події</label>
+        <input id="title" value="Queen при свічках — компенсація">
+      </div>
+
+      <div>
+        <label>Нова дата / сеанс</label>
+        <input id="recoveryEvent" value="Компенсаційний сеанс">
+      </div>
+    </div>
+
+    <label>Оригінальна подія</label>
+    <input id="originalEvent" value="Queen при свічках 19.04">
+
+    <div class="actions">
+      <button class="btn-primary" onclick="createRecoveryEvent()">
+        Створити recovery-подію
+      </button>
+    </div>
+
+    <div id="eventResult" class="result">
+      Recovery-подія ще не створена.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>2. Імпорт квитків</h2>
+
+    <p style="color:#b8c4d6;">
+      Формат CSV: token, seat_label, owner_name
+    </p>
+
+    <label>CSV</label>
+    <textarea id="csvInput">token,seat_label,owner_name
+2787601013,Партер Ряд 13 Місце 8,Рябов Олександр
+TEST-0002,Партер Ряд 13 Місце 9,Тестовий глядач
+TEST-0003,Партер Ряд 13 Місце 10,Тестовий глядач</textarea>
+
+    <div class="actions">
+      <button class="btn-success" onclick="importTokens()">
+        Активувати компенсацію
+      </button>
+
+      <a class="btn btn-neutral" href="./recovery-scanner.html" target="_blank">
+        Відкрити scanner
+      </a>
+    </div>
+
+    <div id="importResult" class="result">
+      Квитки ще не імпортовані.
+    </div>
+
+  </section>
+
+</div>
+
+<script src="./recovery-cabinet.js"></script>
+</body>
+</html>
