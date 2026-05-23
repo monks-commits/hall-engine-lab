@@ -161,7 +161,41 @@ button,a.btn{
         Створити recovery-подію
       </button>
     </div>
+<div class="card">
+  <h2>3. Швидка активація recovery</h2>
 
+  <p>
+    Скануйте QR або вставте barcode квитка.
+  </p>
+
+  <input
+    id="quickToken"
+    placeholder="Token / barcode"
+    style="
+      width:100%;
+      box-sizing:border-box;
+      margin-top:12px;
+      padding:14px;
+      border-radius:14px;
+      border:none;
+    "
+  >
+
+  <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;">
+
+    <button
+      class="btn btn-primary"
+      onclick="quickActivateRecovery()"
+    >
+      Активувати recovery
+    </button>
+
+  </div>
+
+  <div id="quickResult" class="result-box">
+    Очікування...
+  </div>
+</div>
     <div id="eventResult" class="result">
       Recovery-подія ще не створена.
     </div>
