@@ -173,3 +173,51 @@ async function importTokens(){
     );
   }
 }
+async function quickActivateRecovery(){
+
+  try {
+
+    if (!CURRENT_RECOVERY_EVENT_ID) {
+      alert("Спочатку створіть recovery-подію");
+      return;
+    }
+
+    const token =
+      document.getElementById("quickToken")
+      .value
+      .trim();
+
+    if (!token) {
+      alert("Введіть token");
+      return;
+    }
+
+    const inserted = await supaInsert(
+      "recovery_tokens",
+      {
+        recovery_event_id:
+          CURRENT_RECOVERY_EVENT_ID,
+
+        token,
+
+        seat_label:"—",
+        owner_name:"Recovery Client",
+
+        compensation_allowed:true,
+        compensation_used:false
+      }
+    );
+
+    document.getElementById("quickResult").innerHTML = `
+      ✅ Recovery активовано<br><br>
+      Token: ${inserted[0].token}
+    `;
+
+  } catch(e){
+
+    console.error(e);
+
+    document.getElementById("quickResult").innerHTML =
+      "❌ " + String(e.message || e);
+  }
+}
