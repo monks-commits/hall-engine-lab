@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<title>VA Recovery Scanner</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script src="./recovery-config.js"></script>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#061a3a;
+  color:#fff;
+}
+
+.wrap{
+  max-width:720px;
+  margin:0 auto;
+  padding:24px;
+}
+
+.card{
+  background:#1d2d47;
+  border-radius:24px;
+  padding:22px;
+  box-shadow:0 18px 40px rgba(0,0,0,.22);
+}
+
+h1{
+  margin:0 0 10px;
+  font-size:34px;
+}
+
+p{
+  color:#b8c4d6;
+}
+
+#reader{
+  width:100%;
+  margin:18px 0;
+  background:#fff;
+  border-radius:18px;
+  overflow:hidden;
+}
+
+.status{
+  margin-top:18px;
+  padding:18px;
+  border-radius:18px;
+  background:#223552;
+  border:1px solid rgba(255,255,255,.12);
+}
+
+.status.ok{
+  background:#14532d;
+}
+
+.status.bad{
+  background:#7f1d1d;
+}
+
+.status.warn{
+  background:#78350f;
+}
+
+.status-title{
+  font-size:26px;
+  font-weight:800;
+  margin-bottom:8px;
+}
+
+.status-details{
+  color:#e5e7eb;
+  line-height:1.45;
+}
+
+.controls{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin:16px 0;
+}
+
+button,input{
+  border:none;
+  border-radius:14px;
+  padding:12px 16px;
+  font:inherit;
+}
+
+button{
+  cursor:pointer;
+  font-weight:800;
+}
+
+.btn-start{
+  background:#22c55e;
+}
+
+.btn-stop{
+  background:#ef4444;
+  color:#fff;
+}
+
+input{
+  width:100%;
+  box-sizing:border-box;
+  margin-top:10px;
+  background:#10233f;
+  color:#fff;
+  border:1px solid rgba(255,255,255,.14);
+}
+
+.token{
+  margin-top:12px;
+  font-size:12px;
+  color:#b8c4d6;
+  word-break:break-all;
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+  <h1>🟡 VA Recovery Scanner</h1>
+  <p>
+    Сканер компенсаційного доступу.
+    Працює з QR або штрихкодом, завантаженим у Recovery Cabinet.
+  </p>
+
+  <div class="card">
+
+    <label>Контролер / вхід</label>
+    <input id="gate" value="recovery-gate-1">
+
+    <label>Scanner secret</label>
+    <input id="secret" type="password" placeholder="SCANNER_SECRET">
+
+    <div class="controls">
+      <button class="btn-start" id="btnStart">Запустити камеру</button>
+      <button class="btn-stop" id="btnStop" disabled>Зупинити</button>
+    </div>
+
+    <div id="reader"></div>
+
+    <div id="status" class="status">
+      <div id="statusTitle" class="status-title">Готово</div>
+      <div id="statusDetails" class="status-details">
+        Запустіть камеру і скануйте компенсаційний квиток.
+      </div>
+      <div id="tokenText" class="token">—</div>
+    </div>
+
+  </div>
+</div>
+
+<script src="./recovery-scanner.js"></script>
+</body>
+</html>
