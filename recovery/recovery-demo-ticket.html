@@ -185,26 +185,14 @@ input{
 </div>
 
 <script>
-function makeTicket(){
-  const token = document.getElementById("tokenInput").value.trim() || "2787601013";
-  document.getElementById("tokenText").textContent = token;
-
-  const canvas = document.getElementById("qrcode");
-
-  QRCode.toCanvas(canvas, token, {
-    width: 220,
-    margin: 2
-  }, function(error){
-    if (error) console.error(error);
-  });
-}
-
-window.addEventListener("load", async () => {
+async function makeTicket(){
 
   const token =
-    document.getElementById("tokenInput").value.trim();
+    document.getElementById("tokenInput").value.trim()
+    || "2787601013";
 
-  document.getElementById("tokenText").textContent = token;
+  document.getElementById("tokenText").textContent =
+    token;
 
   const canvas =
     document.getElementById("qrcode");
@@ -235,7 +223,9 @@ window.addEventListener("load", async () => {
       </div>
     `;
   }
-});
+}
+
+window.addEventListener("load", makeTicket);
 </script>
 
 </body>
