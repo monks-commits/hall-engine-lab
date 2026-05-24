@@ -396,6 +396,18 @@ $("dateTo").value =
 
 $("dateFrom").value =
   weekAgo.toISOString().split("T")[0];
+
+function getTopEntry(obj){
+
+  const entries =
+    Object.entries(obj);
+
+  if (!entries.length) {
+    return ["—",0];
+  }
+
+  return entries.sort((a,b) => b[1]-a[1])[0];
+}
   
 async function loadSummary(){
 
@@ -552,6 +564,30 @@ $("timelineBody").innerHTML =
       </td>
     </tr>
   `).join("");
+
+const [topCity] =
+  getTopEntry(cities);
+
+const [topVenue] =
+  getTopEntry(venues);
+
+const [topReason] =
+  getTopEntry(reasons);
+
+const [topDay] =
+  getTopEntry(timeline);
+
+$("topCity").textContent =
+  topCity;
+
+$("topVenue").textContent =
+  topVenue;
+
+$("topReason").textContent =
+  topReason;
+
+$("topDay").textContent =
+  topDay;
     
     $("reasonsBody").innerHTML =
       Object.entries(reasons)
