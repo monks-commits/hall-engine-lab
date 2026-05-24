@@ -357,7 +357,9 @@ const auditRows = await supaSelect(
   "recovery_audit",
   "*",
   {
-    order:"created_at.desc"
+    order:"created_at.desc",
+    dateFrom,
+    dateTo
   }
 );
 
