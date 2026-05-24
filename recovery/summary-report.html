@@ -495,8 +495,38 @@ const eventVenueMap = {};
       timeline[day] =
   (timeline[day] || 0) + 1;
 
+      eventVenueMap[row.id] =
+  row.venue_name || "Невідомо";
+
+if (!venueRecovery[eventVenueMap[row.id]]) {
+  venueRecovery[eventVenueMap[row.id]] = {
+    activated:0,
+    used:0
+  };
+}
+
     });
 
+tokenRows.forEach(token => {
+
+  const venue =
+    eventVenueMap[token.recovery_event_id] || "Невідомо";
+
+  if (!venueRecovery[venue]) {
+    venueRecovery[venue] = {
+      activated:0,
+      used:0
+    };
+  }
+
+  venueRecovery[venue].activated++;
+
+  if (token.compensation_used === true) {
+    venueRecovery[venue].used++;
+  }
+
+});
+    
 auditRows.forEach(row => {
 
   if (row.result === "OK") {
@@ -550,18 +580,18 @@ $("statUnknown").textContent =
         </tr>
       `).join("");
 
-    $("venuesBody").innerHTML =
-      Object.entries(venues)
-      .map(([name,count]) => `
-        <tr>
-          <td>${name}</td>
-          <td>
-            <span class="badge orange">
-              ${count}
-            </span>
-          </td>
-        </tr>
-      `).join("");
+   $("venuesBody").innerHTML =
+  Object.entries(venueRecovery)
+  .map(([name,data]) => `
+    <tr>
+      <td>${name}</td>
+      <td>
+        <span class="badge orange">
+          ${data.activated} / ${data.used}
+        </span>
+      </td>
+    </tr>
+  `).join("");
 
 $("timelineBody").innerHTML =
   Object.entries(timeline)
