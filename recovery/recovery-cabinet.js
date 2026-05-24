@@ -113,7 +113,7 @@ async function createRecoveryEvent(){
         venue_id:
           venue_name
             .toLowerCase()
-            .replaceAll(" ", "-"),
+            .replaceAll(" ", "-"), 
 
         venue_name,
         locality,
