@@ -333,6 +333,20 @@ function labelReason(value){
   return map[value] || value || "—";
 }
 
+const today =
+  new Date();
+
+const weekAgo =
+  new Date();
+
+weekAgo.setDate(today.getDate() - 7);
+
+$("dateTo").value =
+  today.toISOString().split("T")[0];
+
+$("dateFrom").value =
+  weekAgo.toISOString().split("T")[0];
+  
 async function loadSummary(){
 
   try {
