@@ -436,6 +436,9 @@ let unknownCount = 0;
       reasons[reason] =
         (reasons[reason] || 0) + 1;
 
+      timeline[day] =
+  (timeline[day] || 0) + 1;
+
     });
 
 auditRows.forEach(row => {
@@ -504,6 +507,20 @@ $("statUnknown").textContent =
         </tr>
       `).join("");
 
+$("timelineBody").innerHTML =
+  Object.entries(timeline)
+  .sort(([a],[b]) => a.localeCompare(b))
+  .map(([day,count]) => `
+    <tr>
+      <td>${day}</td>
+      <td>
+        <span class="badge green">
+          ${count}
+        </span>
+      </td>
+    </tr>
+  `).join("");
+    
     $("reasonsBody").innerHTML =
       Object.entries(reasons)
       .map(([name,count]) => `
