@@ -78,6 +78,9 @@ async function createRecoveryEvent(){
     const venue_name =
       $("venueName").value.trim();
 
+    const locality =
+  $("locality").value.trim();
+
     const event_scope =
       $("eventScope").value;
 
