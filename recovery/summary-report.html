@@ -330,19 +330,20 @@ async function loadSummary(){
   try {
 
     const rows = await supaSelect(
-      "recovery_events",
-      const auditRows = await supaSelect(
+  "recovery_events",
+  "*",
+  {
+    order:"created_at.desc"
+  }
+);
+
+const auditRows = await supaSelect(
   "recovery_audit",
   "*",
   {
     order:"created_at.desc"
   }
 );
-      "*",
-      {
-        order:"created_at.desc"
-      }
-    );
 
     let postponed = 0;
     let cancelled = 0;
