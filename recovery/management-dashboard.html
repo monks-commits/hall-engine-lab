@@ -286,7 +286,13 @@ async function loadDashboard(){
         <tr>
           <td>${new Date(row.created_at).toLocaleString()}</td>
 
-          <td>${row.venue_name || "—"}</td>
+         <td>
+  ${row.locality || "—"}
+</td>
+
+<td>
+  ${row.venue_name || "—"}
+</td>
 
           <td>
             <strong>${row.title || "—"}</strong><br>
