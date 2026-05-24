@@ -329,6 +329,12 @@ async function loadSummary(){
 
   try {
 
+const dateFrom =
+  $("dateFrom").value;
+
+const dateTo =
+  $("dateTo").value;
+    
     const rows = await supaSelect(
   "recovery_events",
   "*",
