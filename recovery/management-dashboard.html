@@ -196,6 +196,33 @@ td{
 
 <script>
 
+function $(id){
+  return document.getElementById(id);
+}
+
+async function supaSelect(table, select="*", options={}){
+
+  let url =
+    `${SUPABASE_URL}/rest/v1/${table}?select=${encodeURIComponent(select)}`;
+
+  if (options.order) {
+    url += `&order=${encodeURIComponent(options.order)}`;
+  }
+
+  const res = await fetch(url,{
+    headers:{
+      apikey:SUPABASE_ANON_KEY,
+      Authorization:`Bearer ${SUPABASE_ANON_KEY}`
+    }
+  });
+
+  if (!res.ok) {
+    throw new Error(await res.text());
+  }
+
+  return await res.json();
+}
+  
 async function loadDashboard(){
 
   try {
