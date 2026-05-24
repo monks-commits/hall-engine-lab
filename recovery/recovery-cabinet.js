@@ -116,6 +116,7 @@ async function createRecoveryEvent(){
             .replaceAll(" ", "-"),
 
         venue_name,
+        locality,
         event_scope,
         incident_type,
         incident_reason,
