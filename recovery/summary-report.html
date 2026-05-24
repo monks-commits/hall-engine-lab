@@ -331,6 +331,13 @@ async function loadSummary(){
 
     const rows = await supaSelect(
       "recovery_events",
+      const auditRows = await supaSelect(
+  "recovery_audit",
+  "*",
+  {
+    order:"created_at.desc"
+  }
+);
       "*",
       {
         order:"created_at.desc"
@@ -340,6 +347,9 @@ async function loadSummary(){
     let postponed = 0;
     let cancelled = 0;
     let repertoire = 0;
+    let okCount = 0;
+let alreadyUsedCount = 0;
+let unknownCount = 0;
 
     const cities = {};
     const venues = {};
