@@ -296,6 +296,14 @@ async function supaSelect(table, select="*", options={}){
     url += `&order=${encodeURIComponent(options.order)}`;
   }
 
+  if (options.dateFrom) {
+    url += `&created_at=gte.${options.dateFrom}`;
+  }
+
+  if (options.dateTo) {
+    url += `&created_at=lte.${options.dateTo}T23:59:59`;
+  }
+
   const res = await fetch(url,{
     headers:{
       apikey: RECOVERY_SUPABASE_KEY,
