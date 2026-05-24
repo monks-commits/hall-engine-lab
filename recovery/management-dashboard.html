@@ -203,7 +203,7 @@ function $(id){
 async function supaSelect(table, select="*", options={}){
 
   let url =
-    `${SUPABASE_URL}/rest/v1/${table}?select=${encodeURIComponent(select)}`;
+    `${RECOVERY_SUPABASE_URL}/rest/v1/${table}?select=${encodeURIComponent(select)}`;
 
   if (options.order) {
     url += `&order=${encodeURIComponent(options.order)}`;
@@ -211,8 +211,8 @@ async function supaSelect(table, select="*", options={}){
 
   const res = await fetch(url,{
     headers:{
-      apikey:SUPABASE_ANON_KEY,
-      Authorization:`Bearer ${SUPABASE_ANON_KEY}`
+      apikey: RECOVERY_SUPABASE_KEY,
+      Authorization:`Bearer ${RECOVERY_SUPABASE_KEY}`
     }
   });
 
@@ -222,7 +222,43 @@ async function supaSelect(table, select="*", options={}){
 
   return await res.json();
 }
-  
+
+function labelIncidentType(value){
+
+  const map = {
+    postponed:"Перенесення",
+    cancelled:"Скасування"
+  };
+
+  return map[value] || value || "—";
+}
+
+function labelReason(value){
+
+  const map = {
+    air_alert:"Повітряна тривога",
+    illness:"Хвороба артиста",
+    blackout:"Відсутність електроенергії",
+    technical:"Технічний збій",
+    transport:"Транспортна проблема",
+    admin:"Рішення адміністрації",
+    other:"Інше"
+  };
+
+  return map[value] || value || "—";
+}
+
+function labelScope(value){
+
+  const map = {
+    repertoire:"Репертуар",
+    rental:"Оренда",
+    external:"Зовнішній організатор"
+  };
+
+  return map[value] || value || "—";
+}
+
 async function loadDashboard(){
 
   try {
@@ -241,78 +277,60 @@ async function loadDashboard(){
 
     const html = rows.map(row => {
 
-      if (row.incident_type === "postponed") {
-        postponed++;
-      }
-
-      if (row.incident_type === "cancelled") {
-        cancelled++;
-      }
-
-      if (row.event_scope === "repertoire") {
-        repertoire++;
-      }
+      if (row.incident_type === "postponed") postponed++;
+      if (row.incident_type === "cancelled") cancelled++;
+      if (row.event_scope === "repertoire") repertoire++;
 
       return `
         <tr>
+          <td>${new Date(row.created_at).toLocaleString()}</td>
+
+          <td>${row.venue_name || "—"}</td>
 
           <td>
-            ${new Date(row.created_at).toLocaleString()}
-          </td>
-
-          <td>
-            ${row.venue_name || "—"}
-          </td>
-
-          <td>
-            ${row.title || "—"}
+            <strong>${row.title || "—"}</strong><br>
+            <span style="color:#b8c4d6;font-size:13px;">
+              ${row.original_event || ""}
+            </span>
           </td>
 
           <td>
             <span class="badge ${row.incident_type}">
-              ${row.incident_type}
+              ${labelIncidentType(row.incident_type)}
             </span>
           </td>
 
-          <td>
-            ${row.incident_reason || "—"}
-          </td>
+          <td>${labelReason(row.incident_reason)}</td>
 
           <td>
             <span class="badge ${row.event_scope}">
-              ${row.event_scope}
+              ${labelScope(row.event_scope)}
             </span>
           </td>
-
         </tr>
       `;
 
     }).join("");
 
-    $("eventsBody").innerHTML = html;
+    $("eventsBody").innerHTML =
+      html || `<tr><td colspan="6">Подій поки немає.</td></tr>`;
 
-    $("statEvents").textContent =
-      rows.length;
-
-    $("statPostponed").textContent =
-      postponed;
-
-    $("statCancelled").textContent =
-      cancelled;
-
-    $("statRepertoire").textContent =
-      repertoire;
+    $("statEvents").textContent = rows.length;
+    $("statPostponed").textContent = postponed;
+    $("statCancelled").textContent = cancelled;
+    $("statRepertoire").textContent = repertoire;
 
   } catch(e){
 
     console.error(e);
 
+    $("eventsBody").innerHTML =
+      `<tr><td colspan="6">Помилка завантаження: ${String(e.message || e)}</td></tr>`;
   }
 }
 
 loadDashboard();
 
 </script>
-
 </body>
 </html>
