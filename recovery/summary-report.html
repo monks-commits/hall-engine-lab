@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<title>VA Recovery Summary</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script src="./recovery-config.js"></script>
+
+<style>
+
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#061a3a;
+  color:#fff;
+}
+
+.wrap{
+  max-width:1380px;
+  margin:0 auto;
+  padding:32px 24px;
+}
+
+.hero h1{
+  margin:0 0 10px;
+  font-size:44px;
+}
+
+.hero p{
+  margin:0 0 26px;
+  color:#b8c4d6;
+  font-size:18px;
+}
+
+.toolbar{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:22px;
+}
+
+.toolbar select,
+.toolbar input{
+  min-width:180px;
+  border:none;
+  border-radius:14px;
+  padding:12px;
+  background:#10233f;
+  color:#fff;
+}
+
+button{
+  border:none;
+  border-radius:14px;
+  padding:12px 18px;
+  background:#4c86f7;
+  color:#fff;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:16px;
+  margin-bottom:20px;
+}
+
+.stat{
+  background:#1d2d47;
+  border-radius:22px;
+  padding:22px;
+}
+
+.stat .value{
+  font-size:42px;
+  font-weight:800;
+  margin-top:8px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:20px;
+}
+
+.card{
+  background:#1d2d47;
+  border-radius:24px;
+  padding:24px;
+  margin-bottom:20px;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+th{
+  text-align:left;
+  padding:14px 10px;
+  border-bottom:1px solid rgba(255,255,255,.1);
+  color:#b8c4d6;
+}
+
+td{
+  padding:14px 10px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+
+.badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:28px;
+  padding:0 12px;
+  border-radius:999px;
+  font-size:13px;
+  font-weight:700;
+}
+
+.green{
+  background:#22c55e;
+  color:#08111f;
+}
+
+.orange{
+  background:#f59e0b;
+  color:#08111f;
+}
+
+.red{
+  background:#ef4444;
+  color:#fff;
+}
+
+@media(max-width:980px){
+
+  .stats{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .grid{
+    grid-template-columns:1fr;
+  }
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+  <section class="hero">
+
+    <h1>🟡 VA Recovery Summary</h1>
+
+    <p>
+      Зведена аналітика recovery lifecycle
+      культурної мережі.
+    </p>
+
+  </section>
+
+  <section class="toolbar">
+
+    <input type="date" id="dateFrom">
+
+    <input type="date" id="dateTo">
+
+    <button onclick="loadSummary()">
+      Оновити звіт
+    </button>
+
+  </section>
+
+  <section class="stats">
+
+    <div class="stat">
+      Incidents
+      <div id="statIncidents" class="value">0</div>
+    </div>
+
+    <div class="stat">
+      Перенесення
+      <div id="statPostponed" class="value">0</div>
+    </div>
+
+    <div class="stat">
+      Скасування
+      <div id="statCancelled" class="value">0</div>
+    </div>
+
+    <div class="stat">
+      Репертуар
+      <div id="statRepertoire" class="value">0</div>
+    </div>
+
+  </section>
+
+  <section class="grid">
+
+    <div class="card">
+
+      <h2>По містах</h2>
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>Місто</th>
+            <th>Recovery</th>
+          </tr>
+        </thead>
+
+        <tbody id="citiesBody">
+        </tbody>
+
+      </table>
+
+    </div>
+
+    <div class="card">
+
+      <h2>По майданчиках</h2>
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>Майданчик</th>
+            <th>Recovery</th>
+          </tr>
+        </thead>
+
+        <tbody id="venuesBody">
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>Причини інцидентів</h2>
+
+    <table>
+
+      <thead>
+        <tr>
+          <th>Причина</th>
+          <th>Кількість</th>
+        </tr>
+      </thead>
+
+      <tbody id="reasonsBody">
+      </tbody>
+
+    </table>
+
+  </section>
+
+</div>
+
+<script>
+
+function $(id){
+  return document.getElementById(id);
+}
+
+async function supaSelect(table, select="*", options={}){
+
+  let url =
+    `${RECOVERY_SUPABASE_URL}/rest/v1/${table}?select=${encodeURIComponent(select)}`;
+
+  if (options.order) {
+    url += `&order=${encodeURIComponent(options.order)}`;
+  }
+
+  const res = await fetch(url,{
+    headers:{
+      apikey: RECOVERY_SUPABASE_KEY,
+      Authorization:`Bearer ${RECOVERY_SUPABASE_KEY}`
+    }
+  });
+
+  if (!res.ok) {
+    throw new Error(await res.text());
+  }
+
+  return await res.json();
+}
+
+function labelReason(value){
+
+  const map = {
+    air_alert:"Повітряна тривога",
+    illness:"Хвороба артиста",
+    blackout:"Відсутність електроенергії",
+    technical:"Технічний збій",
+    transport:"Транспортна проблема",
+    admin:"Рішення адміністрації",
+    other:"Інше"
+  };
+
+  return map[value] || value || "—";
+}
+
+async function loadSummary(){
+
+  try {
+
+    const rows = await supaSelect(
+      "recovery_events",
+      "*",
+      {
+        order:"created_at.desc"
+      }
+    );
+
+    let postponed = 0;
+    let cancelled = 0;
+    let repertoire = 0;
+
+    const cities = {};
+    const venues = {};
+    const reasons = {};
+
+    rows.forEach(row => {
+
+      if (row.incident_type === "postponed") postponed++;
+      if (row.incident_type === "cancelled") cancelled++;
+      if (row.event_scope === "repertoire") repertoire++;
+
+      const city =
+        row.locality || "Невідомо";
+
+      const venue =
+        row.venue_name || "Невідомо";
+
+      const reason =
+        labelReason(row.incident_reason);
+
+      cities[city] =
+        (cities[city] || 0) + 1;
+
+      venues[venue] =
+        (venues[venue] || 0) + 1;
+
+      reasons[reason] =
+        (reasons[reason] || 0) + 1;
+
+    });
+
+    $("statIncidents").textContent =
+      rows.length;
+
+    $("statPostponed").textContent =
+      postponed;
+
+    $("statCancelled").textContent =
+      cancelled;
+
+    $("statRepertoire").textContent =
+      repertoire;
+
+    $("citiesBody").innerHTML =
+      Object.entries(cities)
+      .map(([name,count]) => `
+        <tr>
+          <td>${name}</td>
+          <td>
+            <span class="badge green">
+              ${count}
+            </span>
+          </td>
+        </tr>
+      `).join("");
+
+    $("venuesBody").innerHTML =
+      Object.entries(venues)
+      .map(([name,count]) => `
+        <tr>
+          <td>${name}</td>
+          <td>
+            <span class="badge orange">
+              ${count}
+            </span>
+          </td>
+        </tr>
+      `).join("");
+
+    $("reasonsBody").innerHTML =
+      Object.entries(reasons)
+      .map(([name,count]) => `
+        <tr>
+          <td>${name}</td>
+          <td>
+            <span class="badge red">
+              ${count}
+            </span>
+          </td>
+        </tr>
+      `).join("");
+
+  } catch(e){
+
+    console.error(e);
+
+  }
+}
+
+loadSummary();
+
+</script>
+
+</body>
+</html>
