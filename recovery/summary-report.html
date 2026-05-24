@@ -259,8 +259,26 @@ td{
 
   </section>
 
-  <section class="card">
+<section class="card">
 
+  <h2>Динаміка по днях</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Дата</th>
+        <th>Incidents</th>
+      </tr>
+    </thead>
+
+    <tbody id="timelineBody">
+    </tbody>
+  </table>
+
+</section>
+  
+  <section class="card">
+    
     <h2>Причини інцидентів</h2>
 
     <table>
@@ -387,6 +405,7 @@ let unknownCount = 0;
     const cities = {};
     const venues = {};
     const reasons = {};
+    const timeline = {};
 
     rows.forEach(row => {
 
@@ -402,6 +421,11 @@ let unknownCount = 0;
 
       const reason =
         labelReason(row.incident_reason);
+
+      const day =
+  new Date(row.created_at)
+    .toISOString()
+    .split("T")[0];
 
       cities[city] =
         (cities[city] || 0) + 1;
