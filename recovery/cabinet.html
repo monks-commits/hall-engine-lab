@@ -137,70 +137,100 @@ button,a.btn{
     </p>
   </section>
 
-  <section class="card">
+ <section class="card">
 
-    <h2>1. Recovery-подія</h2>
+  <h2>1. Recovery-подія</h2>
 
-    <div class="row">
-      <div>
-        <label>Назва події</label>
-        <input id="title" value="Queen при свічках — компенсація">
-      </div>
-
-      <div>
-        <label>Нова дата / сеанс</label>
-        <input id="recoveryEvent" value="Компенсаційний сеанс">
-      </div>
+  <div class="row">
+    <div>
+      <label>Назва події</label>
+      <input id="title" value="Queen при свічках — компенсація">
     </div>
 
-    <label>Оригінальна подія</label>
-    <input id="originalEvent" value="Queen при свічках 19.04">
-
-    <div class="actions">
-      <button class="btn-primary" onclick="createRecoveryEvent()">
-        Створити recovery-подію
-      </button>
+    <div>
+      <label>Нова дата / сеанс</label>
+      <input id="recoveryEvent" value="Компенсаційний сеанс">
     </div>
-<div class="card">
-  <h2>3. Швидка активація recovery</h2>
+  </div>
 
-  <p>
+  <label>Оригінальна подія</label>
+  <input id="originalEvent" value="Queen при свічках 19.04">
+
+  <div class="row">
+    <div>
+      <label>Майданчик</label>
+      <input id="venueName" value="Демо-майданчик">
+    </div>
+
+    <div>
+      <label>Тип події</label>
+      <select id="eventScope">
+        <option value="repertoire">Репертуар закладу</option>
+        <option value="rental">Оренда</option>
+        <option value="external">Зовнішній організатор</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="row">
+    <div>
+      <label>Тип інциденту</label>
+      <select id="incidentType">
+        <option value="postponed">Перенесення</option>
+        <option value="cancelled">Скасування</option>
+      </select>
+    </div>
+
+    <div>
+      <label>Причина</label>
+      <select id="incidentReason">
+        <option value="air_alert">Повітряна тривога</option>
+        <option value="illness">Хвороба артиста</option>
+        <option value="blackout">Відсутність електроенергії</option>
+        <option value="technical">Технічний збій</option>
+        <option value="transport">Транспортна проблема</option>
+        <option value="admin">Рішення адміністрації</option>
+        <option value="other">Інше</option>
+      </select>
+    </div>
+  </div>
+
+  <label>Коментар</label>
+  <textarea id="incidentNote" placeholder="Додаткова інформація..."></textarea>
+
+  <div class="actions">
+    <button class="btn-primary" onclick="createRecoveryEvent()">
+      Створити recovery-подію
+    </button>
+  </div>
+
+  <div id="eventResult" class="result">
+    Recovery-подія ще не створена.
+  </div>
+
+</section>
+
+<section class="card">
+
+  <h2>2. Швидка активація recovery</h2>
+
+  <p style="color:#b8c4d6;">
     Скануйте QR або вставте barcode квитка.
   </p>
 
-  <input
-    id="quickToken"
-    placeholder="Token / barcode"
-    style="
-      width:100%;
-      box-sizing:border-box;
-      margin-top:12px;
-      padding:14px;
-      border-radius:14px;
-      border:none;
-    "
-  >
+  <input id="quickToken" placeholder="Token / barcode">
 
-  <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;">
-
-    <button
-      class="btn btn-primary"
-      onclick="quickActivateRecovery()"
-    >
+  <div class="actions">
+    <button class="btn-primary" onclick="quickActivateRecovery()">
       Активувати recovery
     </button>
-
   </div>
 
-  <div id="quickResult" class="result-box">
+  <div id="quickResult" class="result">
     Очікування...
   </div>
-</div>
-    <div id="eventResult" class="result">
-      Recovery-подія ще не створена.
-    </div>
 
-  </section>
+</section>
 
   <section class="card">
 
