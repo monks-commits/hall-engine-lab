@@ -75,8 +75,28 @@ async function createRecoveryEvent(){
     const recovery_event =
       $("recoveryEvent").value.trim();
 
+    const venue_name =
+      $("venueName").value.trim();
+
+    const event_scope =
+      $("eventScope").value;
+
+    const incident_type =
+      $("incidentType").value;
+
+    const incident_reason =
+      $("incidentReason").value;
+
+    const incident_note =
+      $("incidentNote").value.trim();
+
     if (!title) {
       alert("Вкажіть назву події");
+      return;
+    }
+
+    if (!venue_name) {
+      alert("Вкажіть майданчик");
       return;
     }
 
@@ -85,7 +105,20 @@ async function createRecoveryEvent(){
       {
         title,
         original_event,
-        recovery_event
+        recovery_event,
+
+        venue_id:
+          venue_name
+            .toLowerCase()
+            .replaceAll(" ", "-"),
+
+        venue_name,
+        event_scope,
+        incident_type,
+        incident_reason,
+        incident_note,
+
+        status:"active"
       }
     );
 
@@ -95,7 +128,12 @@ async function createRecoveryEvent(){
 
     show(
       "eventResult",
-      `✅ Recovery-подію створено\nID: ${event.id}\n${event.title}`
+      `✅ Recovery-подію створено
+ID: ${event.id}
+Майданчик: ${event.venue_name}
+Тип: ${event.incident_type}
+Причина: ${event.incident_reason}
+${event.title}`
     );
 
   } catch(e){
