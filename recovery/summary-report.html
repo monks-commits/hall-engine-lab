@@ -381,6 +381,25 @@ let unknownCount = 0;
 
     });
 
+auditRows.forEach(row => {
+
+  if (row.result === "OK") {
+    okCount++;
+  }
+
+  if (row.result === "ALREADY_USED") {
+    alreadyUsedCount++;
+  }
+
+  if (
+    row.result === "UNKNOWN" ||
+    row.result === "NOT_FOUND"
+  ) {
+    unknownCount++;
+  }
+
+});
+    
     $("statIncidents").textContent =
       rows.length;
 
@@ -393,6 +412,15 @@ let unknownCount = 0;
     $("statRepertoire").textContent =
       repertoire;
 
+$("statOk").textContent =
+  okCount;
+
+$("statAlreadyUsed").textContent =
+  alreadyUsedCount;
+
+$("statUnknown").textContent =
+  unknownCount;
+    
     $("citiesBody").innerHTML =
       Object.entries(cities)
       .map(([name,count]) => `
