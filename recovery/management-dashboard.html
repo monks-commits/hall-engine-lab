@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<title>VA Recovery Monitoring</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script src="./recovery-config.js"></script>
+
+<style>
+
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#061a3a;
+  color:#fff;
+}
+
+.wrap{
+  max-width:1280px;
+  margin:0 auto;
+  padding:32px 24px;
+}
+
+.hero h1{
+  margin:0 0 10px;
+  font-size:44px;
+}
+
+.hero p{
+  margin:0 0 28px;
+  color:#b8c4d6;
+  font-size:18px;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:16px;
+  margin-bottom:22px;
+}
+
+.stat{
+  background:#1d2d47;
+  border-radius:22px;
+  padding:22px;
+}
+
+.stat .value{
+  font-size:42px;
+  font-weight:800;
+  margin-top:8px;
+}
+
+.card{
+  background:#1d2d47;
+  border-radius:24px;
+  padding:24px;
+  margin-bottom:20px;
+  box-shadow:0 18px 40px rgba(0,0,0,.2);
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+th{
+  text-align:left;
+  color:#b8c4d6;
+  font-size:14px;
+  padding:14px 10px;
+  border-bottom:1px solid rgba(255,255,255,.12);
+}
+
+td{
+  padding:16px 10px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+.badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:28px;
+  padding:0 12px;
+  border-radius:999px;
+  font-size:13px;
+  font-weight:700;
+}
+
+.postponed{
+  background:#f59e0b;
+  color:#08111f;
+}
+
+.cancelled{
+  background:#ef4444;
+  color:#fff;
+}
+
+.repertoire{
+  background:#22c55e;
+  color:#08111f;
+}
+
+.rental{
+  background:#3b82f6;
+  color:#fff;
+}
+
+.external{
+  background:#8b5cf6;
+  color:#fff;
+}
+
+@media(max-width:900px){
+
+  .stats{
+    grid-template-columns:1fr 1fr;
+  }
+
+  table{
+    display:block;
+    overflow:auto;
+  }
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+  <section class="hero">
+    <h1>🟡 VA Recovery Monitoring</h1>
+
+    <p>
+      Operational monitoring recovery lifecycle
+      репертуарних подій культурної мережі.
+    </p>
+  </section>
+
+  <section class="stats">
+
+    <div class="stat">
+      Recovery events
+      <div id="statEvents" class="value">0</div>
+    </div>
+
+    <div class="stat">
+      Перенесення
+      <div id="statPostponed" class="value">0</div>
+    </div>
+
+    <div class="stat">
+      Скасування
+      <div id="statCancelled" class="value">0</div>
+    </div>
+
+    <div class="stat">
+      Репертуар
+      <div id="statRepertoire" class="value">0</div>
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>
+      Recovery incidents
+    </h2>
+
+    <table>
+
+      <thead>
+        <tr>
+          <th>Дата</th>
+          <th>Майданчик</th>
+          <th>Подія</th>
+          <th>Тип</th>
+          <th>Причина</th>
+          <th>Scope</th>
+        </tr>
+      </thead>
+
+      <tbody id="eventsBody">
+      </tbody>
+
+    </table>
+
+  </section>
+
+</div>
+
+<script>
+
+async function loadDashboard(){
+
+  try {
+
+    const rows = await supaSelect(
+      "recovery_events",
+      "*",
+      {
+        order:"created_at.desc"
+      }
+    );
+
+    let postponed = 0;
+    let cancelled = 0;
+    let repertoire = 0;
+
+    const html = rows.map(row => {
+
+      if (row.incident_type === "postponed") {
+        postponed++;
+      }
+
+      if (row.incident_type === "cancelled") {
+        cancelled++;
+      }
+
+      if (row.event_scope === "repertoire") {
+        repertoire++;
+      }
+
+      return `
+        <tr>
+
+          <td>
+            ${new Date(row.created_at).toLocaleString()}
+          </td>
+
+          <td>
+            ${row.venue_name || "—"}
+          </td>
+
+          <td>
+            ${row.title || "—"}
+          </td>
+
+          <td>
+            <span class="badge ${row.incident_type}">
+              ${row.incident_type}
+            </span>
+          </td>
+
+          <td>
+            ${row.incident_reason || "—"}
+          </td>
+
+          <td>
+            <span class="badge ${row.event_scope}">
+              ${row.event_scope}
+            </span>
+          </td>
+
+        </tr>
+      `;
+
+    }).join("");
+
+    $("eventsBody").innerHTML = html;
+
+    $("statEvents").textContent =
+      rows.length;
+
+    $("statPostponed").textContent =
+      postponed;
+
+    $("statCancelled").textContent =
+      cancelled;
+
+    $("statRepertoire").textContent =
+      repertoire;
+
+  } catch(e){
+
+    console.error(e);
+
+  }
+}
+
+loadDashboard();
+
+</script>
+
+</body>
+</html>
