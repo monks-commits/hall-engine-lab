@@ -439,6 +439,16 @@ const auditRows = await supaSelect(
   }
 );
 
+const tokenRows = await supaSelect(
+  "recovery_tokens",
+  "*",
+  {
+    order:"created_at.desc",
+    dateFrom,
+    dateTo
+  }
+);
+    
     let postponed = 0;
     let cancelled = 0;
     let repertoire = 0;
@@ -450,6 +460,8 @@ let unknownCount = 0;
     const venues = {};
     const reasons = {};
     const timeline = {};
+    const venueRecovery = {};
+const eventVenueMap = {};
 
     rows.forEach(row => {
 
