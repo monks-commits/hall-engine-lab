@@ -89,6 +89,9 @@ async function createRecoveryEvent(){
     const incident_reason =
       $("incidentReason").value;
 
+const operational_status =
+  $("operationalStatus").value;
+    
     const incident_note =
       $("incidentNote").value.trim();
 
@@ -120,7 +123,9 @@ async function createRecoveryEvent(){
         incident_type,
         incident_reason,
         incident_note,
-
+incident_reason,
+incident_note,
+operational_status,
         status:"active"
       }
     );
