@@ -810,6 +810,8 @@ function addSeatAt(x, y){
   $("seat").value = seatNum + 1;
 }
 
+
+  
 function addTextAt(x, y){
   decor.push({
     id: uid("text"),
@@ -836,6 +838,62 @@ function addStageAt(x, y){
   });
 }
 
+function addBoxAt(x, y){
+  decor.push({
+    id: uid("box"),
+    type: "box",
+    text: val("decorText") || "Ложа",
+    x,
+    y,
+    w: n("objW", 160),
+    h: n("objH", 80),
+    rotate: n("decorRotate", 0),
+    size: n("decorSize", 18),
+    weight: val("decorWeight") || "700"
+  });
+}
+
+function addDoorAt(x, y){
+  decor.push({
+    id: uid("door"),
+    type: "door",
+    text: val("decorText") || "Вхід",
+    x,
+    y,
+    w: n("objW", 70),
+    h: n("objH", 90),
+    rotate: n("decorRotate", 0),
+    size: n("decorSize", 14)
+  });
+}
+
+function addWallAt(x, y){
+  decor.push({
+    id: uid("wall"),
+    type: "wall",
+    text: "",
+    x,
+    y,
+    w: n("objW", 220),
+    h: n("arcBorder", 4),
+    rotate: n("decorRotate", 0)
+  });
+}
+
+function addArcAt(x, y){
+  decor.push({
+    id: uid("arc"),
+    type: "arc",
+    text: val("decorText") || "",
+    x,
+    y,
+    w: n("arcW", 500),
+    h: n("arcH", 140),
+    border: n("arcBorder", 4),
+    rotate: n("decorRotate", 0)
+  });
+}
+  
 function getTargetId(e){
   const el = e.target.closest(".seat-dot,.decor-text,.decor-stage");
   return el ? el.dataset.id : null;
