@@ -1093,6 +1093,11 @@ canvas.addEventListener("click", e => {
   if (mode === "text") addTextAt(p.x, p.y);
   if (mode === "stage") addStageAt(p.x, p.y);
 
+if (mode === "box") addBoxAt(p.x, p.y);
+if (mode === "door") addDoorAt(p.x, p.y);
+if (mode === "wall") addWallAt(p.x, p.y);
+if (mode === "arc") addArcAt(p.x, p.y);
+  
   selected.clear();
   render();
 });
