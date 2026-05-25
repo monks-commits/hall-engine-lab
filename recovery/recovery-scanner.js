@@ -91,7 +91,11 @@ function normalizeToken(text){
   return String(text || "").trim();
 }
 
+let scanLocked = false;
+
 async function onScanSuccess(decodedText){
+
+  if (scanLocked) return;
 
   const now = Date.now();
 
@@ -100,15 +104,21 @@ async function onScanSuccess(decodedText){
 
   if (
     token === lastToken &&
-    now - lastScanAt < 3000
+    now - lastScanAt < 8000
   ) {
     return;
   }
+
+  scanLocked = true;
 
   lastToken = token;
   lastScanAt = now;
 
   await sendToken(token);
+
+  setTimeout(() => {
+    scanLocked = false;
+  }, 8000);
 }
 
 async function startScanner(){
