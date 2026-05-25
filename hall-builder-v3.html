@@ -253,6 +253,59 @@ h2{
   color:var(--muted);
   line-height:1.45;
 }
+.decor-box,
+.decor-door,
+.decor-wall,
+.decor-arc{
+  position:absolute;
+  box-sizing:border-box;
+  cursor:pointer;
+  user-select:none;
+}
+
+.decor-box{
+  border:2px solid #9ca3af;
+  border-radius:12px;
+  background:rgba(255,255,255,.75);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#374151;
+}
+
+.decor-door{
+  border:3px solid #6b7280;
+  border-bottom:none;
+  border-radius:12px 12px 0 0;
+  background:rgba(255,255,255,.7);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#374151;
+  font-weight:700;
+}
+
+.decor-wall{
+  background:#6b7280;
+  border-radius:999px;
+}
+
+.decor-arc{
+  border-top-style:solid;
+  border-top-color:#6b7280;
+  border-radius:50% 50% 0 0;
+  pointer-events:auto;
+}
+
+.decor-box.selected,
+.decor-door.selected,
+.decor-wall.selected,
+.decor-arc.selected{
+  outline:3px solid rgba(37,99,235,.45);
+  outline-offset:3px;
+}
+
+  
 </style>
 </head>
 
