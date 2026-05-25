@@ -4,6 +4,5 @@ const RECOVERY_SCAN_ENDPOINT =
 const RECOVERY_SUPABASE_KEY =
   "sb_publishable_nCCfptJOb8Lzy1uAwGBJzA_OJtDneTS";
 
-const RECOVERY_SCANNER_SECRET = "";
 const RECOVERY_SCANNER_SECRET =
-  "your-secret";
+  "SCANNER_SECRET";
