@@ -279,6 +279,7 @@ td{
           <tr>
             <th>Майданчик</th>
             <th>Активовано / Погашено</th>
+<th>Severity</th>
           </tr>
         </thead>
 
@@ -407,6 +408,35 @@ function getTopEntry(obj){
   }
 
   return entries.sort((a,b) => b[1]-a[1])[0];
+}
+
+function getSeverity(count){
+
+  if (count >= 150) {
+    return {
+      label:"CRITICAL",
+      className:"red"
+    };
+  }
+
+  if (count >= 50) {
+    return {
+      label:"HIGH",
+      className:"orange"
+    };
+  }
+
+  if (count >= 10) {
+    return {
+      label:"MEDIUM",
+      className:"orange"
+    };
+  }
+
+  return {
+    label:"LOW",
+    className:"green"
+  };
 }
   
 async function loadSummary(){
