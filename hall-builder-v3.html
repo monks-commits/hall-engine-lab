@@ -1980,7 +1980,35 @@ $("restoreBrowserBtn").onclick = restoreFromBrowser;
   log("READY. FIXED: один export/import, decor сохраняется, холст не меняется при экспорте.");
 })();
 
+$("perspectiveBtn").addEventListener("click", () => {
+  const list = selectedSeats();
 
+  if (list.length < 6) {
+    log("ПЕРСПЕКТИВА: выделите группу мест, минимум 6.");
+    return;
+  }
+
+  save();
+
+  const centerX =
+    list.reduce((sum, s) => sum + Number(s.x || 0), 0) / list.length;
+
+  const minY = Math.min(...list.map(s => Number(s.y || 0)));
+  const maxY = Math.max(...list.map(s => Number(s.y || 0)));
+  const depth = Math.max(1, maxY - minY);
+
+  list.forEach(s => {
+    const yNorm = (Number(s.y || 0) - minY) / depth;
+
+    // чем выше объект, тем сильнее он сжимается к центру
+    const shrink = 0.72 + yNorm * 0.28;
+
+    s.x = Math.round(centerX + (Number(s.x || 0) - centerX) * shrink);
+  });
+
+  render();
+  log("ПЕРСПЕКТИВА OK: выделенный блок сжат к центру.");
+});
 applyCanvas();
 applyZoom();
 render();
