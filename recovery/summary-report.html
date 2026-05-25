@@ -602,25 +602,29 @@ $("statUnknown").textContent =
       Object.entries(cities)
       .map(([name,count]) => `
         <tr>
-          <td>${name}</td>
-          <td>
-            <span class="badge green">
-              ${count}
-            </span>
-          </td>
-        </tr>
-      `).join("");
+          <tr>
 
-   $("venuesBody").innerHTML =
-  Object.entries(venueRecovery)
-  .map(([name,data]) => `
+<td>${name}</td>
 
-  <td>
+<td>
+  <span class="badge orange">
+    ${data.activated} / ${data.used}
+  </span>
+</td>
+
+<td>
+  <span class="badge ${getSeverity(data.activated).className}">
+    ${getSeverity(data.activated).label}
+  </span>
+</td>
+
+<td>
   <span class="badge green">
     ACTIVE
   </span>
 </td>
-    <tr>
+
+</tr>
       <td>${name}</td>
       <td>
         <span class="badge orange">
