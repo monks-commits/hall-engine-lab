@@ -614,6 +614,12 @@ $("statUnknown").textContent =
    $("venuesBody").innerHTML =
   Object.entries(venueRecovery)
   .map(([name,data]) => `
+
+  <td>
+  <span class="badge green">
+    ACTIVE
+  </span>
+</td>
     <tr>
       <td>${name}</td>
       <td>
