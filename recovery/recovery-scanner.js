@@ -93,14 +93,19 @@ function normalizeToken(text){
 async function onScanSuccess(decodedText){
 
   const now = Date.now();
-  if (now - lastScanAt < cooldownMs) return;
-  lastScanAt = now;
 
   const token = normalizeToken(decodedText);
   if (!token) return;
 
-  if (token === lastToken) return;
+  if (
+    token === lastToken &&
+    now - lastScanAt < 3000
+  ) {
+    return;
+  }
+
   lastToken = token;
+  lastScanAt = now;
 
   await sendToken(token);
 }
