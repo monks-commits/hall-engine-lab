@@ -1,5 +1,3 @@
-const RECOVERY_SUPABASE_KEY =
-  "sb_publishable_nCCfptJOb8Lzy1uAwGBJzA_OJtDneTS"; 
 
 const $ = (id) => document.getElementById(id);
 
