@@ -45,7 +45,7 @@ async function supaInsert(table, body){
       method:"POST",
       headers:{
         apikey: RECOVERY_SUPABASE_KEY,
-        Authorization:"Bearer " + RECOVERY_SUPABASE_KEY,
+        Authorization:"Bearer " + RECOVERY_SUPABASE_KEY, 
         "Content-Type":"application/json",
         Prefer:"return=representation"
       },
