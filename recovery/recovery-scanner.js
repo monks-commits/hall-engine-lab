@@ -19,7 +19,7 @@ function setStatus(kind, title, details, token){
 async function sendToken(token){
 
   const secret = RECOVERY_SCANNER_SECRET;
-  const scanned_by = $("gate").value.trim() || "recovery-gate";
+  const scanned_by = $("gate").value.trim() || "recovery-gate"; 
 
   const res = await fetch(RECOVERY_SCAN_ENDPOINT, {
     method:"POST",
