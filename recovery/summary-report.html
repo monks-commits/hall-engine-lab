@@ -600,33 +600,26 @@ $("statUnknown").textContent =
   unknownCount;
     
     $("citiesBody").innerHTML =
-      Object.entries(cities)
-      .map(([name,count]) => `
-        <tr>
-          <tr>
-
-<td>${name}</td>
-
-<td>
-  <span class="badge orange">
-    ${data.activated} / ${data.used}
-  </span>
-</td>
-
-<td>
-  <span class="badge ${getSeverity(data.activated).className}">
-    ${getSeverity(data.activated).label}
-  </span>
-</td>
-
-<td>
-  <span class="badge green">
-    ACTIVE
-  </span>
-</td>
-
-</tr>
+  Object.entries(cities)
+  .map(([name,count]) => `
+    <tr>
       <td>${name}</td>
+
+      <td>
+        <span class="badge green">
+          ${count}
+        </span>
+      </td>
+    </tr>
+  `).join("");
+
+$("venuesBody").innerHTML =
+  Object.entries(venueRecovery)
+  .map(([name,data]) => `
+    <tr>
+
+      <td>${name}</td>
+
       <td>
         <span class="badge orange">
           ${data.activated} / ${data.used}
@@ -634,10 +627,17 @@ $("statUnknown").textContent =
       </td>
 
       <td>
-  <span class="badge ${getSeverity(data.activated).className}">
-    ${getSeverity(data.activated).label}
-  </span>
-</td>
+        <span class="badge ${getSeverity(data.activated).className}">
+          ${getSeverity(data.activated).label}
+        </span>
+      </td>
+
+      <td>
+        <span class="badge green">
+          ACTIVE
+        </span>
+      </td>
+
     </tr>
   `).join("");
 
