@@ -620,6 +620,12 @@ $("statUnknown").textContent =
           ${data.activated} / ${data.used}
         </span>
       </td>
+
+      <td>
+  <span class="badge ${getSeverity(data.activated).className}">
+    ${getSeverity(data.activated).label}
+  </span>
+</td>
     </tr>
   `).join("");
 
