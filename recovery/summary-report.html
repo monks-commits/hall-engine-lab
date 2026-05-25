@@ -496,7 +496,8 @@ const eventVenueMap = {};
 
     rows.forEach(row => {
 
-      if (row.incident_type === "postponed") postponed++;
+      
+      if (row.incident_type === "postponed") postponed++; 
       if (row.incident_type === "cancelled") cancelled++;
       if (row.event_scope === "repertoire") repertoire++;
 
