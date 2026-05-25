@@ -780,6 +780,80 @@ function render(){
         el.classList.add("selected");
       }
 
+if (d.type === "box") {
+  const el = document.createElement("div");
+  el.className = "decor-box obj";
+  el.dataset.id = d.id;
+
+  el.style.left = d.x + "px";
+  el.style.top = d.y + "px";
+  el.style.width = (d.w || 160) + "px";
+  el.style.height = (d.h || 80) + "px";
+  el.style.fontSize = (d.size || 18) + "px";
+  el.style.fontWeight = d.weight || "700";
+  el.style.transform =
+    `translate(-50%,-50%) rotate(${d.rotate || 0}deg)`;
+  el.style.zIndex = "32";
+
+  el.textContent = d.text || "Ложа";
+  if (selected.has(d.id)) el.classList.add("selected");
+  canvas.appendChild(el);
+}
+
+if (d.type === "door") {
+  const el = document.createElement("div");
+  el.className = "decor-door obj";
+  el.dataset.id = d.id;
+
+  el.style.left = d.x + "px";
+  el.style.top = d.y + "px";
+  el.style.width = (d.w || 70) + "px";
+  el.style.height = (d.h || 90) + "px";
+  el.style.fontSize = (d.size || 14) + "px";
+  el.style.transform =
+    `translate(-50%,-50%) rotate(${d.rotate || 0}deg)`;
+  el.style.zIndex = "31";
+
+  el.textContent = d.text || "Вхід";
+  if (selected.has(d.id)) el.classList.add("selected");
+  canvas.appendChild(el);
+}
+
+if (d.type === "wall") {
+  const el = document.createElement("div");
+  el.className = "decor-wall obj";
+  el.dataset.id = d.id;
+
+  el.style.left = d.x + "px";
+  el.style.top = d.y + "px";
+  el.style.width = (d.w || 220) + "px";
+  el.style.height = (d.h || 4) + "px";
+  el.style.transform =
+    `translate(-50%,-50%) rotate(${d.rotate || 0}deg)`;
+  el.style.zIndex = "30";
+
+  if (selected.has(d.id)) el.classList.add("selected");
+  canvas.appendChild(el);
+}
+
+if (d.type === "arc") {
+  const el = document.createElement("div");
+  el.className = "decor-arc obj";
+  el.dataset.id = d.id;
+
+  el.style.left = d.x + "px";
+  el.style.top = d.y + "px";
+  el.style.width = (d.w || 500) + "px";
+  el.style.height = (d.h || 140) + "px";
+  el.style.borderTopWidth = (d.border || 4) + "px";
+  el.style.transform =
+    `translate(-50%,-50%) rotate(${d.rotate || 0}deg)`;
+  el.style.zIndex = "29";
+
+  if (selected.has(d.id)) el.classList.add("selected");
+  canvas.appendChild(el);
+}
+      
       canvas.appendChild(el);
     }
   });
