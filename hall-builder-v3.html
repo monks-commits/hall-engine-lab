@@ -1659,35 +1659,22 @@ $("clearBgBtn").addEventListener("click", () => {
   log("ФОН УБРАН");
 });
   
-$("perspectiveBrushBtn").addEventListener("click", () => {
-  const list = selectedSeats();
+$("perspectiveBrushBtn")
+.addEventListener("click", () => {
 
-  if (!list.length) {
-    log("PERSPECTIVE: выделите именно места, не фон и не decor.");
-    return;
-  }
+  perspectiveMode = !perspectiveMode;
 
-  save();
+  $("perspectiveBrushBtn").style.background =
+    perspectiveMode
+      ? "#dc2626"
+      : "";
 
-  const depth = Number($("perspectiveDepth").value || 35);
-
-  const centerX =
-    list.reduce((sum, s) => sum + Number(s.x || 0), 0) / list.length;
-
-  const minY = Math.min(...list.map(s => Number(s.y || 0)));
-  const maxY = Math.max(...list.map(s => Number(s.y || 0)));
-  const total = Math.max(1, maxY - minY);
-
-  list.forEach(seat => {
-    const t = (Number(seat.y || 0) - minY) / total;
-
-    // верх почти не трогаем, низ шире
-    const shrink = 1 - (depth / 100) * t;
-
-    seat.x = Math.round(
-      centerX + (Number(seat.x || 0) - centerX) * shrink
-    );
-  });
+  log(
+    perspectiveMode
+      ? "PERSPECTIVE MODE ON"
+      : "PERSPECTIVE MODE OFF"
+  );
+});
 
   render();
   log("PERSPECTIVE OK: применено к " + list.length + " местам.");
