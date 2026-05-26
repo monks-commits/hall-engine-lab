@@ -1086,6 +1086,53 @@ $("canvasH").value = 1200;
 });
 
 canvas.addEventListener("pointerdown", e => {
+
+if (perspectiveMode) {
+
+  const list = selectedSeats();
+
+  if (!list.length) {
+    log("Выделите места.");
+    return;
+  }
+
+  save();
+
+  const depth =
+    Number($("perspectiveDepth").value || 35);
+
+  const centerX =
+    list.reduce((s, p) => s + p.x, 0)
+    / list.length;
+
+  const minY =
+    Math.min(...list.map(p => p.y));
+
+  const maxY =
+    Math.max(...list.map(p => p.y));
+
+  const total =
+    Math.max(1, maxY - minY);
+
+  list.forEach(seat => {
+
+    const t =
+      (seat.y - minY) / total;
+
+    const shrink =
+      1 - (depth / 100) * t;
+
+    seat.x =
+      centerX +
+      (seat.x - centerX) * shrink;
+
+  });
+
+  render();
+
+  return;
+}
+  
   const id = getTargetId(e);
   const p = point(e);
 
