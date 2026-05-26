@@ -1643,21 +1643,38 @@ $("mirrorVBtn").addEventListener("click", () => {
   log("ЗЕРКАЛО ПО ВЕРТИКАЛИ: создано " + created.length + " объектов");
 });
 
-$("perspectiveBrushBtn")
-.addEventListener("click", () => {
+$("perspectiveBrushBtn").addEventListener("click", () => {
+  const list = selectedSeats();
 
-  perspectiveMode = !perspectiveMode;
+  if (!list.length) {
+    log("PERSPECTIVE: выделите именно места, не фон и не decor.");
+    return;
+  }
 
-  $("perspectiveBrushBtn").style.background =
-    perspectiveMode
-      ? "#dc2626"
-      : "";
+  save();
 
-  log(
-    perspectiveMode
-      ? "PERSPECTIVE MODE ON"
-      : "PERSPECTIVE MODE OFF"
-  );
+  const depth = Number($("perspectiveDepth").value || 35);
+
+  const centerX =
+    list.reduce((sum, s) => sum + Number(s.x || 0), 0) / list.length;
+
+  const minY = Math.min(...list.map(s => Number(s.y || 0)));
+  const maxY = Math.max(...list.map(s => Number(s.y || 0)));
+  const total = Math.max(1, maxY - minY);
+
+  list.forEach(seat => {
+    const t = (Number(seat.y || 0) - minY) / total;
+
+    // верх почти не трогаем, низ шире
+    const shrink = 1 - (depth / 100) * t;
+
+    seat.x = Math.round(
+      centerX + (Number(seat.x || 0) - centerX) * shrink
+    );
+  });
+
+  render();
+  log("PERSPECTIVE OK: применено к " + list.length + " местам.");
 });
   
 function getCleanSeatsCopy(){
