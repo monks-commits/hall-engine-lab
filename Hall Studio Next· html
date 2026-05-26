@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>VA Hall Studio NEXT</title>
+<style>
+:root{
+  --bg:#0f1117;
+  --panel:#171a23;
+  --panel2:#202432;
+  --line:#333848;
+  --text:#f5f7fb;
+  --muted:#9ca3af;
+  --accent:#7c3aed;
+  --blue:#2563eb;
+  --green:#16a34a;
+  --red:#dc2626;
+  --orange:#f97316;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--text)}
+.app{display:grid;grid-template-columns:340px 1fr 340px;height:100vh;overflow:hidden}
+aside{background:var(--panel);padding:14px;overflow:auto}
+.left{border-right:1px solid var(--line)}
+.right{border-left:1px solid var(--line)}
+h1{font-size:22px;margin:0 0 8px}
+h2{font-size:14px;margin:18px 0 10px;padding-top:12px;border-top:1px solid var(--line);color:#fff}
+.note{color:var(--muted);font-size:12px;line-height:1.45;margin-bottom:12px}
+.field{margin-bottom:10px}
+.field label{display:block;margin-bottom:5px;font-size:12px;font-weight:800;color:#c7ccd8}
+input,select,textarea{width:100%;padding:9px;border:1px solid var(--line);border-radius:8px;background:#0f1117;color:var(--text);font-size:13px}
+textarea{min-height:260px;font-family:Consolas,monospace;font-size:12px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.btn{width:100%;padding:10px;margin-bottom:8px;border:0;border-radius:10px;background:#303645;color:#fff;font-weight:900;cursor:pointer}
+.btn:hover{opacity:.9}.blue{background:var(--blue)}.green{background:var(--green)}.red{background:var(--red)}.orange{background:var(--orange)}.purple{background:var(--accent)}
+.stage-wrap{position:relative;overflow:auto;background:#0b0d12}
+.topbar{position:sticky;top:0;z-index:100;padding:10px 14px;background:#171a23;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;color:#d1d5db;font-size:13px}
+#zoomHost{transform-origin:top left;width:max-content;height:max-content;margin:32px auto}
+#canvas{position:relative;background:#fafafa;box-shadow:0 18px 50px rgba(0,0,0,.45);overflow:hidden;user-select:none;cursor:crosshair}
+.grid{position:absolute;inset:0;display:none;pointer-events:none;background-image:linear-gradient(to right,rgba(124,58,237,.18) 1px,transparent 1px),linear-gradient(to bottom,rgba(124,58,237,.18) 1px,transparent 1px);z-index:1}
+.obj{position:absolute;box-sizing:border-box;cursor:pointer;user-select:none;transform-origin:center center}
+.obj.selected{outline:3px solid rgba(124,58,237,.55);outline-offset:3px}
+.obj-seat{border-radius:50%;background:#dc2626;border:2px solid white;box-shadow:0 2px 10px rgba(0,0,0,.35)}
+.obj-chair{background:#b91c1c;border:2px solid #fff;border-radius:8px 8px 5px 5px;box-shadow:inset 0 -7px 0 rgba(0,0,0,.22),0 3px 9px rgba(0,0,0,.25)}
+.obj-table{border-radius:50%;background:#8b5cf6;border:3px solid #fff;display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff}
+.obj-sofa{border-radius:16px;background:#7f1d1d;border:2px solid #fff;box-shadow:inset 0 -12px 0 rgba(0,0,0,.25)}
+.obj-box{border:2px solid #6b7280;border-radius:14px;background:rgba(255,255,255,.8);display:flex;align-items:center;justify-content:center;color:#374151;font-weight:800}
+.obj-door{border:3px solid #6b7280;border-bottom:none;border-radius:14px 14px 0 0;background:rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center;color:#374151;font-weight:800}
+.obj-wall{background:#6b7280;border-radius:999px}
+.obj-arc{border-top:5px solid #6b7280;border-radius:50% 50% 0 0}
+.obj-zone{border:2px dashed #7c3aed;border-radius:18px;background:rgba(124,58,237,.10);display:flex;align-items:center;justify-content:center;color:#4c1d95;font-weight:900}
+.obj-stage{background:#04a9e8;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;letter-spacing:.08em}
+.obj-bar{background:#111827;color:#fff;border:3px solid #374151;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:900}
+.obj-screen{background:#111827;color:#dbeafe;border:2px solid #60a5fa;display:flex;align-items:center;justify-content:center;font-weight:900}
+.obj-text{color:#111827;font-weight:900;white-space:nowrap}
+.obj-label{color:#374151;font-weight:800;white-space:nowrap;background:rgba(255,255,255,.75);padding:4px 8px;border-radius:8px}
+.select-box{position:absolute;border:2px dashed var(--accent);background:rgba(124,58,237,.16);z-index:9999;pointer-events:none}
+.log,.counter{font-size:12px;line-height:1.45;background:#10131a;border:1px solid var(--line);border-radius:10px;padding:10px;color:#d1d5db;white-space:pre-wrap}
+.small{font-size:11px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="left">
+    <h1>VA Hall Studio NEXT</h1>
+    <div class="note">Scene Composer: объекты, слои, атмосфера. Старый mapper не трогаем.</div>
+
+    <h2>1. Холст</h2>
+    <div class="row2">
+      <div class="field"><label>Canvas W</label><input id="canvasW" type="number" value="1200"></div>
+      <div class="field"><label>Canvas H</label><input id="canvasH" type="number" value="900"></div>
+    </div>
+    <button class="btn blue" id="applyCanvasBtn">ПРИМЕНИТЬ ХОЛСТ</button>
+    <div class="field"><label>Фон</label><input type="file" id="imageLoader" accept="image/*"></div>
+    <div class="field"><label>Режим фона</label><select id="bgMode"><option value="contain">Вписать</option><option value="stretch">Растянуть</option><option value="original">Оригинал</option></select></div>
+    <button class="btn" id="applyBgBtn">ПРИМЕНИТЬ ФОН</button>
+    <button class="btn red" id="clearBgBtn">УБРАТЬ ФОН</button>
+
+    <h2>2. Режим объекта</h2>
+    <div class="field"><label>Что ставим кликом</label><select id="mode">
+      <option value="seat">Место-точка</option>
+      <option value="chair">Кресло</option>
+      <option value="table">Стол</option>
+      <option value="sofa">Диван</option>
+      <option value="box">Ложа / Блок</option>
+      <option value="door">Дверь</option>
+      <option value="wall">Стена</option>
+      <option value="arc">Дуга</option>
+      <option value="zone">Зона</option>
+      <option value="stage">Сцена</option>
+      <option value="bar">Бар</option>
+      <option value="screen">Экран</option>
+      <option value="text">Текст</option>
+      <option value="label">Label</option>
+    </select></div>
+
+    <h2>3. Данные места</h2>
+    <div class="field"><label>Zone</label><input id="zone" value="Партер"></div>
+    <div class="row3">
+      <div class="field"><label>Prefix</label><input id="prefix" value="P"></div>
+      <div class="field"><label>Row</label><input id="row" type="number" value="1"></div>
+      <div class="field"><label>Seat</label><input id="seat" type="number" value="1"></div>
+    </div>
+
+    <h2>4. Объект</h2>
+    <div class="field"><label>Текст объекта</label><input id="objText" value="Текст"></div>
+    <div class="row2"><div class="field"><label>W</label><input id="objW" type="number" value="160"></div><div class="field"><label>H</label><input id="objH" type="number" value="80"></div></div>
+    <div class="row3"><div class="field"><label>Size</label><input id="objSize" type="number" value="22"></div><div class="field"><label>Rotate</label><input id="objRotate" type="number" value="0"></div><div class="field"><label>Z</label><input id="objZ" type="number" value="30"></div></div>
+    <div class="row3"><div class="field"><label>Arc W</label><input id="arcW" type="number" value="500"></div><div class="field"><label>Arc H</label><input id="arcH" type="number" value="140"></div><div class="field"><label>Border</label><input id="arcBorder" type="number" value="5"></div></div>
+
+    <h2>5. Сетка / Zoom</h2>
+    <div class="field"><label>Zoom</label><input id="zoom" type="range" min="25" max="300" value="100"></div>
+    <div class="counter" id="zoomLabel">Zoom: 100%</div>
+    <div class="row2"><div class="field"><label>Grid</label><input id="gridSize" type="number" value="20"></div><div class="field"><label>Snap</label><select id="snap"><option value="0">Off</option><option value="1">On</option></select></div></div>
+    <button class="btn" id="gridBtn">СЕТКА ВКЛ / ВЫКЛ</button>
+  </aside>
+
+  <main class="stage-wrap">
+    <div class="topbar"><b>Scene Composer</b><span>Клик = объект. Объект можно тянуть. Рамка = выделение. Shift+клик = мультивыбор.</span></div>
+    <div id="zoomHost"><div id="canvas"><div class="grid" id="grid"></div></div></div>
+  </main>
+
+  <aside class="right">
+    <h2>Редактирование</h2>
+    <button class="btn orange" id="undoBtn">ОТМЕНИТЬ</button>
+    <button class="btn red" id="deleteBtn">УДАЛИТЬ</button>
+    <button class="btn" id="selectAllBtn">ВЫДЕЛИТЬ ВСЁ</button>
+    <button class="btn" id="clearSelectionBtn">СНЯТЬ ВЫДЕЛЕНИЕ</button>
+    <button class="btn red" id="clearBtn">ОЧИСТИТЬ ВСЁ</button>
+
+    <h2>Transform</h2>
+    <button class="btn blue" id="alignHBtn">ВЫРОВНЯТЬ Y</button>
+    <button class="btn blue" id="alignVBtn">ВЫРОВНЯТЬ X</button>
+    <button class="btn purple" id="distHBtn">РАСПРЕДЕЛИТЬ X</button>
+    <button class="btn purple" id="distVBtn">РАСПРЕДЕЛИТЬ Y</button>
+    <button class="btn purple" id="perspectiveBtn">ПЕРСПЕКТИВА SELECTED</button>
+
+    <h2>Копия / зеркало</h2>
+    <button class="btn orange" id="copyBtn">КОПИРОВАТЬ</button>
+    <button class="btn orange" id="pasteBtn">ВСТАВИТЬ</button>
+    <div class="row2"><div class="field"><label>dx</label><input id="dupOffsetX" type="number" value="40"></div><div class="field"><label>dy</label><input id="dupOffsetY" type="number" value="40"></div></div>
+    <button class="btn purple" id="duplicateBtn">ДУБЛИРОВАТЬ</button>
+    <button class="btn blue" id="mirrorHBtn">ЗЕРКАЛО X</button>
+    <button class="btn blue" id="mirrorVBtn">ЗЕРКАЛО Y</button>
+
+    <h2>Export / Import</h2>
+    <button class="btn green" id="exportBtn">ЭКСПОРТ JSON</button>
+    <button class="btn green" id="downloadBtn">СКАЧАТЬ JSON</button>
+    <button class="btn orange" id="saveBrowserBtn">СОХРАНИТЬ В БРАУЗЕРЕ</button>
+    <button class="btn orange" id="restoreBrowserBtn">ВОССТАНОВИТЬ</button>
+    <button class="btn" id="importBtn">ИМПОРТ JSON</button>
+    <div class="field"><label>JSON</label><textarea id="jsonOutput"></textarea></div>
+    <h2>Status</h2>
+    <div class="counter" id="counter"></div>
+    <h2>Log</h2>
+    <div class="log" id="log"></div>
+  </aside>
+</div>
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const canvas=$('canvas'), zoomHost=$('zoomHost'), grid=$('grid'), imageLoader=$('imageLoader'), jsonOutput=$('jsonOutput'), counter=$('counter'), logBox=$('log'), zoomLabel=$('zoomLabel');
+let objects=[]; let selected=new Set(); let history=[]; let clipboard=[]; let idn=1; let bgDataUrl='', bgNaturalW=0, bgNaturalH=0, gridShown=false; let drag=null, selectBox=null, selectStart=null;
+function uid(p){return p+'_'+Date.now()+'_'+(idn++)}
+function log(m){logBox.textContent=m||''}
+function val(id){return String(($(id)||{}).value||'').trim()}
+function num(id,f=0){const v=parseFloat(val(id)); return Number.isFinite(v)?v:f}
+function zoomValue(){return Math.max(25,Math.min(300,num('zoom',100)))/100}
+function snap(v){if(val('snap')!=='1')return Math.round(v); const g=Math.max(1,num('gridSize',20)); return Math.round(v/g)*g}
+function point(e){const r=canvas.getBoundingClientRect(); const z=zoomValue(); return {x:snap((e.clientX-r.left)/z), y:snap((e.clientY-r.top)/z)}}
+function save(){history.push(JSON.stringify({objects})); if(history.length>100)history.shift()}
+function selectedObjects(){return objects.filter(o=>selected.has(o.id))}
+function objectById(id){return objects.find(o=>o.id===id)}
+function cw(){return parseInt(canvas.style.width,10)||1200}
+function ch(){return parseInt(canvas.style.height,10)||900}
+function objectKey(o){return `${o.prefix||''}${o.row||''}-M${o.seat||''}`}
+function applyCanvas(){canvas.style.width=Math.max(100,num('canvasW',1200))+'px'; canvas.style.height=Math.max(100,num('canvasH',900))+'px'; applyBg(); render(); log('CANVAS OK')}
+function applyBg(){if(!bgDataUrl){canvas.style.backgroundImage='';return} canvas.style.backgroundImage=`url("${bgDataUrl}")`; canvas.style.backgroundRepeat='no-repeat'; const m=val('bgMode'); if(m==='stretch'){canvas.style.backgroundSize='100% 100%';canvas.style.backgroundPosition='0 0'} if(m==='contain'){canvas.style.backgroundSize='contain';canvas.style.backgroundPosition='center top'} if(m==='original'){canvas.style.backgroundSize=bgNaturalW+'px '+bgNaturalH+'px';canvas.style.backgroundPosition='0 0'}}
+function applyZoom(){const z=Math.round(zoomValue()*100); zoomHost.style.transform=`scale(${z/100})`; zoomLabel.textContent='Zoom: '+z+'%'}
+function makeObject(type,x,y){const base={id:uid(type),type,x,y,w:num('objW',160),h:num('objH',80),rotate:num('objRotate',0),z:num('objZ',30),text:val('objText')||type,size:num('objSize',22)};
+ if(type==='seat'||type==='chair'){base.zone=val('zone');base.prefix=val('prefix');base.row=String(num('row',1));base.seat=num('seat',1);base.w=type==='chair'?22:14;base.h=type==='chair'?20:14;$('seat').value=base.seat+1}
+ if(type==='table'){base.w=num('objW',80);base.h=num('objW',80)}
+ if(type==='stage'){base.text=val('objText')||'СЦЕНА';base.w=num('objW',800);base.h=num('objH',90);base.z=20}
+ if(type==='wall'){base.w=num('objW',220);base.h=num('arcBorder',5);base.text=''}
+ if(type==='arc'){base.w=num('arcW',500);base.h=num('arcH',140);base.border=num('arcBorder',5);base.text=''}
+ if(type==='text'||type==='label'){base.w=0;base.h=0;base.text=val('objText')||'Текст';base.z=90}
+ return base}
+function render(){canvas.querySelectorAll('.obj,.select-box').forEach(el=>el.remove());
+ objects.forEach(o=>{const el=document.createElement('div'); el.className='obj obj-'+o.type; el.dataset.id=o.id; el.style.left=o.x+'px'; el.style.top=o.y+'px'; el.style.width=(o.w||0)+'px'; el.style.height=(o.h||0)+'px'; el.style.transform=`translate(-50%,-50%) rotate(${o.rotate||0}deg)`; el.style.zIndex=o.z||30; if(selected.has(o.id))el.classList.add('selected');
+  if(['box','door','zone','stage','bar','screen','table'].includes(o.type))el.textContent=o.text||o.type;
+  if(o.type==='text'||o.type==='label'){el.textContent=o.text||'Текст';el.style.fontSize=(o.size||22)+'px';el.style.transform=`translate(-50%,-50%) rotate(${o.rotate||0}deg)`}
+  if(o.type==='arc'){el.style.borderTop=(o.border||5)+'px solid #6b7280'}
+  canvas.appendChild(el)});
+ counter.innerHTML='Objects: '+objects.length+'<br>Selected: '+selected.size+'<br>Canvas: '+cw()+'x'+ch();
+ localStorage.setItem('va_hall_studio_next_autosave', JSON.stringify(buildJson()))}
+function targetId(e){const el=e.target.closest('.obj'); return el?el.dataset.id:null}
+canvas.addEventListener('pointerdown',e=>{const id=targetId(e); const p=point(e); if(id){if(!selected.has(id)){if(!e.shiftKey)selected.clear();selected.add(id);render()} drag={start:p,orig:selectedObjects().map(o=>({id:o.id,x:o.x,y:o.y}))}; return} selectStart=p; selectBox=document.createElement('div'); selectBox.className='select-box'; selectBox.style.left=p.x+'px'; selectBox.style.top=p.y+'px'; selectBox.style.width='0px'; selectBox.style.height='0px'; canvas.appendChild(selectBox)});
+canvas.addEventListener('pointermove',e=>{const p=point(e); if(drag){const dx=p.x-drag.start.x, dy=p.y-drag.start.y; drag.orig.forEach(a=>{const o=objectById(a.id); if(o){o.x=snap(a.x+dx);o.y=snap(a.y+dy)}}); render(); return} if(selectBox&&selectStart){const l=Math.min(selectStart.x,p.x),t=Math.min(selectStart.y,p.y),w=Math.abs(p.x-selectStart.x),h=Math.abs(p.y-selectStart.y); Object.assign(selectBox.style,{left:l+'px',top:t+'px',width:w+'px',height:h+'px'})}});
+canvas.addEventListener('pointerup',e=>{if(drag){save(); drag=null; render(); return} if(selectBox&&selectStart){const w=parseFloat(selectBox.style.width)||0,h=parseFloat(selectBox.style.height)||0; if(w<5&&h<5){save(); const p=point(e); const o=makeObject(val('mode'),p.x,p.y); objects.push(o); selected.clear(); selected.add(o.id); log('ADDED: '+o.type)} else {const l=parseFloat(selectBox.style.left),t=parseFloat(selectBox.style.top),r=l+w,b=t+h; if(!e.shiftKey)selected.clear(); objects.forEach(o=>{if(o.x>=l&&o.x<=r&&o.y>=t&&o.y<=b)selected.add(o.id)}); log('SELECTED: '+selected.size)} selectBox.remove(); selectBox=null; selectStart=null; render()}});
+canvas.addEventListener('dblclick',e=>{const id=targetId(e); if(!id)return; save(); objects=objects.filter(o=>o.id!==id); selected.delete(id); render()});
+imageLoader.addEventListener('change',e=>{const f=e.target.files&&e.target.files[0]; if(!f)return; const rd=new FileReader(); rd.onload=ev=>{bgDataUrl=ev.target.result; const im=new Image(); im.onload=()=>{bgNaturalW=im.naturalWidth; bgNaturalH=im.naturalHeight; applyBg(); render(); log('BACKGROUND LOADED')}; im.src=bgDataUrl}; rd.readAsDataURL(f)});
+$('applyCanvasBtn').onclick=applyCanvas; $('applyBgBtn').onclick=()=>{applyBg();render()}; $('clearBgBtn').onclick=()=>{bgDataUrl='';bgNaturalW=0;bgNaturalH=0;canvas.style.backgroundImage='';imageLoader.value='';render();log('BACKGROUND CLEARED')}; $('zoom').oninput=applyZoom; $('gridBtn').onclick=()=>{gridShown=!gridShown;grid.style.display=gridShown?'block':'none';grid.style.backgroundSize=num('gridSize',20)+'px '+num('gridSize',20)+'px'};
+$('undoBtn').onclick=()=>{const p=history.pop(); if(!p)return; objects=JSON.parse(p).objects||[]; selected.clear(); render()}; $('deleteBtn').onclick=()=>{save();objects=objects.filter(o=>!selected.has(o.id));selected.clear();render()}; $('clearBtn').onclick=()=>{save();objects=[];selected.clear();render()}; $('selectAllBtn').onclick=()=>{selected=new Set(objects.map(o=>o.id));render()}; $('clearSelectionBtn').onclick=()=>{selected.clear();render()};
+function align(axis){const list=selectedObjects(); if(list.length<2)return log('Нужно 2+ объекта'); save(); const avg=Math.round(list.reduce((s,o)=>s+o[axis],0)/list.length); list.forEach(o=>o[axis]=avg); render()} $('alignHBtn').onclick=()=>align('y'); $('alignVBtn').onclick=()=>align('x');
+function distribute(axis){const list=selectedObjects().sort((a,b)=>a[axis]-b[axis]); if(list.length<3)return log('Нужно 3+ объекта'); save(); const first=list[0][axis], last=list[list.length-1][axis], step=(last-first)/(list.length-1); list.forEach((o,i)=>o[axis]=Math.round(first+step*i)); render()} $('distHBtn').onclick=()=>distribute('x'); $('distVBtn').onclick=()=>distribute('y');
+$('copyBtn').onclick=()=>{clipboard=selectedObjects().map(o=>JSON.parse(JSON.stringify(o)));log('COPIED: '+clipboard.length)}; $('pasteBtn').onclick=()=>{if(!clipboard.length)return; save(); selected.clear(); clipboard.forEach(o=>{const c=JSON.parse(JSON.stringify(o));c.id=uid(c.type);c.x+=40;c.y+=40;objects.push(c);selected.add(c.id)});render()}; $('duplicateBtn').onclick=()=>{const dx=num('dupOffsetX',40),dy=num('dupOffsetY',40); clipboard=selectedObjects().map(o=>JSON.parse(JSON.stringify(o))); save(); selected.clear(); clipboard.forEach(o=>{o.id=uid(o.type);o.x+=dx;o.y+=dy;objects.push(o);selected.add(o.id)});render()};
+$('mirrorHBtn').onclick=()=>{const list=selectedObjects(); if(!list.length)return; save(); const cx=(Math.min(...list.map(o=>o.x))+Math.max(...list.map(o=>o.x)))/2; selected.clear(); list.forEach(o=>{const c=JSON.parse(JSON.stringify(o));c.id=uid(c.type);c.x=Math.round(cx-(o.x-cx));objects.push(c);selected.add(c.id)});render()}; $('mirrorVBtn').onclick=()=>{const list=selectedObjects(); if(!list.length)return; save(); const cy=(Math.min(...list.map(o=>o.y))+Math.max(...list.map(o=>o.y)))/2; selected.clear(); list.forEach(o=>{const c=JSON.parse(JSON.stringify(o));c.id=uid(c.type);c.y=Math.round(cy-(o.y-cy));objects.push(c);selected.add(c.id)});render()};
+$('perspectiveBtn').onclick=()=>{const list=selectedObjects().filter(o=>['seat','chair','table','sofa','box'].includes(o.type)); if(list.length<3)return log('ПЕРСПЕКТИВА: выделите 3+ объекта'); save(); const cx=list.reduce((s,o)=>s+o.x,0)/list.length; const minY=Math.min(...list.map(o=>o.y)), maxY=Math.max(...list.map(o=>o.y)), depth=Math.max(1,maxY-minY); list.forEach(o=>{const t=(o.y-minY)/depth; const shrink=.72+t*.28; o.x=Math.round(cx+(o.x-cx)*shrink)}); render(); log('PERSPECTIVE OK')};
+function buildJson(){return {version:10,format:'va-hall-scene',width:cw(),height:ch(),mood:{},layers:[{id:'background'},{id:'architecture'},{id:'seats'},{id:'labels'}],objects:objects.map(o=>({...o,key:(o.type==='seat'||o.type==='chair')?objectKey(o):undefined}))}}
+function loadJson(data){objects=Array.isArray(data.objects)?data.objects:(Array.isArray(data.seats)?data.seats.map(s=>({...s,type:s.type||'seat'})):[]); if(data.width&&data.height){$('canvasW').value=data.width;$('canvasH').value=data.height;applyCanvas()} selected.clear();render();log('JSON LOADED: '+objects.length)}
+$('exportBtn').onclick=()=>{jsonOutput.value=JSON.stringify(buildJson(),null,2);log('JSON EXPORTED')}; $('downloadBtn').onclick=()=>{const data=JSON.stringify(buildJson(),null,2); const blob=new Blob([data],{type:'application/json;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='va-hall-scene.json'; a.click(); URL.revokeObjectURL(a.href)}; $('saveBrowserBtn').onclick=()=>{localStorage.setItem('va_hall_studio_next_autosave',JSON.stringify(buildJson()));log('SAVED')}; $('restoreBrowserBtn').onclick=()=>{const raw=localStorage.getItem('va_hall_studio_next_autosave'); if(raw)loadJson(JSON.parse(raw)); else log('NO AUTOSAVE')}; $('importBtn').onclick=()=>{try{loadJson(JSON.parse(jsonOutput.value))}catch(e){alert('JSON не прочитался')}};
+applyCanvas(); applyZoom(); render(); log('READY: Hall Studio NEXT');
+</script>
+</body>
+</html>
