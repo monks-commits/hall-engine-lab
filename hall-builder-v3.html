@@ -1104,28 +1104,6 @@ if (perspectiveMode) {
   const id = getTargetId(e);
   const p = point(e);
 
-  const mode = val("mode");
-
-if (!id && ["seat","text","stage","box","door","wall","arc"].includes(mode)) {
-  save();
-
-  if (mode === "seat") addSeatAt(p.x, p.y);
-  if (mode === "text") addTextAt(p.x, p.y);
-  if (mode === "stage") addStageAt(p.x, p.y);
-  if (mode === "box") addBoxAt(p.x, p.y);
-  if (mode === "door") addDoorAt(p.x, p.y);
-  if (mode === "wall") addWallAt(p.x, p.y);
-  if (mode === "arc") addArcAt(p.x, p.y);
-
-  selected.clear();
-  render();
-
-  suppressClick = true;
-  setTimeout(() => { suppressClick = false; }, 80);
-
-  return;
-}
-
   // Если нажали на объект — сразу готовим перемещение.
   // Без Alt. Это работает для мест, текста и сцены.
   if (id) {
@@ -1197,16 +1175,9 @@ canvas.addEventListener("pointermove", e => {
 
 canvas.addEventListener("pointerup", e => {
   if (drag) {
-    if (drag.moved) {
-      save();
-    }
-
+    if (drag.moved) save();
     drag = null;
-
-    setTimeout(() => {
-      suppressClick = false;
-    }, 80);
-
+    setTimeout(() => { suppressClick = false; }, 80);
     render();
     return;
   }
@@ -1214,13 +1185,11 @@ canvas.addEventListener("pointerup", e => {
   if (selectBox && selectStart) {
     const box = selectBox.getBoundingClientRect();
     const z = zoomValue();
-
     const canvasRect = canvas.getBoundingClientRect();
     const left = (box.left - canvasRect.left) / z;
     const top = (box.top - canvasRect.top) / z;
     const right = left + box.width / z;
     const bottom = top + box.height / z;
-
     const width = Math.abs(right - left);
     const height = Math.abs(bottom - top);
 
@@ -1228,16 +1197,31 @@ canvas.addEventListener("pointerup", e => {
     selectBox = null;
     selectStart = null;
 
+    if (width <= 5 && height <= 5) {
+      const p = point(e);
+      const mode = val("mode");
+      save();
+      if (mode === "seat") addSeatAt(p.x, p.y);
+      if (mode === "text") addTextAt(p.x, p.y);
+      if (mode === "stage") addStageAt(p.x, p.y);
+      if (mode === "box") addBoxAt(p.x, p.y);
+      if (mode === "door") addDoorAt(p.x, p.y);
+      if (mode === "wall") addWallAt(p.x, p.y);
+      if (mode === "arc") addArcAt(p.x, p.y);
+      selected.clear();
+      render();
+      log("ADDED: " + mode + " at " + p.x + "/" + p.y);
+      return;
+    }
+
     if (width > 5 && height > 5) {
       if (!e.shiftKey) selected.clear();
-
       allObjects().forEach(o => {
         if (o.x >= Math.min(left, right) && o.x <= Math.max(left, right) &&
             o.y >= Math.min(top, bottom) && o.y <= Math.max(top, bottom)) {
           selected.add(o.id);
         }
       });
-
       suppressClick = true;
       setTimeout(() => { suppressClick = false; }, 0);
       render();
@@ -1247,28 +1231,18 @@ canvas.addEventListener("pointerup", e => {
 
 canvas.addEventListener("click", e => {
   if (suppressClick) return;
-
   const id = getTargetId(e);
-
   if (id) {
     if (e.shiftKey) {
       if (selected.has(id)) selected.delete(id);
       else selected.add(id);
     } else {
-      if (selected.has(id) && selected.size === 1) {
-        selected.clear();
-      } else {
-        selected.clear();
-        selected.add(id);
-      }
+      if (selected.has(id) && selected.size === 1) selected.clear();
+      else { selected.clear(); selected.add(id); }
     }
-
     render();
     return;
   }
-
- 
-  
   selected.clear();
   render();
 });
@@ -1637,26 +1611,10 @@ $("clearBgBtn").addEventListener("click", () => {
   log("ФОН УБРАН");
 });
   
-$("perspectiveBrushBtn")
-.addEventListener("click", () => {
-
-  perspectiveMode = !perspectiveMode;
-
-  $("perspectiveBrushBtn").style.background =
-    perspectiveMode
-      ? "#dc2626"
-      : "";
-
-  log(
-    perspectiveMode
-      ? "PERSPECTIVE MODE ON"
-      : "PERSPECTIVE MODE OFF"
-  );
-
-
-  render();
-  log("PERSPECTIVE OK: применено к " + list.length + " местам.");
+$("perspectiveBrushBtn").addEventListener("click", () => {
+  log("PERSPECTIVE BRUSH пока отключён. Используйте правую кнопку: СДЕЛАТЬ ПЕРСПЕКТИВУ.");
 });
+
   
 function getCleanSeatsCopy(){
   const seen = new Set();
