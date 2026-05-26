@@ -1596,6 +1596,23 @@ $("mirrorVBtn").addEventListener("click", () => {
   log("ЗЕРКАЛО ПО ВЕРТИКАЛИ: создано " + created.length + " объектов");
 });
 
+$("perspectiveBrushBtn")
+.addEventListener("click", () => {
+
+  perspectiveMode = !perspectiveMode;
+
+  $("perspectiveBrushBtn").style.background =
+    perspectiveMode
+      ? "#dc2626"
+      : "";
+
+  log(
+    perspectiveMode
+      ? "PERSPECTIVE MODE ON"
+      : "PERSPECTIVE MODE OFF"
+  );
+});
+  
 function getCleanSeatsCopy(){
   const seen = new Set();
 
