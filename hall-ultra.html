@@ -3,62 +3,410 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>VA Hall Studio ULTRA</title>
+<title>VA Hall Studio ULTRA Core v1</title>
 <style>
-:root{--bg:#0a0d12;--panel:#151922;--line:#313849;--text:#f8fafc;--muted:#9ca3af;--violet:#7c3aed;--blue:#2563eb;--green:#16a34a;--orange:#f97316;--red:#dc2626;--gold:#f59e0b}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}.app{display:grid;grid-template-columns:350px 1fr 360px;height:100vh;overflow:hidden}aside{background:var(--panel);padding:14px;overflow:auto}.left{border-right:1px solid var(--line)}.right{border-left:1px solid var(--line)}h1{font-size:21px;margin:0 0 6px}h2{font-size:14px;margin:18px 0 10px;padding-top:12px;border-top:1px solid var(--line)}.note,.small{color:var(--muted);font-size:12px;line-height:1.45}.field{margin-bottom:10px}.field label{display:block;margin-bottom:5px;font-size:12px;font-weight:800;color:#cbd5e1}input,select,textarea{width:100%;padding:9px;border:1px solid var(--line);border-radius:8px;background:#0d1118;color:var(--text);font-size:13px}input[type=color]{height:38px;padding:3px}textarea{min-height:260px;font-family:Consolas,monospace;font-size:12px}.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}.btn{width:100%;padding:10px;margin-bottom:8px;border:0;border-radius:10px;background:#303849;color:#fff;font-weight:900;cursor:pointer}.btn:hover{opacity:.92}.blue{background:var(--blue)}.green{background:var(--green)}.orange{background:var(--orange)}.red{background:var(--red)}.purple{background:var(--violet)}.gold{background:var(--gold);color:#111827}.work{position:relative;overflow:auto;background:#080a0f}.work.panning{cursor:grab}.work.preview .topbar{opacity:.25}.work.preview .grid,.work.preview .handle,.work.preview .transform-box,.work.preview .select-box,.work.preview .seat-number{display:none!important}.work.preview .obj.selected{outline:none!important}.work.preview .obj-seat,.work.preview .obj-chair,.work.preview .obj-table{filter:drop-shadow(0 0 10px rgba(245,158,11,.35))}.work.preview #canvas{box-shadow:0 24px 80px rgba(0,0,0,.7),0 0 80px rgba(124,58,237,.18)}.topbar{position:sticky;top:0;z-index:100;padding:10px 14px;background:#151922;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;font-size:13px;color:#d1d5db}#zoomHost{transform-origin:top left;width:max-content;height:max-content;margin:34px auto;position:relative}#canvas{position:relative;background:#f8fafc;box-shadow:0 20px 60px rgba(0,0,0,.55);overflow:hidden;user-select:none;cursor:crosshair}.grid{position:absolute;inset:0;display:none;pointer-events:none;background-image:linear-gradient(to right,rgba(124,58,237,.16) 1px,transparent 1px),linear-gradient(to bottom,rgba(124,58,237,.16) 1px,transparent 1px);z-index:9998}.select-box{position:absolute;border:2px dashed var(--violet);background:rgba(124,58,237,.16);z-index:9999;pointer-events:none}.transform-box{position:absolute;border:2px solid rgba(124,58,237,.85);z-index:9996;pointer-events:none;box-shadow:0 0 0 2px rgba(255,255,255,.75)}.handle{position:absolute;width:12px;height:12px;background:#fff;border:2px solid #7c3aed;border-radius:50%;z-index:9999;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.35)}.handle-se,.handle-nw{cursor:nwse-resize}.handle-sw,.handle-ne{cursor:nesw-resize}.handle-rotate{width:14px;height:14px;background:#f59e0b;border-color:#fff;cursor:grab}.obj{position:absolute;box-sizing:border-box;cursor:pointer;user-select:none;transform-origin:center center}.obj.locked{cursor:not-allowed;opacity:.65}.obj.selected{outline:3px solid rgba(124,58,237,.72);outline-offset:4px}.obj-seat{border-radius:50%;background:#dc2626;border:2px solid #fff;box-shadow:0 2px 10px rgba(0,0,0,.35)}.obj-chair{background:#b91c1c;border:2px solid #fff;border-radius:8px 8px 5px 5px;box-shadow:inset 0 -7px 0 rgba(0,0,0,.24),0 3px 9px rgba(0,0,0,.28)}.obj-seat.selected,.obj-chair.selected,.obj-table.selected,.obj-sofa.selected{box-shadow:0 0 0 3px rgba(255,255,255,.85),0 0 22px rgba(124,58,237,.95),inset 0 -7px 0 rgba(0,0,0,.22)}.obj-table{border-radius:50%;background:#8b5cf6;border:3px solid #fff;display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff}.obj-sofa{border-radius:16px;background:#7f1d1d;border:2px solid #fff;box-shadow:inset 0 -12px 0 rgba(0,0,0,.25)}.obj-box{border:2px solid #6b7280;border-radius:14px;background:rgba(255,255,255,.82);display:flex;align-items:center;justify-content:center;color:#374151;font-weight:900}.obj-door{border:3px solid #6b7280;border-bottom:none;border-radius:14px 14px 0 0;background:rgba(255,255,255,.88);display:flex;align-items:center;justify-content:center;color:#374151;font-weight:800}.obj-wall{background:#6b7280;border-radius:999px}.obj-arc{border-top:5px solid #6b7280;border-radius:50% 50% 0 0}.obj-zone{border:2px dashed #7c3aed;border-radius:18px;background:rgba(124,58,237,.1);display:flex;align-items:center;justify-content:center;color:#4c1d95;font-weight:900}.obj-stage{background:#04a9e8;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;letter-spacing:.08em}.obj-bar{background:#111827;color:#fff;border:3px solid #374151;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:900}.obj-screen{background:#111827;color:#dbeafe;border:2px solid #60a5fa;display:flex;align-items:center;justify-content:center;font-weight:900}.obj-text{color:#111827;font-weight:900;white-space:nowrap}.obj-label{color:#374151;font-weight:800;white-space:nowrap;background:rgba(255,255,255,.78);padding:4px 8px;border-radius:8px}.obj-media{background:#111827;color:#fff;border:2px solid #7c3aed;display:flex;align-items:center;justify-content:center;overflow:hidden}.obj-light{border-radius:50%;background:radial-gradient(circle,rgba(245,158,11,.55),rgba(245,158,11,0));pointer-events:auto}.obj-note{background:#fff7ed;color:#7c2d12;border:1px solid #fed7aa;border-radius:10px;padding:8px;font-weight:700}.seat-number{position:absolute;transform:translate(-50%,-50%);background:rgba(255,255,255,.92);color:#111827;border:1px solid #d1d5db;border-radius:5px;padding:1px 4px;font-weight:900;pointer-events:none;z-index:9997}.layer-item{display:grid;grid-template-columns:28px 28px 1fr 28px;gap:6px;align-items:center;background:#0d1118;border:1px solid var(--line);border-radius:10px;padding:6px;margin-bottom:6px}.layer-item.active{border-color:var(--violet);box-shadow:0 0 0 2px rgba(124,58,237,.2)}.layer-btn{border:0;border-radius:7px;background:#263044;color:#fff;height:26px;cursor:pointer}.layer-name{font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.counter,.log{font-size:12px;line-height:1.45;background:#0d1118;border:1px solid var(--line);border-radius:10px;padding:10px;color:#d1d5db;white-space:pre-wrap}
+:root{
+  --bg:#0a0d12;
+  --panel:#151922;
+  --panel2:#202635;
+  --line:#313849;
+  --text:#f8fafc;
+  --muted:#9ca3af;
+  --violet:#7c3aed;
+  --blue:#2563eb;
+  --green:#16a34a;
+  --orange:#f97316;
+  --red:#dc2626;
+  --gold:#f59e0b;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
+.app{display:grid;grid-template-columns:350px 1fr 360px;height:100vh;overflow:hidden}
+aside{background:var(--panel);padding:14px;overflow:auto}
+.left{border-right:1px solid var(--line)}.right{border-left:1px solid var(--line)}
+h1{font-size:21px;margin:0 0 6px} h2{font-size:14px;margin:18px 0 10px;padding-top:12px;border-top:1px solid var(--line)}
+.note,.small{color:var(--muted);font-size:12px;line-height:1.45}.small{font-size:11px}
+.field{margin-bottom:10px}.field label{display:block;margin-bottom:5px;font-size:12px;font-weight:800;color:#cbd5e1}
+input,select,textarea{width:100%;padding:9px;border:1px solid var(--line);border-radius:8px;background:#0d1118;color:var(--text);font-size:13px}
+textarea{min-height:260px;font-family:Consolas,monospace;font-size:12px}.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.btn{width:100%;padding:10px;margin-bottom:8px;border:0;border-radius:10px;background:#303849;color:#fff;font-weight:900;cursor:pointer}.btn:hover{opacity:.92}
+.blue{background:var(--blue)}.green{background:var(--green)}.orange{background:var(--orange)}.red{background:var(--red)}.purple{background:var(--violet)}.gold{background:var(--gold);color:#111827}
+.work{position:relative;overflow:auto;background:#080a0f}.work.panning{cursor:grab}.work.preview .topbar{opacity:.25}.work.preview .grid,.work.preview .handle,.work.preview .transform-box,.work.preview .select-box,.work.preview .seat-number{display:none!important}.work.preview .obj.selected{outline:none!important}.work.preview .obj-seat,.work.preview .obj-chair,.work.preview .obj-table{filter:drop-shadow(0 0 10px rgba(245,158,11,.35))}.work.preview #canvas{box-shadow:0 24px 80px rgba(0,0,0,.7),0 0 80px rgba(124,58,237,.18)}.topbar{position:sticky;top:0;z-index:100;padding:10px 14px;background:#151922;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;font-size:13px;color:#d1d5db}
+#zoomHost{transform-origin:top left;width:max-content;height:max-content;margin:34px auto;position:relative}
+#canvas{position:relative;background:#f8fafc;box-shadow:0 20px 60px rgba(0,0,0,.55);overflow:hidden;user-select:none;cursor:crosshair}
+.grid{position:absolute;inset:0;display:none;pointer-events:none;background-image:linear-gradient(to right,rgba(124,58,237,.16) 1px,transparent 1px),linear-gradient(to bottom,rgba(124,58,237,.16) 1px,transparent 1px);z-index:9998}
+.select-box{position:absolute;border:2px dashed var(--violet);background:rgba(124,58,237,.16);z-index:9999;pointer-events:none}
+.transform-box{position:absolute;border:2px solid rgba(124,58,237,.85);z-index:9996;pointer-events:none;box-shadow:0 0 0 2px rgba(255,255,255,.75)}
+.handle{position:absolute;width:12px;height:12px;background:#fff;border:2px solid #7c3aed;border-radius:50%;z-index:9999;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.35)}
+.handle-se{cursor:nwse-resize}.handle-sw{cursor:nesw-resize}.handle-ne{cursor:nesw-resize}.handle-nw{cursor:nwse-resize}.handle-rotate{width:14px;height:14px;background:#f59e0b;border-color:#fff;cursor:grab}
+.obj{position:absolute;box-sizing:border-box;cursor:pointer;user-select:none;transform-origin:center center}.obj.hidden{display:none}.obj.locked{cursor:not-allowed;opacity:.65}.obj.selected{outline:3px solid rgba(124,58,237,.72);outline-offset:4px}
+.obj-seat{border-radius:50%;background:#dc2626;border:2px solid #fff;box-shadow:0 2px 10px rgba(0,0,0,.35)}
+.obj-chair{background:#b91c1c;border:2px solid #fff;border-radius:8px 8px 5px 5px;box-shadow:inset 0 -7px 0 rgba(0,0,0,.24),0 3px 9px rgba(0,0,0,.28)}
+.obj-seat.selected,.obj-chair.selected,.obj-table.selected,.obj-sofa.selected{box-shadow:0 0 0 3px rgba(255,255,255,.85),0 0 22px rgba(124,58,237,.95),inset 0 -7px 0 rgba(0,0,0,.22)}
+.obj-table{border-radius:50%;background:#8b5cf6;border:3px solid #fff;display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff}.obj-sofa{border-radius:16px;background:#7f1d1d;border:2px solid #fff;box-shadow:inset 0 -12px 0 rgba(0,0,0,.25)}
+.obj-box{border:2px solid #6b7280;border-radius:14px;background:rgba(255,255,255,.82);display:flex;align-items:center;justify-content:center;color:#374151;font-weight:900}.obj-door{border:3px solid #6b7280;border-bottom:none;border-radius:14px 14px 0 0;background:rgba(255,255,255,.88);display:flex;align-items:center;justify-content:center;color:#374151;font-weight:800}.obj-wall{background:#6b7280;border-radius:999px}.obj-arc{border-top:5px solid #6b7280;border-radius:50% 50% 0 0}.obj-zone{border:2px dashed #7c3aed;border-radius:18px;background:rgba(124,58,237,.1);display:flex;align-items:center;justify-content:center;color:#4c1d95;font-weight:900}.obj-stage{background:#04a9e8;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;letter-spacing:.08em}.obj-bar{background:#111827;color:#fff;border:3px solid #374151;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:900}.obj-screen{background:#111827;color:#dbeafe;border:2px solid #60a5fa;display:flex;align-items:center;justify-content:center;font-weight:900}.obj-text{color:#111827;font-weight:900;white-space:nowrap}.obj-label{color:#374151;font-weight:800;white-space:nowrap;background:rgba(255,255,255,.78);padding:4px 8px;border-radius:8px}.obj-media{background:#111827;color:#fff;border:2px solid #7c3aed;display:flex;align-items:center;justify-content:center;overflow:hidden}.obj-light{border-radius:50%;background:radial-gradient(circle,rgba(245,158,11,.55),rgba(245,158,11,0));pointer-events:auto}.obj-note{background:#fff7ed;color:#7c2d12;border:1px solid #fed7aa;border-radius:10px;padding:8px;font-weight:700}
+.seat-number{position:absolute;transform:translate(-50%,-50%);background:rgba(255,255,255,.92);color:#111827;border:1px solid #d1d5db;border-radius:5px;padding:1px 4px;font-weight:900;pointer-events:none;z-index:9997}
+.layer-item{display:grid;grid-template-columns:28px 28px 1fr 28px;gap:6px;align-items:center;background:#0d1118;border:1px solid var(--line);border-radius:10px;padding:6px;margin-bottom:6px}.layer-item.active{border-color:var(--violet);box-shadow:0 0 0 2px rgba(124,58,237,.2)}.layer-btn{border:0;border-radius:7px;background:#263044;color:#fff;height:26px;cursor:pointer}.layer-name{font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.counter,.log{font-size:12px;line-height:1.45;background:#0d1118;border:1px solid var(--line);border-radius:10px;padding:10px;color:#d1d5db;white-space:pre-wrap}
 </style>
 </head>
 <body>
 <div class="app">
-<aside class="left">
-<h1>VA Hall Studio ULTRA</h1><div class="note">Core v1: scene graph, layers, universal objects, transform handles, curved rows, smart tables, style inspector.</div>
-<h2>1. Canvas / Camera</h2><div class="row2"><div class="field"><label>Canvas W</label><input id="canvasW" type="number" value="1280"></div><div class="field"><label>Canvas H</label><input id="canvasH" type="number" value="900"></div></div><button class="btn blue" id="applyCanvasBtn">ПРИМЕНИТЬ ХОЛСТ</button><div class="field"><label>Background Image</label><input type="file" id="imageLoader" accept="image/*"></div><div class="field"><label>Background Mode</label><select id="bgMode"><option value="contain">Вписать</option><option value="stretch">Растянуть</option><option value="original">Оригинал</option></select></div><button class="btn" id="applyBgBtn">ПРИМЕНИТЬ ФОН</button><button class="btn red" id="clearBgBtn">УБРАТЬ ФОН</button>
-<h2>2. Active Layer</h2><div class="field"><label>Layer</label><select id="activeLayer"></select></div><div class="row2"><button class="btn purple" id="addLayerBtn">+ LAYER</button><button class="btn red" id="deleteLayerBtn">− LAYER</button></div><div id="layerList"></div>
-<h2>3. Object Type</h2><div class="field"><label>Клик ставит</label><select id="mode"><option value="chair">Кресло</option><option value="seat">Место-точка</option><option value="table">Стол</option><option value="sofa">Диван</option><option value="box">Ложа / Блок</option><option value="zone">Зона</option><option value="door">Дверь</option><option value="wall">Стена</option><option value="arc">Дуга</option><option value="stage">Сцена</option><option value="bar">Бар</option><option value="screen">Экран</option><option value="media">Media Placeholder</option><option value="light">Light</option><option value="text">Текст</option><option value="label">Label</option><option value="note">Note</option></select></div>
-<h2>4. Seat Data</h2><div class="field"><label>Zone</label><input id="zone" value="Партер"></div><div class="row3"><div class="field"><label>Prefix</label><input id="prefix" value="P"></div><div class="field"><label>Row</label><input id="row" type="number" value="1"></div><div class="field"><label>Seat</label><input id="seat" type="number" value="1"></div></div><div class="field"><label>Нумерация</label><select id="numberDirection"><option value="left-right">Слева → направо</option><option value="right-left">Справа → налево</option><option value="top-bottom">Сверху → вниз</option><option value="bottom-top">Снизу → вверх</option></select></div><button class="btn green" id="autoNumberBtn">АВТО НУМЕРАЦИЯ</button>
-<h2>5. Label Control</h2><div class="row3"><div class="field"><label>Label X</label><input id="labelOffsetX" type="number" value="0"></div><div class="field"><label>Label Y</label><input id="labelOffsetY" type="number" value="-20"></div><div class="field"><label>Size</label><input id="labelSize" type="number" value="10"></div></div><div class="field"><label>Show Labels</label><select id="showSeatLabels"><option value="1">Да</option><option value="0">Нет</option></select></div>
-<h2>6. Curved Row</h2><div class="row3"><div class="field"><label>Seats</label><input id="curveSeats" type="number" value="12"></div><div class="field"><label>Curve</label><input id="curveDepth" type="number" value="45"></div><div class="field"><label>Row</label><input id="curveRow" type="number" value="1"></div></div><div class="row2"><div class="field"><label>Spacing</label><input id="curveSpacing" type="number" value="34"></div><div class="field"><label>Auto Fit</label><select id="curveAutoFit"><option value="1">On</option><option value="0">Off</option></select></div></div><div class="row2"><button class="btn purple" id="curveStartBtn">SET START</button><button class="btn purple" id="curveEndBtn">SET END</button></div><button class="btn green" id="buildCurveBtn">BUILD CURVED ROW</button><div class="small" id="curveInfo">Start: — / End: —</div>
-<h2>7. Table Composer</h2><div class="row3"><div class="field"><label>Capacity</label><input id="tableCapacity" type="number" value="6"></div><div class="field"><label>Radius</label><input id="tableRadius" type="number" value="70"></div><div class="field"><label>Start №</label><input id="tableStartSeat" type="number" value="1"></div></div><div class="row2"><div class="field"><label>Table Size</label><input id="tableSize" type="number" value="70"></div><div class="field"><label>Type</label><select id="tableType"><option value="round">Round</option><option value="square">Square</option><option value="vip">VIP</option></select></div></div><button class="btn green" id="buildTableBtn">BUILD SMART TABLE</button>
-<h2>8. Object Defaults</h2><div class="field"><label>Text</label><input id="objText" value="Текст"></div><div class="row2"><div class="field"><label>W</label><input id="objW" type="number" value="160"></div><div class="field"><label>H</label><input id="objH" type="number" value="80"></div></div><div class="row3"><div class="field"><label>Size</label><input id="objSize" type="number" value="22"></div><div class="field"><label>Rotate</label><input id="objRotate" type="number" value="0"></div><div class="field"><label>Z</label><input id="objZ" type="number" value="30"></div></div><div class="row3"><div class="field"><label>Arc W</label><input id="arcW" type="number" value="520"></div><div class="field"><label>Arc H</label><input id="arcH" type="number" value="140"></div><div class="field"><label>Border</label><input id="arcBorder" type="number" value="5"></div></div>
-<h2>9. Grid / Zoom</h2><div class="field"><label>Zoom</label><input id="zoom" type="range" min="25" max="300" value="100"></div><div class="counter" id="zoomLabel">Zoom: 100%</div><div class="row2"><div class="field"><label>Grid</label><input id="gridSize" type="number" value="20"></div><div class="field"><label>Snap</label><select id="snap"><option value="0">Off</option><option value="1">On</option></select></div></div><button class="btn" id="gridBtn">СЕТКА ВКЛ / ВЫКЛ</button>
-<h2>10. ULTRA View</h2><button class="btn gold" id="previewBtn">PREVIEW MODE: OFF</button><div class="small">SPACE + drag = pan, колесо мыши = zoom к курсору.</div>
-</aside>
-<main class="work"><div class="topbar"><b>ULTRA Scene Canvas</b><span>Клик = объект. Drag = движение. Рамка = выбор. Shift+клик = добавить.</span></div><div id="zoomHost"><div id="canvas"><div class="grid" id="grid"></div></div></div></main>
-<aside class="right">
-<h2>Selection</h2><button class="btn" id="selectAllBtn">ВЫДЕЛИТЬ ВСЁ</button><button class="btn" id="clearSelectionBtn">СНЯТЬ ВЫДЕЛЕНИЕ</button><button class="btn red" id="deleteBtn">УДАЛИТЬ</button><button class="btn orange" id="undoBtn">ОТМЕНИТЬ</button><button class="btn red" id="clearBtn">ОЧИСТИТЬ ВСЁ</button>
-<h2>Inspector</h2><div class="small" id="inspectInfo">Выделите объект</div><div class="row2"><div class="field"><label>X</label><input id="insX" type="number"></div><div class="field"><label>Y</label><input id="insY" type="number"></div></div><div class="row2"><div class="field"><label>W</label><input id="insW" type="number"></div><div class="field"><label>H</label><input id="insH" type="number"></div></div><div class="row3"><div class="field"><label>Rotate</label><input id="insRotate" type="number"></div><div class="field"><label>Z</label><input id="insZ" type="number"></div><div class="field"><label>Size</label><input id="insSize" type="number"></div></div><div class="field"><label>Text</label><input id="insText"></div><div class="row2"><div class="field"><label>Fill</label><input id="insFill" type="color" value="#8b5cf6"></div><div class="field"><label>Border</label><input id="insBorder" type="color" value="#ffffff"></div></div><div class="row2"><div class="field"><label>Text Color</label><input id="insTextColor" type="color" value="#ffffff"></div><div class="field"><label>Opacity</label><input id="insOpacity" type="range" min="0" max="1" step="0.05" value="1"></div></div><div class="field"><label>Glow</label><input id="insGlow" type="range" min="0" max="40" step="1" value="0"></div><div class="row3"><div class="field"><label>Label X</label><input id="insLabelX" type="number"></div><div class="field"><label>Label Y</label><input id="insLabelY" type="number"></div><div class="field"><label>Label Size</label><input id="insLabelSize" type="number"></div></div><div class="field"><label>Номера selected</label><select id="insShowLabel"><option value="inherit">Как глобально</option><option value="1">Показать</option><option value="0">Скрыть</option></select></div>
-<h2>Transform</h2><button class="btn blue" id="alignYBtn">ВЫРОВНЯТЬ ПО ГОРИЗОНТАЛИ</button><button class="btn blue" id="alignXBtn">ВЫРОВНЯТЬ ПО ВЕРТИКАЛИ</button><button class="btn purple" id="distXBtn">РАСПРЕДЕЛИТЬ ПО ГОРИЗОНТАЛИ</button><button class="btn purple" id="distYBtn">РАСПРЕДЕЛИТЬ ПО ВЕРТИКАЛИ</button><button class="btn purple" id="perspectiveBtn">ПЕРСПЕКТИВА SELECTED</button>
-<h2>Copy / Mirror</h2><button class="btn orange" id="copyBtn">КОПИРОВАТЬ</button><button class="btn orange" id="pasteBtn">ВСТАВИТЬ</button><div class="row2"><div class="field"><label>dx</label><input id="dupOffsetX" type="number" value="40"></div><div class="field"><label>dy</label><input id="dupOffsetY" type="number" value="40"></div></div><button class="btn purple" id="duplicateBtn">ДУБЛИРОВАТЬ</button><button class="btn blue" id="mirrorXBtn">ЗЕРКАЛО X</button><button class="btn blue" id="mirrorYBtn">ЗЕРКАЛО Y</button>
-<h2>Export / Import</h2><button class="btn green" id="exportBtn">ЭКСПОРТ JSON</button><button class="btn green" id="downloadBtn">СКАЧАТЬ JSON</button><button class="btn orange" id="saveBrowserBtn">СОХРАНИТЬ В БРАУЗЕРЕ</button><button class="btn orange" id="restoreBrowserBtn">ВОССТАНОВИТЬ</button><button class="btn" id="importBtn">ИМПОРТ JSON</button><div class="field"><label>JSON</label><textarea id="jsonOutput"></textarea></div><h2>Status</h2><div class="counter" id="counter"></div><h2>Log</h2><div class="log" id="log"></div>
-</aside></div>
+  <aside class="left">
+    <h1>VA Hall Studio ULTRA</h1>
+    <div class="note">Core v1: scene graph, layers, universal objects, import/export. Это фундамент под AI, media, mood и future 2.5D.</div>
+
+    <h2>1. Canvas / Camera</h2>
+    <div class="row2"><div class="field"><label>Canvas W</label><input id="canvasW" type="number" value="1280"></div><div class="field"><label>Canvas H</label><input id="canvasH" type="number" value="900"></div></div>
+    <button class="btn blue" id="applyCanvasBtn">ПРИМЕНИТЬ ХОЛСТ</button>
+    <div class="field"><label>Background Image</label><input type="file" id="imageLoader" accept="image/*"></div>
+    <div class="field"><label>Background Mode</label><select id="bgMode"><option value="contain">Вписать</option><option value="stretch">Растянуть</option><option value="original">Оригинал</option></select></div>
+    <button class="btn" id="applyBgBtn">ПРИМЕНИТЬ ФОН</button><button class="btn red" id="clearBgBtn">УБРАТЬ ФОН</button>
+
+    <h2>2. Active Layer</h2>
+    <div class="field"><label>Layer</label><select id="activeLayer"></select></div>
+    <div class="row2"><button class="btn purple" id="addLayerBtn">+ LAYER</button><button class="btn red" id="deleteLayerBtn">− LAYER</button></div>
+    <div id="layerList"></div>
+
+    <h2>3. Object Type</h2>
+    <div class="field"><label>Клик ставит</label><select id="mode">
+      <option value="chair">Кресло</option><option value="seat">Место-точка</option><option value="table">Стол</option><option value="sofa">Диван</option><option value="box">Ложа / Блок</option><option value="zone">Зона</option><option value="door">Дверь</option><option value="wall">Стена</option><option value="arc">Дуга</option><option value="stage">Сцена</option><option value="bar">Бар</option><option value="screen">Экран</option><option value="media">Media Placeholder</option><option value="light">Light</option><option value="text">Текст</option><option value="label">Label</option><option value="note">Note</option>
+    </select></div>
+
+    <h2>4. Seat Data</h2>
+    <div class="field"><label>Zone</label><input id="zone" value="Партер"></div>
+    <div class="row3"><div class="field"><label>Prefix</label><input id="prefix" value="P"></div><div class="field"><label>Row</label><input id="row" type="number" value="1"></div><div class="field"><label>Seat</label><input id="seat" type="number" value="1"></div></div>
+    <div class="field"><label>Нумерация</label><select id="numberDirection"><option value="left-right">Слева → направо</option><option value="right-left">Справа → налево</option><option value="top-bottom">Сверху → вниз</option><option value="bottom-top">Снизу → вверх</option></select></div>
+    <button class="btn green" id="autoNumberBtn">АВТО НУМЕРАЦИЯ</button>
+
+    <h2>5. Label Control</h2>
+    <div class="row3"><div class="field"><label>Label X</label><input id="labelOffsetX" type="number" value="0"></div><div class="field"><label>Label Y</label><input id="labelOffsetY" type="number" value="-20"></div><div class="field"><label>Size</label><input id="labelSize" type="number" value="10"></div></div>
+    <div class="field"><label>Show Labels</label><select id="showSeatLabels"><option value="1">Да</option><option value="0">Нет</option></select></div>
+
+    <h2>6. Curved Row</h2>
+    <div class="row3"><div class="field"><label>Seats</label><input id="curveSeats" type="number" value="12"></div><div class="field"><label>Curve</label><input id="curveDepth" type="number" value="45"></div><div class="field"><label>Row</label><input id="curveRow" type="number" value="1"></div></div>
+    <div class="row2"><div class="field"><label>Spacing</label><input id="curveSpacing" type="number" value="34"></div><div class="field"><label>Auto Fit</label><select id="curveAutoFit"><option value="1">On</option><option value="0">Off</option></select></div></div>
+    <div class="row2"><button class="btn purple" id="curveStartBtn">SET START</button><button class="btn purple" id="curveEndBtn">SET END</button></div>
+    <button class="btn green" id="buildCurveBtn">BUILD CURVED ROW</button>
+    <div class="small" id="curveInfo">Start: — / End: —</div>
+
+    <h2>7. Table Composer</h2>
+    <div class="row3"><div class="field"><label>Capacity</label><input id="tableCapacity" type="number" value="6"></div><div class="field"><label>Radius</label><input id="tableRadius" type="number" value="70"></div><div class="field"><label>Start №</label><input id="tableStartSeat" type="number" value="1"></div></div>
+    <div class="row2"><div class="field"><label>Table Size</label><input id="tableSize" type="number" value="70"></div><div class="field"><label>Type</label><select id="tableType"><option value="round">Round</option><option value="square">Square</option><option value="vip">VIP</option></select></div></div>
+    <button class="btn green" id="buildTableBtn">BUILD SMART TABLE</button>
+
+    <h2>8. Object Defaults</h2>
+    <div class="field"><label>Text</label><input id="objText" value="Текст"></div>
+    <div class="row2"><div class="field"><label>W</label><input id="objW" type="number" value="160"></div><div class="field"><label>H</label><input id="objH" type="number" value="80"></div></div>
+    <div class="row3"><div class="field"><label>Size</label><input id="objSize" type="number" value="22"></div><div class="field"><label>Rotate</label><input id="objRotate" type="number" value="0"></div><div class="field"><label>Z</label><input id="objZ" type="number" value="30"></div></div>
+    <div class="row3"><div class="field"><label>Arc W</label><input id="arcW" type="number" value="520"></div><div class="field"><label>Arc H</label><input id="arcH" type="number" value="140"></div><div class="field"><label>Border</label><input id="arcBorder" type="number" value="5"></div></div>
+
+    <h2>9. Grid / Zoom</h2>
+    <div class="field"><label>Zoom</label><input id="zoom" type="range" min="25" max="300" value="100"></div><div class="counter" id="zoomLabel">Zoom: 100%</div>
+    <div class="row2"><div class="field"><label>Grid</label><input id="gridSize" type="number" value="20"></div><div class="field"><label>Snap</label><select id="snap"><option value="0">Off</option><option value="1">On</option></select></div></div>
+    <button class="btn" id="gridBtn">СЕТКА ВКЛ / ВЫКЛ</button>
+    <h2>10. ULTRA View</h2>
+    <button class="btn gold" id="previewBtn">PREVIEW MODE: OFF</button>
+    <div class="small">Навигация: SPACE + drag = pan, колесо мыши = zoom к курсору.</div>
+  </aside>
+
+  <main class="work"><div class="topbar"><b>ULTRA Scene Canvas</b><span>Клик = объект. Drag = движение. Рамка = выбор. Shift+клик = добавить в выбор.</span></div><div id="zoomHost"><div id="canvas"><div class="grid" id="grid"></div></div></div></main>
+
+  <aside class="right">
+    <h2>Selection</h2>
+    <button class="btn" id="selectAllBtn">ВЫДЕЛИТЬ ВСЁ</button><button class="btn" id="clearSelectionBtn">СНЯТЬ ВЫДЕЛЕНИЕ</button><button class="btn red" id="deleteBtn">УДАЛИТЬ</button><button class="btn orange" id="undoBtn">ОТМЕНИТЬ</button><button class="btn red" id="clearBtn">ОЧИСТИТЬ ВСЁ</button>
+    <h2>Inspector</h2>
+    <div class="small" id="inspectInfo">Выделите объект</div>
+    <div class="row2"><div class="field"><label>X</label><input id="insX" type="number"></div><div class="field"><label>Y</label><input id="insY" type="number"></div></div>
+    <div class="row2"><div class="field"><label>W</label><input id="insW" type="number"></div><div class="field"><label>H</label><input id="insH" type="number"></div></div>
+    <div class="row3"><div class="field"><label>Rotate</label><input id="insRotate" type="number"></div><div class="field"><label>Z</label><input id="insZ" type="number"></div><div class="field"><label>Size</label><input id="insSize" type="number"></div></div>
+    <div class="field"><label>Text</label><input id="insText"></div>
+    <div class="row2"><div class="field"><label>Fill</label><input id="insFill" type="color" value="#8b5cf6"></div><div class="field"><label>Border</label><input id="insBorder" type="color" value="#ffffff"></div></div>
+    <div class="row2"><div class="field"><label>Text Color</label><input id="insTextColor" type="color" value="#ffffff"></div><div class="field"><label>Opacity</label><input id="insOpacity" type="range" min="0" max="1" step="0.05" value="1"></div></div>
+    <div class="field"><label>Glow</label><input id="insGlow" type="range" min="0" max="40" step="1" value="0"></div>
+    <div class="row3"><div class="field"><label>Label X</label><input id="insLabelX" type="number"></div><div class="field"><label>Label Y</label><input id="insLabelY" type="number"></div><div class="field"><label>Label Size</label><input id="insLabelSize" type="number"></div></div>
+    <div class="field"><label>Номера selected</label><select id="insShowLabel"><option value="inherit">Как глобально</option><option value="1">Показать</option><option value="0">Скрыть</option></select></div>
+    <h2>Transform</h2>
+    <button class="btn blue" id="alignYBtn">ВЫРОВНЯТЬ ПО ГОРИЗОНТАЛИ</button><button class="btn blue" id="alignXBtn">ВЫРОВНЯТЬ ПО ВЕРТИКАЛИ</button><button class="btn purple" id="distXBtn">РАСПРЕДЕЛИТЬ ПО ГОРИЗОНТАЛИ</button><button class="btn purple" id="distYBtn">РАСПРЕДЕЛИТЬ ПО ВЕРТИКАЛИ</button><button class="btn purple" id="perspectiveBtn">ПЕРСПЕКТИВА SELECTED</button>
+    <h2>Copy / Mirror</h2>
+    <button class="btn orange" id="copyBtn">КОПИРОВАТЬ</button><button class="btn orange" id="pasteBtn">ВСТАВИТЬ</button><div class="row2"><div class="field"><label>dx</label><input id="dupOffsetX" type="number" value="40"></div><div class="field"><label>dy</label><input id="dupOffsetY" type="number" value="40"></div></div><button class="btn purple" id="duplicateBtn">ДУБЛИРОВАТЬ</button><button class="btn blue" id="mirrorXBtn">ЗЕРКАЛО X</button><button class="btn blue" id="mirrorYBtn">ЗЕРКАЛО Y</button>
+    <h2>Export / Import</h2>
+    <button class="btn green" id="exportBtn">ЭКСПОРТ JSON</button><button class="btn green" id="downloadBtn">СКАЧАТЬ JSON</button><button class="btn orange" id="saveBrowserBtn">СОХРАНИТЬ В БРАУЗЕРЕ</button><button class="btn orange" id="restoreBrowserBtn">ВОССТАНОВИТЬ</button><button class="btn" id="importBtn">ИМПОРТ JSON</button>
+    <div class="field"><label>JSON</label><textarea id="jsonOutput"></textarea></div>
+    <h2>Status</h2><div class="counter" id="counter"></div><h2>Log</h2><div class="log" id="log"></div>
+  </aside>
+</div>
 <script>
 'use strict';
-const $=id=>document.getElementById(id);const canvas=$('canvas'),grid=$('grid'),zoomHost=$('zoomHost'),imageLoader=$('imageLoader'),jsonOutput=$('jsonOutput'),counter=$('counter'),logBox=$('log'),zoomLabel=$('zoomLabel'),activeLayerEl=$('activeLayer'),layerListEl=$('layerList');
-const defaultLayers=[{id:'background',name:'Background',visible:true,locked:true,opacity:1,z:0},{id:'architecture',name:'Architecture',visible:true,locked:false,opacity:1,z:10},{id:'seats',name:'Seats / Tables',visible:true,locked:false,opacity:1,z:30},{id:'text',name:'Text / Labels',visible:true,locked:false,opacity:1,z:90},{id:'light',name:'Light / FX',visible:true,locked:false,opacity:1,z:110},{id:'media',name:'Media',visible:true,locked:false,opacity:1,z:120}];
-let scene={version:1,format:'va-hall-ultra-scene',meta:{title:'VA Hall Scene'},canvas:{width:1280,height:900,background:null},camera:{zoom:1,mode:'flat'},layers:JSON.parse(JSON.stringify(defaultLayers)),objects:[],media:[],mood:{preset:'neutral'},agents:{},interactions:{},exports:{}};
-let selected=new Set(),history=[],clipboard=[],idn=1,bgDataUrl='',bgNaturalW=0,bgNaturalH=0,gridShown=false,drag=null,selectBox=null,selectStart=null,transformDrag=null;let pan={active:false,space:false,startX:0,startY:0,scrollLeft:0,scrollTop:0};let previewMode=false;let curveTool={mode:null,start:null,end:null};
+const $=id=>document.getElementById(id); const canvas=$('canvas'),grid=$('grid'),zoomHost=$('zoomHost'),imageLoader=$('imageLoader'),jsonOutput=$('jsonOutput'),counter=$('counter'),logBox=$('log'),zoomLabel=$('zoomLabel'),activeLayerEl=$('activeLayer'),layerListEl=$('layerList');
+const defaultLayers=[
+ {id:'background',name:'Background',visible:true,locked:true,opacity:1,z:0},
+ {id:'architecture',name:'Architecture',visible:true,locked:false,opacity:1,z:10},
+ {id:'seats',name:'Seats / Tables',visible:true,locked:false,opacity:1,z:30},
+ {id:'text',name:'Text / Labels',visible:true,locked:false,opacity:1,z:90},
+ {id:'light',name:'Light / FX',visible:true,locked:false,opacity:1,z:110},
+ {id:'media',name:'Media',visible:true,locked:false,opacity:1,z:120}
+];
+let scene={version:1,format:'va-hall-ultra-scene',meta:{title:'VA Hall Scene'},canvas:{width:1280,height:900,background:null},camera:{zoom:1,mode:'flat'},layers:structuredClone(defaultLayers),objects:[],media:[],mood:{preset:'neutral'},agents:{},interactions:{},exports:{}};
+let selected=new Set(),history=[],clipboard=[],idn=1,bgDataUrl='',bgNaturalW=0,bgNaturalH=0,gridShown=false,drag=null,selectBox=null,selectStart=null,transformDrag=null;
+let pan={active:false,space:false,startX:0,startY:0,scrollLeft:0,scrollTop:0};
+let previewMode=false;
+let curveTool={mode:null,start:null,end:null};
 const registry={seat:{layer:'seats'},chair:{layer:'seats'},table:{layer:'seats'},sofa:{layer:'seats'},box:{layer:'architecture'},zone:{layer:'architecture'},door:{layer:'architecture'},wall:{layer:'architecture'},arc:{layer:'architecture'},stage:{layer:'architecture'},bar:{layer:'architecture'},screen:{layer:'architecture'},text:{layer:'text'},label:{layer:'text'},note:{layer:'text'},media:{layer:'media'},light:{layer:'light'}};
-function uid(p){return p+'_'+Date.now()+'_'+(idn++)}function log(m){logBox.textContent=m||''}function val(id){return String(($(id)||{}).value||'').trim()}function num(id,f=0){const v=parseFloat(val(id));return Number.isFinite(v)?v:f}function cw(){return parseInt(canvas.style.width,10)||scene.canvas.width||1280}function ch(){return parseInt(canvas.style.height,10)||scene.canvas.height||900}function zoomValue(){return Math.max(25,Math.min(300,num('zoom',100)))/100}function setZoomPercent(p){$('zoom').value=Math.max(25,Math.min(300,Math.round(p)));applyZoom()}function snap(v){if(val('snap')!=='1')return Math.round(v);const g=Math.max(1,num('gridSize',20));return Math.round(v/g)*g}function point(e){const r=canvas.getBoundingClientRect(),z=zoomValue();return{x:snap((e.clientX-r.left)/z),y:snap((e.clientY-r.top)/z)}}function layerById(id){return scene.layers.find(l=>l.id===id)}function activeLayer(){return val('activeLayer')||'seats'}function objectLayer(o){return layerById(o.layerId)||layerById(registry[o.type]?.layer)||scene.layers[0]}function isLocked(o){return !!objectLayer(o)?.locked}function isVisible(o){return objectLayer(o)?.visible!==false}function selectedObjects(){return scene.objects.filter(o=>selected.has(o.id))}function objectById(id){return scene.objects.find(o=>o.id===id)}function save(){history.push(JSON.stringify(scene));if(history.length>100)history.shift()}function seatKey(o){return `${o.prefix||''}${o.row||''}-M${o.seat||''}`}
-function applyCanvas(){scene.canvas.width=Math.max(100,num('canvasW',1280));scene.canvas.height=Math.max(100,num('canvasH',900));canvas.style.width=scene.canvas.width+'px';canvas.style.height=scene.canvas.height+'px';applyBg();render();log('CANVAS OK')}function applyBg(){if(!bgDataUrl){canvas.style.backgroundImage='';return}canvas.style.backgroundImage=`url("${bgDataUrl}")`;canvas.style.backgroundRepeat='no-repeat';const m=val('bgMode');if(m==='stretch'){canvas.style.backgroundSize='100% 100%';canvas.style.backgroundPosition='0 0'}if(m==='contain'){canvas.style.backgroundSize='contain';canvas.style.backgroundPosition='center top'}if(m==='original'){canvas.style.backgroundSize=bgNaturalW+'px '+bgNaturalH+'px';canvas.style.backgroundPosition='0 0'}scene.canvas.background={mode:m,embedded:true}}function applyZoom(){const z=Math.round(zoomValue()*100);zoomHost.style.transform=`scale(${z/100})`;zoomLabel.textContent='Zoom: '+z+'%';scene.camera.zoom=z/100}
-function refreshLayers(){const cur=activeLayerEl.value||'seats';activeLayerEl.innerHTML=scene.layers.filter(l=>l.id!=='background').map(l=>`<option value="${l.id}">${l.name}</option>`).join('');activeLayerEl.value=scene.layers.some(l=>l.id===cur)?cur:'seats';layerListEl.innerHTML=scene.layers.map(l=>`<div class="layer-item ${l.id===activeLayer()?'active':''}" data-layer="${l.id}"><button class="layer-btn" data-act="vis">${l.visible?'👁':'—'}</button><button class="layer-btn" data-act="lock">${l.locked?'🔒':'🔓'}</button><div class="layer-name">${l.name}</div><button class="layer-btn" data-act="set">✓</button></div>`).join('')}
-function makeObject(type,x,y){const layerId=activeLayer()||registry[type]?.layer||'seats';const base={id:uid(type),type,layerId,x,y,w:num('objW',160),h:num('objH',80),rotate:num('objRotate',0),z:num('objZ',30),text:val('objText')||type,size:num('objSize',22),style:{}};if(type==='seat'||type==='chair'){base.zone=val('zone');base.prefix=val('prefix');base.row=String(num('row',1));base.seat=num('seat',1);base.w=type==='chair'?24:15;base.h=type==='chair'?22:15;base.labelOffsetX=num('labelOffsetX',0);base.labelOffsetY=num('labelOffsetY',-20);base.labelSize=num('labelSize',10);$('seat').value=base.seat+1}if(type==='table'){base.w=num('objW',82);base.h=num('objW',82)}if(type==='stage'){base.text=val('objText')||'СЦЕНА';base.w=num('objW',820);base.h=num('objH',95)}if(type==='wall'){base.w=num('objW',230);base.h=num('arcBorder',5);base.text=''}if(type==='arc'){base.w=num('arcW',520);base.h=num('arcH',140);base.border=num('arcBorder',5);base.text=''}if(type==='text'||type==='label'){base.w=0;base.h=0;base.text=val('objText')||'Текст'}if(type==='media'){base.text='MEDIA';base.w=num('objW',300);base.h=num('objH',180)}if(type==='light'){base.w=num('objW',220);base.h=num('objW',220);base.text=''}return base}
-function render(){canvas.querySelectorAll('.obj,.select-box,.seat-number,.transform-box,.handle').forEach(el=>el.remove());refreshLayers();scene.objects.slice().sort((a,b)=>((objectLayer(a)?.z||0)+(a.z||0))-((objectLayer(b)?.z||0)+(b.z||0))).forEach(o=>{if(!isVisible(o))return;const el=document.createElement('div');el.className='obj obj-'+o.type;el.dataset.id=o.id;const layer=objectLayer(o);el.style.left=o.x+'px';el.style.top=o.y+'px';el.style.width=(o.w||0)+'px';el.style.height=(o.h||0)+'px';el.style.transform=`translate(-50%,-50%) rotate(${o.rotate||0}deg)`;el.style.zIndex=(layer?.z||0)+(o.z||0);el.style.opacity=o.opacity!==undefined?o.opacity:(layer?.opacity??1);if(isLocked(o))el.classList.add('locked');if(selected.has(o.id))el.classList.add('selected');if(['box','door','zone','stage','bar','screen','table','media','note'].includes(o.type))el.textContent=o.text||o.type;if(o.fill)el.style.background=o.fill;if(o.borderColor)el.style.borderColor=o.borderColor;if(o.textColor)el.style.color=o.textColor;if(o.glow)el.style.boxShadow=`0 0 ${o.glow}px rgba(124,58,237,.9)`;if(o.type==='text'||o.type==='label'){el.textContent=o.text||'Текст';el.style.fontSize=(o.size||22)+'px'}if(o.type==='arc'){el.style.borderTop=(o.border||5)+'px solid #6b7280'}canvas.appendChild(el);if((o.type==='seat'||o.type==='chair')&&(String(o.showLabel??val('showSeatLabels'))==='1')){const lab=document.createElement('div');lab.className='seat-number';lab.textContent=(o.row||'')+'/'+(o.seat||'');lab.style.left=(Number(o.x||0)+Number(o.labelOffsetX??num('labelOffsetX',0)))+'px';lab.style.top=(Number(o.y||0)+Number(o.labelOffsetY??num('labelOffsetY',-20)))+'px';lab.style.fontSize=(Number(o.labelSize??num('labelSize',10)))+'px';lab.style.zIndex=9997;canvas.appendChild(lab)}});counter.innerHTML='Objects: '+scene.objects.length+'<br>Selected: '+selected.size+'<br>Layers: '+scene.layers.length+'<br>Canvas: '+cw()+'x'+ch();renderTransformHandles();updateInspector();try{localStorage.setItem('va_hall_ultra_autosave',JSON.stringify(scene))}catch(e){}}
-function renderTransformHandles(){const list=selectedObjects();if(list.length!==1)return;const o=list[0];if(isLocked(o))return;const w=Math.max(8,Number(o.w||0)),h=Math.max(8,Number(o.h||0));if((o.type==='text'||o.type==='label')&&(!o.w||!o.h))return;const left=Number(o.x||0)-w/2,top=Number(o.y||0)-h/2;const box=document.createElement('div');box.className='transform-box';Object.assign(box.style,{left:left+'px',top:top+'px',width:w+'px',height:h+'px'});canvas.appendChild(box);[['nw',left,top],['ne',left+w,top],['sw',left,top+h],['se',left+w,top+h]].forEach(([name,x,y])=>{const hnd=document.createElement('div');hnd.className='handle handle-'+name;hnd.dataset.handle=name;hnd.dataset.id=o.id;hnd.style.left=(x-6)+'px';hnd.style.top=(y-6)+'px';canvas.appendChild(hnd)});const rot=document.createElement('div');rot.className='handle handle-rotate';rot.dataset.handle='rotate';rot.dataset.id=o.id;rot.style.left=(Number(o.x||0)-7)+'px';rot.style.top=(top-34)+'px';canvas.appendChild(rot)}
-function targetId(e){const el=e.target.closest('.obj');return el?el.dataset.id:null}function handleTarget(e){const el=e.target.closest('.handle');return el?{id:el.dataset.id,handle:el.dataset.handle}:null}
-canvas.addEventListener('pointerdown',e=>{const ht=handleTarget(e),p=point(e);if(ht){const o=objectById(ht.id);if(!o||isLocked(o))return;e.preventDefault();e.stopPropagation();save();selected.clear();selected.add(o.id);transformDrag={type:ht.handle,start:p,orig:JSON.parse(JSON.stringify(o)),center:{x:o.x,y:o.y}};return}const id=targetId(e);if(id){const obj=objectById(id);if(obj&&isLocked(obj))return log('LOCKED LAYER');if(!selected.has(id)){if(!e.shiftKey)selected.clear();selected.add(id);render()}drag={start:p,orig:selectedObjects().map(o=>({id:o.id,x:o.x,y:o.y}))};return}selectStart=p;selectBox=document.createElement('div');selectBox.className='select-box';Object.assign(selectBox.style,{left:p.x+'px',top:p.y+'px',width:'0px',height:'0px'});canvas.appendChild(selectBox)});
-canvas.addEventListener('pointermove',e=>{const p=point(e);if(transformDrag){const o=objectById(transformDrag.orig.id);if(!o)return;const dx=p.x-transformDrag.start.x,dy=p.y-transformDrag.start.y;if(transformDrag.type==='rotate'){const a=Math.atan2(p.y-transformDrag.center.y,p.x-transformDrag.center.x)*180/Math.PI;o.rotate=Math.round(a+90)}else{let w=Number(transformDrag.orig.w||20),h=Number(transformDrag.orig.h||20),x=Number(transformDrag.orig.x||0),y=Number(transformDrag.orig.y||0);if(transformDrag.type.includes('e')){w=Math.max(6,w+dx);x=Number(transformDrag.orig.x||0)+dx/2}if(transformDrag.type.includes('s')){h=Math.max(6,h+dy);y=Number(transformDrag.orig.y||0)+dy/2}if(transformDrag.type.includes('w')){w=Math.max(6,w-dx);x=Number(transformDrag.orig.x||0)+dx/2}if(transformDrag.type.includes('n')){h=Math.max(6,h-dy);y=Number(transformDrag.orig.y||0)+dy/2}o.w=Math.round(w);o.h=Math.round(h);o.x=Math.round(x);o.y=Math.round(y)}render();return}if(drag){const dx=p.x-drag.start.x,dy=p.y-drag.start.y;drag.orig.forEach(a=>{const o=objectById(a.id);if(o&&!isLocked(o)){o.x=snap(a.x+dx);o.y=snap(a.y+dy)}});render();return}if(selectBox&&selectStart){const l=Math.min(selectStart.x,p.x),t=Math.min(selectStart.y,p.y),w=Math.abs(p.x-selectStart.x),h=Math.abs(p.y-selectStart.y);Object.assign(selectBox.style,{left:l+'px',top:t+'px',width:w+'px',height:h+'px'})}});
-canvas.addEventListener('pointerup',e=>{if(transformDrag){transformDrag=null;render();return}if(drag){save();drag=null;render();return}if(selectBox&&selectStart){const w=parseFloat(selectBox.style.width)||0,h=parseFloat(selectBox.style.height)||0;if(w<5&&h<5){const p=point(e);if(curveTool.mode==='start'){curveTool.start=p;curveTool.mode=null;log('CURVE START SET: '+p.x+'/'+p.y);updateCurveInfo();selectBox.remove();selectBox=null;selectStart=null;render();return}if(curveTool.mode==='end'){curveTool.end=p;curveTool.mode=null;log('CURVE END SET: '+p.x+'/'+p.y);updateCurveInfo();selectBox.remove();selectBox=null;selectStart=null;render();return}save();const o=makeObject(val('mode'),p.x,p.y);scene.objects.push(o);selected.clear();selected.add(o.id);log('ADDED: '+o.type)}else{const l=parseFloat(selectBox.style.left),t=parseFloat(selectBox.style.top),r=l+w,b=t+h;if(!e.shiftKey)selected.clear();scene.objects.forEach(o=>{if(!isVisible(o)||isLocked(o))return;if(o.x>=l&&o.x<=r&&o.y>=t&&o.y<=b)selected.add(o.id)});log('SELECTED: '+selected.size)}selectBox.remove();selectBox=null;selectStart=null;render()}});
+function uid(p){return p+'_'+Date.now()+'_'+(idn++)} function log(m){logBox.textContent=m||''} function val(id){return String(($(id)||{}).value||'').trim()} function num(id,f=0){const v=parseFloat(val(id));return Number.isFinite(v)?v:f} function cw(){return parseInt(canvas.style.width,10)||scene.canvas.width||1280} function ch(){return parseInt(canvas.style.height,10)||scene.canvas.height||900} function zoomValue(){return Math.max(25,Math.min(300,num('zoom',100)))/100} function snap(v){if(val('snap')!=='1')return Math.round(v);const g=Math.max(1,num('gridSize',20));return Math.round(v/g)*g} function point(e){const r=canvas.getBoundingClientRect(),z=zoomValue();return{x:snap((e.clientX-r.left)/z),y:snap((e.clientY-r.top)/z)}}
+function layerById(id){return scene.layers.find(l=>l.id===id)} function activeLayer(){return val('activeLayer')||'seats'} function objectLayer(o){return layerById(o.layerId)||layerById(registry[o.type]?.layer)||scene.layers[0]} function isLocked(o){return !!objectLayer(o)?.locked} function isVisible(o){return objectLayer(o)?.visible!==false} function selectedObjects(){return scene.objects.filter(o=>selected.has(o.id))} function objectById(id){return scene.objects.find(o=>o.id===id)} function seatKey(o){return `${o.prefix||''}${o.row||''}-M${o.seat||''}`}
+function save(){history.push(JSON.stringify(scene));if(history.length>100)history.shift()}
+function applyCanvas(){scene.canvas.width=Math.max(100,num('canvasW',1280));scene.canvas.height=Math.max(100,num('canvasH',900));canvas.style.width=scene.canvas.width+'px';canvas.style.height=scene.canvas.height+'px';applyBg();render();log('CANVAS OK')}
+function applyBg(){if(!bgDataUrl){canvas.style.backgroundImage='';return} canvas.style.backgroundImage=`url("${bgDataUrl}")`;canvas.style.backgroundRepeat='no-repeat';const m=val('bgMode'); if(m==='stretch'){canvas.style.backgroundSize='100% 100%';canvas.style.backgroundPosition='0 0'} if(m==='contain'){canvas.style.backgroundSize='contain';canvas.style.backgroundPosition='center top'} if(m==='original'){canvas.style.backgroundSize=bgNaturalW+'px '+bgNaturalH+'px';canvas.style.backgroundPosition='0 0'} scene.canvas.background={mode:m,embedded:true}}
+function setZoomPercent(percent){
+ const v=Math.max(25,Math.min(300,Math.round(percent)));
+ $('zoom').value=v;
+ applyZoom();
+}
+function applyZoom(){const z=Math.round(zoomValue()*100);zoomHost.style.transform=`scale(${z/100})`;zoomLabel.textContent='Zoom: '+z+'%';scene.camera.zoom=z/100}
+function refreshLayers(){activeLayerEl.innerHTML=scene.layers.filter(l=>!l.locked||l.id!=='background').map(l=>`<option value="${l.id}">${l.name}</option>`).join(''); if(!activeLayerEl.value)activeLayerEl.value='seats'; layerListEl.innerHTML=scene.layers.map(l=>`<div class="layer-item ${l.id===activeLayer()?'active':''}" data-layer="${l.id}"><button class="layer-btn" data-act="vis">${l.visible?'👁':'—'}</button><button class="layer-btn" data-act="lock">${l.locked?'🔒':'🔓'}</button><div class="layer-name">${l.name}</div><button class="layer-btn" data-act="set">✓</button></div>`).join('')}
+function makeObject(type,x,y){const layerId=activeLayer()||registry[type]?.layer||'seats';const base={id:uid(type),type,layerId,x,y,w:num('objW',160),h:num('objH',80),rotate:num('objRotate',0),z:num('objZ',30),text:val('objText')||type,size:num('objSize',22),style:{}};
+ if(type==='seat'||type==='chair'){base.zone=val('zone');base.prefix=val('prefix');base.row=String(num('row',1));base.seat=num('seat',1);base.w=type==='chair'?24:15;base.h=type==='chair'?22:15;base.labelOffsetX=num('labelOffsetX',0);base.labelOffsetY=num('labelOffsetY',-20);base.labelSize=num('labelSize',10);$('seat').value=base.seat+1}
+ if(type==='table'){base.w=num('objW',82);base.h=num('objW',82)} if(type==='stage'){base.text=val('objText')||'СЦЕНА';base.w=num('objW',820);base.h=num('objH',95)} if(type==='wall'){base.w=num('objW',230);base.h=num('arcBorder',5);base.text=''} if(type==='arc'){base.w=num('arcW',520);base.h=num('arcH',140);base.border=num('arcBorder',5);base.text=''} if(type==='text'||type==='label'){base.w=0;base.h=0;base.text=val('objText')||'Текст'} if(type==='media'){base.text='MEDIA';base.w=num('objW',300);base.h=num('objH',180)} if(type==='light'){base.w=num('objW',220);base.h=num('objW',220);base.text=''} return base}
+function render(){canvas.querySelectorAll('.obj,.select-box,.seat-number,.transform-box,.handle').forEach(el=>el.remove()); refreshLayers();
+ scene.objects.slice().sort((a,b)=>((objectLayer(a)?.z||0)+(a.z||0))-((objectLayer(b)?.z||0)+(b.z||0))).forEach(o=>{if(!isVisible(o))return; const el=document.createElement('div'); el.className='obj obj-'+o.type; el.dataset.id=o.id; const layer=objectLayer(o); el.style.left=o.x+'px';el.style.top=o.y+'px';el.style.width=(o.w||0)+'px';el.style.height=(o.h||0)+'px';el.style.transform=`translate(-50%,-50%) rotate(${o.rotate||0}deg)`;el.style.zIndex=(layer?.z||0)+(o.z||0);el.style.opacity=layer?.opacity??1;if(isLocked(o))el.classList.add('locked'); if(selected.has(o.id))el.classList.add('selected');
+  if(['box','door','zone','stage','bar','screen','table','media','note'].includes(o.type))el.textContent=o.text||o.type;
+  if(o.fill)el.style.background=o.fill;
+  if(o.borderColor)el.style.borderColor=o.borderColor;
+  if(o.textColor)el.style.color=o.textColor;
+  if(o.opacity!==undefined)el.style.opacity=o.opacity;
+  if(o.glow){el.style.boxShadow=`0 0 ${o.glow}px rgba(124,58,237,.9)`} if(o.type==='text'||o.type==='label'){el.textContent=o.text||'Текст';el.style.fontSize=(o.size||22)+'px'} if(o.type==='arc'){el.style.borderTop=(o.border||5)+'px solid #6b7280'} canvas.appendChild(el);
+  if((o.type==='seat'||o.type==='chair')&&(String(o.showLabel ?? val('showSeatLabels'))==='1')){const lab=document.createElement('div');lab.className='seat-number';lab.textContent=(o.row||'')+'/'+(o.seat||'');lab.style.left=(Number(o.x||0)+Number(o.labelOffsetX??num('labelOffsetX',0)))+'px';lab.style.top=(Number(o.y||0)+Number(o.labelOffsetY??num('labelOffsetY',-20)))+'px';lab.style.fontSize=(Number(o.labelSize??num('labelSize',10)))+'px';lab.style.zIndex=9997;canvas.appendChild(lab)} });
+ counter.innerHTML='Objects: '+scene.objects.length+'<br>Selected: '+selected.size+'<br>Layers: '+scene.layers.length+'<br>Canvas: '+cw()+'x'+ch(); renderTransformHandles(); updateInspector(); try{localStorage.setItem('va_hall_ultra_autosave',JSON.stringify(scene))}catch(e){} }
+function renderTransformHandles(){
+ const list=selectedObjects();
+ if(list.length!==1)return;
+ const o=list[0];
+ if(isLocked(o))return;
+ const w=Math.max(8,Number(o.w||0));
+ const h=Math.max(8,Number(o.h||0));
+ if((o.type==='text'||o.type==='label') && (!o.w||!o.h))return;
+ const left=Number(o.x||0)-w/2;
+ const top=Number(o.y||0)-h/2;
+ const box=document.createElement('div');
+ box.className='transform-box';
+ box.style.left=left+'px'; box.style.top=top+'px'; box.style.width=w+'px'; box.style.height=h+'px';
+ canvas.appendChild(box);
+ const points=[['nw',left,top],['ne',left+w,top],['sw',left,top+h],['se',left+w,top+h]];
+ points.forEach(([name,x,y])=>{
+  const hnd=document.createElement('div');
+  hnd.className='handle handle-'+name;
+  hnd.dataset.handle=name;
+  hnd.dataset.id=o.id;
+  hnd.style.left=(x-6)+'px'; hnd.style.top=(y-6)+'px';
+  canvas.appendChild(hnd);
+ });
+ const rot=document.createElement('div');
+ rot.className='handle handle-rotate';
+ rot.dataset.handle='rotate'; rot.dataset.id=o.id;
+ rot.style.left=(Number(o.x||0)-7)+'px'; rot.style.top=(top-34)+'px';
+ canvas.appendChild(rot);
+}
+function targetId(e){const el=e.target.closest('.obj');return el?el.dataset.id:null}
+function handleTarget(e){const el=e.target.closest('.handle');return el?{id:el.dataset.id,handle:el.dataset.handle}:null}
+canvas.addEventListener('pointerdown',e=>{const ht=handleTarget(e),p=point(e); if(ht){
+ const o=objectById(ht.id); if(!o||isLocked(o))return;
+ e.preventDefault(); e.stopPropagation(); save(); selected.clear(); selected.add(o.id);
+ transformDrag={type:ht.handle,start:p,orig:JSON.parse(JSON.stringify(o)),center:{x:o.x,y:o.y}};
+ return;
+}
+const id=targetId(e); if(id){const obj=objectById(id); if(obj&&isLocked(obj))return log('LOCKED LAYER'); if(!selected.has(id)){if(!e.shiftKey)selected.clear();selected.add(id);render()} drag={start:p,orig:selectedObjects().map(o=>({id:o.id,x:o.x,y:o.y}))}; return} selectStart=p;selectBox=document.createElement('div');selectBox.className='select-box';Object.assign(selectBox.style,{left:p.x+'px',top:p.y+'px',width:'0px',height:'0px'});canvas.appendChild(selectBox)});
+canvas.addEventListener('pointermove',e=>{const p=point(e); if(transformDrag){
+ const o=objectById(transformDrag.orig.id); if(!o)return;
+ const dx=p.x-transformDrag.start.x, dy=p.y-transformDrag.start.y;
+ if(transformDrag.type==='rotate'){
+  const a=Math.atan2(p.y-transformDrag.center.y,p.x-transformDrag.center.x)*180/Math.PI;
+  o.rotate=Math.round(a+90);
+ } else {
+  let w=Number(transformDrag.orig.w||20), h=Number(transformDrag.orig.h||20);
+  let x=Number(transformDrag.orig.x||0), y=Number(transformDrag.orig.y||0);
+  if(transformDrag.type.includes('e')) w=Math.max(6,w+dx);
+  if(transformDrag.type.includes('s')) h=Math.max(6,h+dy);
+  if(transformDrag.type.includes('w')){w=Math.max(6,w-dx); x=Number(transformDrag.orig.x||0)+dx/2;}
+  if(transformDrag.type.includes('n')){h=Math.max(6,h-dy); y=Number(transformDrag.orig.y||0)+dy/2;}
+  if(transformDrag.type.includes('e')) x=Number(transformDrag.orig.x||0)+dx/2;
+  if(transformDrag.type.includes('s')) y=Number(transformDrag.orig.y||0)+dy/2;
+  o.w=Math.round(w); o.h=Math.round(h); o.x=Math.round(x); o.y=Math.round(y);
+ }
+ render(); return;
+}
+if(drag){const dx=p.x-drag.start.x,dy=p.y-drag.start.y;drag.orig.forEach(a=>{const o=objectById(a.id);if(o&&!isLocked(o)){o.x=snap(a.x+dx);o.y=snap(a.y+dy)}});render();return} if(selectBox&&selectStart){const l=Math.min(selectStart.x,p.x),t=Math.min(selectStart.y,p.y),w=Math.abs(p.x-selectStart.x),h=Math.abs(p.y-selectStart.y);Object.assign(selectBox.style,{left:l+'px',top:t+'px',width:w+'px',height:h+'px'})}});
+canvas.addEventListener('pointerup',e=>{if(transformDrag){transformDrag=null;render();return} if(drag){save();drag=null;render();return} if(selectBox&&selectStart){const w=parseFloat(selectBox.style.width)||0,h=parseFloat(selectBox.style.height)||0;if(w<5&&h<5){const p=point(e);
+  if(curveTool.mode==='start'){curveTool.start=p;curveTool.mode=null;log('CURVE START SET: '+p.x+'/'+p.y);updateCurveInfo();selectBox.remove();selectBox=null;selectStart=null;render();return}
+  if(curveTool.mode==='end'){curveTool.end=p;curveTool.mode=null;log('CURVE END SET: '+p.x+'/'+p.y);updateCurveInfo();selectBox.remove();selectBox=null;selectStart=null;render();return}
+  save();const o=makeObject(val('mode'),p.x,p.y);scene.objects.push(o);selected.clear();selected.add(o.id);log('ADDED: '+o.type)
+} else {const l=parseFloat(selectBox.style.left),t=parseFloat(selectBox.style.top),r=l+w,b=t+h;if(!e.shiftKey)selected.clear();scene.objects.forEach(o=>{if(!isVisible(o)||isLocked(o))return;if(o.x>=l&&o.x<=r&&o.y>=t&&o.y<=b)selected.add(o.id)});log('SELECTED: '+selected.size)} selectBox.remove();selectBox=null;selectStart=null;render()}});
 canvas.addEventListener('dblclick',e=>{const id=targetId(e);if(!id)return;const o=objectById(id);if(o&&isLocked(o))return;save();scene.objects=scene.objects.filter(x=>x.id!==id);selected.delete(id);render()});
-function updateInspector(){const info=$('inspectInfo'),list=selectedObjects();const ids=['insX','insY','insW','insH','insRotate','insZ','insSize','insText','insFill','insBorder','insTextColor','insOpacity','insGlow','insLabelX','insLabelY','insLabelSize','insShowLabel'];ids.forEach(id=>{const el=$(id);if(el)el.disabled=list.length!==1});if(list.length!==1){info.textContent=list.length?('Выделено объектов: '+list.length):'Выделите объект';return}const o=list[0];info.textContent=o.type+' / '+o.id;$('insX').value=Math.round(o.x||0);$('insY').value=Math.round(o.y||0);$('insW').value=Math.round(o.w||0);$('insH').value=Math.round(o.h||0);$('insRotate').value=Math.round(o.rotate||0);$('insZ').value=Math.round(o.z||0);$('insSize').value=Math.round(o.size||0);$('insText').value=o.text||'';$('insLabelX').value=Math.round(o.labelOffsetX??0);$('insLabelY').value=Math.round(o.labelOffsetY??-20);$('insLabelSize').value=Math.round(o.labelSize??10);$('insShowLabel').value=(o.showLabel===undefined||o.showLabel===null)?'inherit':String(o.showLabel);$('insFill').value=o.fill||'#8b5cf6';$('insBorder').value=o.borderColor||'#ffffff';$('insTextColor').value=o.textColor||'#ffffff';$('insOpacity').value=o.opacity??1;$('insGlow').value=o.glow??0}
-function applyInspector(){const list=selectedObjects();if(list.length!==1)return;const o=list[0];o.x=num('insX',o.x||0);o.y=num('insY',o.y||0);o.w=num('insW',o.w||0);o.h=num('insH',o.h||0);o.rotate=num('insRotate',o.rotate||0);o.z=num('insZ',o.z||0);o.size=num('insSize',o.size||22);o.text=val('insText');o.labelOffsetX=num('insLabelX',o.labelOffsetX??0);o.labelOffsetY=num('insLabelY',o.labelOffsetY??-20);o.labelSize=num('insLabelSize',o.labelSize??10);const sl=val('insShowLabel');if(sl==='inherit')delete o.showLabel;else o.showLabel=sl;o.fill=val('insFill');o.borderColor=val('insBorder');o.textColor=val('insTextColor');o.opacity=parseFloat($('insOpacity').value||1);o.glow=parseFloat($('insGlow').value||0);render()}['insX','insY','insW','insH','insRotate','insZ','insSize','insText','insFill','insBorder','insTextColor','insOpacity','insGlow','insLabelX','insLabelY','insLabelSize','insShowLabel'].forEach(id=>{const el=$(id);if(el){el.addEventListener('input',applyInspector);el.addEventListener('change',applyInspector)}});
-function updateCurveInfo(){const s=curveTool.start?curveTool.start.x+'/'+curveTool.start.y:'—',e=curveTool.end?curveTool.end.x+'/'+curveTool.end.y:'—';$('curveInfo').textContent='Start: '+s+' / End: '+e}function buildCurvedRow(){if(!curveTool.start||!curveTool.end)return log('CURVED ROW: задайте START и END.');const count=Math.max(2,Math.round(num('curveSeats',12))),depth=num('curveDepth',45),row=String(num('curveRow',num('row',1))),startSeat=num('seat',1),spacing=Math.max(4,num('curveSpacing',34)),autoFit=val('curveAutoFit')==='1',a=curveTool.start,b=curveTool.end;let dx=b.x-a.x,dy=b.y-a.y,len=Math.max(1,Math.sqrt(dx*dx+dy*dy));const ux=dx/len,uy=dy/len,nx=-uy,ny=ux;save();selected.clear();for(let i=0;i<count;i++){const t=i/(count-1),dist=autoFit?len*t:spacing*i,baseX=a.x+ux*dist,baseY=a.y+uy*dist,curve=Math.sin(Math.PI*t)*depth,x=Math.round(baseX+nx*curve),y=Math.round(baseY+ny*curve),o=makeObject('chair',x,y);o.row=row;o.seat=startSeat+i;o.rotate=Math.round(Math.atan2(uy,ux)*180/Math.PI);o.text='';scene.objects.push(o);selected.add(o.id)}$('seat').value=startSeat+count;render();log('CURVED ROW OK: '+count+' кресел, spacing '+(autoFit?'auto':spacing)+', row '+row)}
-function buildSmartTable(){const center={x:cw()/2,y:ch()/2},count=Math.max(1,Math.round(num('tableCapacity',6))),radius=Math.max(20,num('tableRadius',70)),tableSize=Math.max(20,num('tableSize',70)),startSeat=num('tableStartSeat',1),tableType=val('tableType')||'round',row=String(num('row',1)),layerId=activeLayer()||'seats';save();selected.clear();const table={id:uid('table'),type:'table',layerId,x:center.x,y:center.y,w:tableSize,h:tableSize,rotate:0,z:num('objZ',30),text:val('objText')||'Стіл',size:num('objSize',16),tableType,capacity:count,zone:val('zone'),style:{}};if(tableType==='vip'){table.type='box';table.text=val('objText')||'VIP';table.w=tableSize*1.8;table.h=tableSize}scene.objects.push(table);selected.add(table.id);for(let i=0;i<count;i++){const a=(-90+i*(360/count))*Math.PI/180,x=Math.round(center.x+Math.cos(a)*radius),y=Math.round(center.y+Math.sin(a)*radius),chair=makeObject('chair',x,y);chair.layerId=layerId;chair.zone=val('zone');chair.prefix=val('prefix')||'T';chair.row=row;chair.seat=startSeat+i;chair.rotate=Math.round(a*180/Math.PI+90);chair.parentId=table.id;chair.text='';scene.objects.push(chair);selected.add(chair.id)}$('seat').value=startSeat+count;render();log('SMART TABLE OK: '+count+' мест, radius '+radius)}
 imageLoader.addEventListener('change',e=>{const f=e.target.files&&e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=ev=>{bgDataUrl=ev.target.result;const im=new Image();im.onload=()=>{bgNaturalW=im.naturalWidth;bgNaturalH=im.naturalHeight;applyBg();render();log('BACKGROUND LOADED')};im.src=bgDataUrl};rd.readAsDataURL(f)});
-$('applyCanvasBtn').onclick=applyCanvas;$('applyBgBtn').onclick=()=>{applyBg();render()};$('clearBgBtn').onclick=()=>{bgDataUrl='';bgNaturalW=0;bgNaturalH=0;canvas.style.backgroundImage='';imageLoader.value='';scene.canvas.background=null;render();log('BACKGROUND CLEARED')};$('zoom').oninput=applyZoom;$('gridBtn').onclick=()=>{gridShown=!gridShown;grid.style.display=gridShown?'block':'none';grid.style.backgroundSize=num('gridSize',20)+'px '+num('gridSize',20)+'px'};$('curveStartBtn').onclick=()=>{curveTool.mode='start';log('CURVE: кликните START')};$('curveEndBtn').onclick=()=>{curveTool.mode='end';log('CURVE: кликните END')};$('buildCurveBtn').onclick=buildCurvedRow;$('buildTableBtn').onclick=buildSmartTable;
-$('previewBtn').onclick=()=>{previewMode=!previewMode;document.querySelector('.work').classList.toggle('preview',previewMode);$('previewBtn').textContent='PREVIEW MODE: '+(previewMode?'ON':'OFF');$('previewBtn').className=previewMode?'btn green':'btn gold';log(previewMode?'PREVIEW MODE ON':'PREVIEW MODE OFF')};window.addEventListener('keydown',e=>{if(e.code==='Space'){pan.space=true;document.querySelector('.work').classList.add('panning');e.preventDefault()}});window.addEventListener('keyup',e=>{if(e.code==='Space'){pan.space=false;pan.active=false;document.querySelector('.work').classList.remove('panning')}});document.querySelector('.work').addEventListener('pointerdown',e=>{if(!pan.space)return;pan.active=true;pan.startX=e.clientX;pan.startY=e.clientY;pan.scrollLeft=document.querySelector('.work').scrollLeft;pan.scrollTop=document.querySelector('.work').scrollTop;e.preventDefault()});window.addEventListener('pointermove',e=>{if(!pan.active)return;const work=document.querySelector('.work');work.scrollLeft=pan.scrollLeft-(e.clientX-pan.startX);work.scrollTop=pan.scrollTop-(e.clientY-pan.startY)});window.addEventListener('pointerup',()=>{pan.active=false});document.querySelector('.work').addEventListener('wheel',e=>{if(!e.ctrlKey&&!e.altKey&&!e.shiftKey){e.preventDefault();const work=document.querySelector('.work'),oldZoom=zoomValue(),rect=work.getBoundingClientRect(),beforeX=(e.clientX-rect.left+work.scrollLeft)/oldZoom,beforeY=(e.clientY-rect.top+work.scrollTop)/oldZoom,next=Number($('zoom').value)+(e.deltaY<0?10:-10);setZoomPercent(next);const newZoom=zoomValue();work.scrollLeft=beforeX*newZoom-(e.clientX-rect.left);work.scrollTop=beforeY*newZoom-(e.clientY-rect.top)}},{passive:false});
-activeLayerEl.onchange=refreshLayers;layerListEl.onclick=e=>{const item=e.target.closest('.layer-item');if(!item)return;const l=layerById(item.dataset.layer);if(!l)return;const act=e.target.dataset.act;if(act==='vis'&&!l.locked)l.visible=!l.visible;if(act==='lock'&&l.id!=='background')l.locked=!l.locked;if(act==='set')activeLayerEl.value=l.id;render()};$('addLayerBtn').onclick=()=>{const name=prompt('Layer name','Custom Layer');if(!name)return;scene.layers.push({id:'layer_'+Date.now(),name,visible:true,locked:false,opacity:1,z:60});render()};$('deleteLayerBtn').onclick=()=>{const id=activeLayer();if(['background','architecture','seats','text','light','media'].includes(id))return log('BASE LAYER: не удаляем');scene.objects=scene.objects.filter(o=>o.layerId!==id);scene.layers=scene.layers.filter(l=>l.id!==id);activeLayerEl.value='seats';render()};
-$('undoBtn').onclick=()=>{const p=history.pop();if(!p)return;scene=JSON.parse(p);selected.clear();render()};$('deleteBtn').onclick=()=>{save();scene.objects=scene.objects.filter(o=>!selected.has(o.id)||isLocked(o));selected.clear();render()};$('clearBtn').onclick=()=>{save();scene.objects=[];selected.clear();render()};$('selectAllBtn').onclick=()=>{selected=new Set(scene.objects.filter(o=>isVisible(o)&&!isLocked(o)).map(o=>o.id));render()};$('clearSelectionBtn').onclick=()=>{selected.clear();render()};function align(axis){const list=selectedObjects().filter(o=>!isLocked(o));if(list.length<2)return log('Нужно 2+ объекта');save();const avg=Math.round(list.reduce((s,o)=>s+o[axis],0)/list.length);list.forEach(o=>o[axis]=avg);render()}$('alignYBtn').onclick=()=>align('y');$('alignXBtn').onclick=()=>align('x');function distribute(axis){const list=selectedObjects().filter(o=>!isLocked(o)).sort((a,b)=>a[axis]-b[axis]);if(list.length<3)return log('РАСПРЕДЕЛЕНИЕ: выделите 3+ объекта.');save();const first=Number(list[0][axis]||0),last=Number(list[list.length-1][axis]||0),step=(last-first)/(list.length-1);list.forEach((o,i)=>{o[axis]=Math.round(first+step*i)});render();log(axis==='x'?'РАСПРЕДЕЛЕНО ПО ГОРИЗОНТАЛИ':'РАСПРЕДЕЛЕНО ПО ВЕРТИКАЛИ')}$('distXBtn').onclick=()=>distribute('x');$('distYBtn').onclick=()=>distribute('y');$('autoNumberBtn').onclick=()=>{const list=selectedObjects().filter(o=>['seat','chair'].includes(o.type)&&!isLocked(o));if(!list.length)return log('Выделите seats/chairs');save();const dir=val('numberDirection');list.sort((a,b)=>dir==='left-right'?a.x-b.x||a.y-b.y:dir==='right-left'?b.x-a.x||a.y-b.y:dir==='top-bottom'?a.y-b.y||a.x-b.x:b.y-a.y||a.x-b.x);const row=String(num('row',1)),start=num('seat',1);list.forEach((o,i)=>{o.zone=val('zone');o.prefix=val('prefix');o.row=row;o.seat=start+i;o.labelOffsetX=num('labelOffsetX',0);o.labelOffsetY=num('labelOffsetY',-20);o.labelSize=num('labelSize',10)});$('seat').value=start+list.length;render();log('AUTO NUMBER OK')};$('copyBtn').onclick=()=>{clipboard=selectedObjects().filter(o=>!isLocked(o)).map(o=>JSON.parse(JSON.stringify(o)));log('COPIED: '+clipboard.length)};$('pasteBtn').onclick=()=>{if(!clipboard.length)return;save();selected.clear();clipboard.forEach(o=>{const c=JSON.parse(JSON.stringify(o));c.id=uid(c.type);c.x+=40;c.y+=40;scene.objects.push(c);selected.add(c.id)});render()};$('duplicateBtn').onclick=()=>{const dx=num('dupOffsetX',40),dy=num('dupOffsetY',40),list=selectedObjects().filter(o=>!isLocked(o));if(!list.length)return;save();selected.clear();list.forEach(o=>{const c=JSON.parse(JSON.stringify(o));c.id=uid(c.type);c.x+=dx;c.y+=dy;scene.objects.push(c);selected.add(c.id)});render()};$('mirrorXBtn').onclick=()=>{const list=selectedObjects().filter(o=>!isLocked(o));if(!list.length)return;save();const cx=(Math.min(...list.map(o=>o.x))+Math.max(...list.map(o=>o.x)))/2;selected.clear();list.forEach(o=>{const c=JSON.parse(JSON.stringify(o));c.id=uid(c.type);c.x=Math.round(cx-(o.x-cx));scene.objects.push(c);selected.add(c.id)});render()};$('mirrorYBtn').onclick=()=>{const list=selectedObjects().filter(o=>!isLocked(o));if(!list.length)return;save();const cy=(Math.min(...list.map(o=>o.y))+Math.max(...list.map(o=>o.y)))/2;selected.clear();list.forEach(o=>{const c=JSON.parse(JSON.stringify(o));c.id=uid(c.type);c.y=Math.round(cy-(o.y-cy));scene.objects.push(c);selected.add(c.id)});render()};$('perspectiveBtn').onclick=()=>{const list=selectedObjects().filter(o=>['seat','chair','table','sofa','box'].includes(o.type)&&!isLocked(o));if(list.length<3)return log('ПЕРСПЕКТИВА: 3+ объекта');save();const cx=list.reduce((s,o)=>s+o.x,0)/list.length,minY=Math.min(...list.map(o=>o.y)),maxY=Math.max(...list.map(o=>o.y)),depth=Math.max(1,maxY-minY);list.forEach(o=>{const t=(o.y-minY)/depth,shrink=.72+t*.28;o.x=Math.round(cx+(o.x-cx)*shrink)});render();log('PERSPECTIVE OK')};
-function exportScene(){scene.canvas.width=cw();scene.canvas.height=ch();return scene}function loadScene(data){if(data&&data.format==='va-hall-ultra-scene'){scene=data}else{const oldSeats=Array.isArray(data.seats)?data.seats.map(s=>({...s,id:s.id||uid('seat'),type:s.type||'seat',layerId:'seats',w:Number(s.w||14),h:Number(s.h||14),x:Number(s.x||0),y:Number(s.y||0),labelOffsetX:Number(s.labelOffsetX??0),labelOffsetY:Number(s.labelOffsetY??-20),labelSize:Number(s.labelSize??10)})):[];const oldDecor=Array.isArray(data.decor)?data.decor.map(d=>({...d,id:d.id||uid(d.type||'box'),type:d.type||'box',layerId:d.type==='text'?'text':'architecture',x:Number(d.x||0),y:Number(d.y||0),w:Number(d.w||160),h:Number(d.h||80),text:d.text||d.label||''})):[];scene={...scene,objects:[...oldSeats,...oldDecor]};if(data.width&&data.height){scene.canvas.width=data.width;scene.canvas.height=data.height}}$('canvasW').value=scene.canvas.width||1280;$('canvasH').value=scene.canvas.height||900;applyCanvas();selected.clear();render();log('SCENE LOADED: '+scene.objects.length)}$('exportBtn').onclick=()=>{jsonOutput.value=JSON.stringify(exportScene(),null,2);log('EXPORTED')};$('downloadBtn').onclick=()=>{const data=JSON.stringify(exportScene(),null,2);const blob=new Blob([data],{type:'application/json;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='va-hall-ultra-scene.json';a.click();URL.revokeObjectURL(a.href)};$('saveBrowserBtn').onclick=()=>{localStorage.setItem('va_hall_ultra_autosave',JSON.stringify(exportScene()));log('SAVED')};$('restoreBrowserBtn').onclick=()=>{const raw=localStorage.getItem('va_hall_ultra_autosave');if(raw)loadScene(JSON.parse(raw));else log('NO AUTOSAVE')};$('importBtn').onclick=()=>{try{loadScene(JSON.parse(jsonOutput.value))}catch(e){alert('JSON не прочитался')}};applyCanvas();applyZoom();refreshLayers();render();log('READY: ULTRA')
+function updateCurveInfo(){
+ const s=curveTool.start?curveTool.start.x+'/'+curveTool.start.y:'—';
+ const e=curveTool.end?curveTool.end.x+'/'+curveTool.end.y:'—';
+ const el=$('curveInfo'); if(el)el.textContent='Start: '+s+' / End: '+e;
+}
+function buildCurvedRow(){
+ if(!curveTool.start||!curveTool.end)return log('CURVED ROW: задайте START и END.');
+ const count=Math.max(2,Math.round(num('curveSeats',12)));
+ const depth=num('curveDepth',45);
+ const row=String(num('curveRow',num('row',1)));
+ const startSeat=num('seat',1);
+ const spacing=Math.max(4,num('curveSpacing',34));
+ const autoFit=val('curveAutoFit')==='1';
+ const a=curveTool.start,b=curveTool.end;
+ let dx=b.x-a.x, dy=b.y-a.y;
+ let len=Math.max(1,Math.sqrt(dx*dx+dy*dy));
+ const ux=dx/len, uy=dy/len;
+ const nx=-uy, ny=ux;
+ const totalLen=autoFit?len:spacing*(count-1);
+ save(); selected.clear();
+ for(let i=0;i<count;i++){
+   const t=i/(count-1);
+   const dist=autoFit?len*t:spacing*i;
+   const baseX=a.x+ux*dist;
+   const baseY=a.y+uy*dist;
+   const curve=Math.sin(Math.PI*t)*depth;
+   const x=Math.round(baseX+nx*curve);
+   const y=Math.round(baseY+ny*curve);
+   const o=makeObject('chair',x,y);
+   o.row=row;
+   o.seat=startSeat+i;
+   o.rotate=Math.round(Math.atan2(uy,ux)*180/Math.PI);
+   o.text='';
+   scene.objects.push(o);
+   selected.add(o.id);
+ }
+ $('seat').value=startSeat+count;
+ render();
+ log('CURVED ROW OK: '+count+' кресел, spacing '+(autoFit?'auto':spacing)+', row '+row+', seats '+startSeat+'–'+(startSeat+count-1));
+}
+$('curveStartBtn').onclick=()=>{curveTool.mode='start';log('CURVE: кликните точку START на холсте.')};
+$('curveEndBtn').onclick=()=>{curveTool.mode='end';log('CURVE: кликните точку END на холсте.')};
+$('buildCurveBtn').onclick=buildCurvedRow;
+function buildSmartTable(){
+ const center={x:cw()/2,y:ch()/2};
+ const count=Math.max(1,Math.round(num('tableCapacity',6)));
+ const radius=Math.max(20,num('tableRadius',70));
+ const tableSize=Math.max(20,num('tableSize',70));
+ const startSeat=num('tableStartSeat',1);
+ const tableType=val('tableType')||'round';
+ const row=String(num('row',1));
+ const layerId=activeLayer()||'seats';
+ save(); selected.clear();
+ const table={
+   id:uid('table'),type:'table',layerId,
+   x:center.x,y:center.y,w:tableSize,h:tableType==='square'?tableSize:tableSize,
+   rotate:0,z:num('objZ',30),text:val('objText')||'Стіл',size:num('objSize',16),
+   tableType,capacity:count,zone:val('zone'),style:{}
+ };
+ if(tableType==='square'){table.style.shape='square';}
+ if(tableType==='vip'){table.type='box';table.text=val('objText')||'VIP';table.w=tableSize*1.8;table.h=tableSize;}
+ scene.objects.push(table); selected.add(table.id);
+ for(let i=0;i<count;i++){
+   const a=(-90 + i*(360/count))*Math.PI/180;
+   const x=Math.round(center.x+Math.cos(a)*radius);
+   const y=Math.round(center.y+Math.sin(a)*radius);
+   const chair=makeObject('chair',x,y);
+   chair.layerId=layerId;
+   chair.zone=val('zone');
+   chair.prefix=val('prefix')||'T';
+   chair.row=row;
+   chair.seat=startSeat+i;
+   chair.rotate=Math.round(a*180/Math.PI+90);
+   chair.parentId=table.id;
+   chair.text='';
+   scene.objects.push(chair); selected.add(chair.id);
+ }
+ $('seat').value=startSeat+count;
+ render();
+ log('SMART TABLE OK: '+count+' місць, radius '+radius);
+}
+$('buildTableBtn').onclick=buildSmartTable;
+$('applyCanvasBtn').onclick=applyCanvas; $('applyBgBtn').onclick=()=>{applyBg();render()}; $('clearBgBtn').onclick=()=>{bgDataUrl='';bgNaturalW=0;bgNaturalH=0;canvas.style.backgroundImage='';imageLoader.value='';scene.canvas.background=null;render();log('BACKGROUND CLEARED')}; $('zoom').oninput=applyZoom; $('gridBtn').onclick=()=>{gridShown=!gridShown;grid.style.display=gridShown?'block':'none';grid.style.backgroundSize=num('gridSize',20)+'px '+num('gridSize',20)+'px'};
+$('previewBtn').onclick=()=>{
+ previewMode=!previewMode;
+ document.querySelector('.work').classList.toggle('preview',previewMode);
+ $('previewBtn').textContent='PREVIEW MODE: '+(previewMode?'ON':'OFF');
+ $('previewBtn').className=previewMode?'btn green':'btn gold';
+ log(previewMode?'PREVIEW MODE ON':'PREVIEW MODE OFF');
+};
+window.addEventListener('keydown',e=>{if(e.code==='Space'){pan.space=true;document.querySelector('.work').classList.add('panning');e.preventDefault();}});
+window.addEventListener('keyup',e=>{if(e.code==='Space'){pan.space=false;pan.active=false;document.querySelector('.work').classList.remove('panning');}});
+document.querySelector('.work').addEventListener('pointerdown',e=>{
+ if(!pan.space)return;
+ pan.active=true;pan.startX=e.clientX;pan.startY=e.clientY;pan.scrollLeft=document.querySelector('.work').scrollLeft;pan.scrollTop=document.querySelector('.work').scrollTop;e.preventDefault();
+});
+window.addEventListener('pointermove',e=>{
+ if(!pan.active)return;
+ const work=document.querySelector('.work');
+ work.scrollLeft=pan.scrollLeft-(e.clientX-pan.startX);
+ work.scrollTop=pan.scrollTop-(e.clientY-pan.startY);
+});
+window.addEventListener('pointerup',()=>{pan.active=false});
+document.querySelector('.work').addEventListener('wheel',e=>{
+ if(!e.ctrlKey && !e.altKey && !e.shiftKey){
+   e.preventDefault();
+   const work=document.querySelector('.work');
+   const oldZoom=zoomValue();
+   const beforeX=(e.clientX-work.getBoundingClientRect().left+work.scrollLeft)/oldZoom;
+   const beforeY=(e.clientY-work.getBoundingClientRect().top+work.scrollTop)/oldZoom;
+   const next=Number($('zoom').value)+(e.deltaY<0?10:-10);
+   setZoomPercent(next);
+   const newZoom=zoomValue();
+   work.scrollLeft=beforeX*newZoom-(e.clientX-work.getBoundingClientRect().left);
+   work.scrollTop=beforeY*newZoom-(e.clientY-work.getBoundingClientRect().top);
+ }
+},{passive:false});
+activeLayerEl.onchange=refreshLayers; layerListEl.onclick=e=>{const item=e.target.closest('.layer-item');if(!item)return;const l=layerById(item.dataset.layer);if(!l)return;const act=e.target.dataset.act;if(act==='vis'&&!l.locked){l.visible=!l.visible} if(act==='lock'&&l.id!=='background'){l.locked=!l.locked} if(act==='set'){activeLayerEl.value=l.id} render()}; $('addLayerBtn').onclick=()=>{const name=prompt('Layer name','Custom Layer');if(!name)return;scene.layers.push({id:'layer_'+Date.now(),name,visible:true,locked:false,opacity:1,z:60});render()}; $('deleteLayerBtn').onclick=()=>{const id=activeLayer();if(['background','architecture','seats','text','light','media'].includes(id))return log('BASE LAYER: не удаляем');scene.objects=scene.objects.filter(o=>o.layerId!==id);scene.layers=scene.layers.filter(l=>l.id!==id);activeLayerEl.value='seats';render()};
+$('undoBtn').onclick=()=>{const p=history.pop();if(!p)return;scene=JSON.parse(p);selected.clear();render()}; $('deleteBtn').onclick=()=>{save();scene.objects=scene.objects.filter(o=>!selected.has(o.id)||isLocked(o));selected.clear();render()}; $('clearBtn').onclick=()=>{save();scene.objects=[];selected.clear();render()}; $('selectAllBtn').onclick=()=>{selected=new Set(scene.objects.filter(o=>isVisible(o)&&!isLocked(o)).map(o=>o.id));render()}; $('clearSelectionBtn').onclick=()=>{selected.clear();render()};
+function align(axis){const list=selectedObjects().filter(o=>!isLocked(o));if(list.length<2)return log('Нужно 2+ объекта');save();const avg=Math.round(list.reduce((s,o)=>s+o[axis],0)/list.length);list.forEach(o=>o[axis]=avg);render()} $('alignYBtn').onclick=()=>align('y');$('alignXBtn').onclick=()=>align('x');
+function distribute(axis){
+  const list=selectedObjects().filter(o=>!isLocked(o)).sort((a,b)=>a[axis]-b[axis]);
+  if(list.length<3)return log('РАСПРЕДЕЛЕНИЕ: выделите минимум 3 незаблокированных объекта.');
+  save();
+  const first=Number(list[0][axis]||0);
+  const last=Number(list[list.length-1][axis]||0);
+  const step=(last-first)/(list.length-1);
+  list.forEach((o,i)=>{o[axis]=Math.round(first+step*i)});
+  render();
+  log(axis==='x'?'РАСПРЕДЕЛЕНО ПО ГОРИЗОНТАЛИ. Шаг: '+Math.round(step):'РАСПРЕДЕЛЕНО ПО ВЕРТИКАЛИ. Шаг: '+Math.round(step));
+}
+$('distXBtn').onclick=()=>distribute('x');$('distYBtn').onclick=()=>distribute('y');
+$('autoNumberBtn').onclick=()=>{const list=selectedObjects().filter(o=>['seat','chair'].includes(o.type)&&!isLocked(o));if(!list.length)return log('Выделите seats/chairs');save();const dir=val('numberDirection');list.sort((a,b)=>dir==='left-right'?a.x-b.x||a.y-b.y:dir==='right-left'?b.x-a.x||a.y-b.y:dir==='top-bottom'?a.y-b.y||a.x-b.x:b.y-a.y||a.x-b.x);const row=String(num('row',1)),start=num('seat',1);list.forEach((o,i)=>{o.zone=val('zone');o.prefix=val('prefix');o.row=row;o.seat=start+i;o.labelOffsetX=num('labelOffsetX',0);o.labelOffsetY=num('labelOffsetY',-20);o.labelSize=num('labelSize',10)});$('seat').value=start+list.length;render();log('AUTO NUMBER OK: '+start+'–'+(start+list.length-1))};
+$('copyBtn').onclick=()=>{clipboard=selectedObjects().filter(o=>!isLocked(o)).map(o=>JSON.parse(JSON.stringify(o)));log('COPIED: '+clipboard.length)}; $('pasteBtn').onclick=()=>{if(!clipboard.length)return;save();selected.clear();clipboard.forEach(o=>{const c=JSON.parse(JSON.stringify(o));c.id=uid(c.type);c.x+=40;c.y+=40;scene.objects.push(c);selected.add(c.id)});render()}; $('duplicateBtn').onclick=()=>{const dx=num('dupOffsetX',40),dy=num('dupOffsetY',40),list=selectedObjects().filter(o=>!isLocked(o));if(!list.length)return;save();selected.clear();list.forEach(o=>{const c=JSON.parse(JSON.stringify(o));c.id=uid(c.type);c.x+=dx;c.y+=dy;scene.objects.push(c);selected.add(c.id)});render()};
+$('mirrorXBtn').onclick=()=>{const list=selectedObjects().filter(o=>!isLocked(o));if(!list.length)return;save();const cx=(Math.min(...list.map(o=>o.x))+Math.max(...list.map(o=>o.x)))/2;selected.clear();list.forEach(o=>{const c=JSON.parse(JSON.stringify(o));c.id=uid(c.type);c.x=Math.round(cx-(o.x-cx));scene.objects.push(c);selected.add(c.id)});render()}; $('mirrorYBtn').onclick=()=>{const list=selectedObjects().filter(o=>!isLocked(o));if(!list.length)return;save();const cy=(Math.min(...list.map(o=>o.y))+Math.max(...list.map(o=>o.y)))/2;selected.clear();list.forEach(o=>{const c=JSON.parse(JSON.stringify(o));c.id=uid(c.type);c.y=Math.round(cy-(o.y-cy));scene.objects.push(c);selected.add(c.id)});render()};
+$('perspectiveBtn').onclick=()=>{const list=selectedObjects().filter(o=>['seat','chair','table','sofa','box'].includes(o.type)&&!isLocked(o));if(list.length<3)return log('ПЕРСПЕКТИВА: 3+ объекта');save();const cx=list.reduce((s,o)=>s+o.x,0)/list.length,minY=Math.min(...list.map(o=>o.y)),maxY=Math.max(...list.map(o=>o.y)),depth=Math.max(1,maxY-minY);list.forEach(o=>{const t=(o.y-minY)/depth,shrink=.72+t*.28;o.x=Math.round(cx+(o.x-cx)*shrink)});render();log('PERSPECTIVE OK')};
+function updateInspector(){
+ const info=$('inspectInfo');
+ const list=selectedObjects();
+ const ids=['insX','insY','insW','insH','insRotate','insZ','insSize','insText','insFill','insBorder','insTextColor','insOpacity','insGlow','insLabelX','insLabelY','insLabelSize','insShowLabel'];
+ ids.forEach(id=>{const el=$(id); if(el)el.disabled=list.length!==1});
+ if(list.length!==1){info.textContent=list.length?('Выделено объектов: '+list.length):'Выделите объект'; return}
+ const o=list[0]; info.textContent=o.type+' / '+o.id;
+ $('insX').value=Math.round(o.x||0); $('insY').value=Math.round(o.y||0); $('insW').value=Math.round(o.w||0); $('insH').value=Math.round(o.h||0); $('insRotate').value=Math.round(o.rotate||0); $('insZ').value=Math.round(o.z||0); $('insSize').value=Math.round(o.size||0); $('insText').value=o.text||''; $('insLabelX').value=Math.round(o.labelOffsetX??0); $('insLabelY').value=Math.round(o.labelOffsetY??-20); $('insLabelSize').value=Math.round(o.labelSize??10); $('insShowLabel').value=(o.showLabel===undefined||o.showLabel===null)?'inherit':String(o.showLabel);
+ $('insFill').value=o.fill||'#8b5cf6';
+ $('insBorder').value=o.borderColor||'#ffffff';
+ $('insTextColor').value=o.textColor||'#ffffff';
+ $('insOpacity').value=o.opacity??1;
+ $('insGlow').value=o.glow??0;
+}
+function applyInspector(){
+ const list=selectedObjects(); if(list.length!==1)return; const o=list[0];
+ o.x=num('insX',o.x||0); o.y=num('insY',o.y||0); o.w=num('insW',o.w||0); o.h=num('insH',o.h||0); o.rotate=num('insRotate',o.rotate||0); o.z=num('insZ',o.z||0); o.size=num('insSize',o.size||22); o.text=val('insText'); o.labelOffsetX=num('insLabelX',o.labelOffsetX??0); o.labelOffsetY=num('insLabelY',o.labelOffsetY??-20); o.labelSize=num('insLabelSize',o.labelSize??10);
+ const sl=val('insShowLabel'); if(sl==='inherit')delete o.showLabel; else o.showLabel=sl;
+ o.fill=val('insFill');
+ o.borderColor=val('insBorder');
+ o.textColor=val('insTextColor');
+ o.opacity=parseFloat($('insOpacity').value||1);
+ o.glow=parseFloat($('insGlow').value||0);
+ render();
+}
+['insX','insY','insW','insH','insRotate','insZ','insSize','insText','insFill','insBorder','insTextColor','insOpacity','insGlow','insLabelX','insLabelY','insLabelSize','insShowLabel'].forEach(id=>{const el=$(id); if(el)el.addEventListener('input',applyInspector); if(el)el.addEventListener('change',applyInspector)});
+function exportScene(){scene.canvas.width=cw();scene.canvas.height=ch();return scene} function loadScene(data){if(data&&data.format==='va-hall-ultra-scene'){scene=data}else{const oldSeats=Array.isArray(data.seats)?data.seats.map(s=>({...s,id:s.id||uid('seat'),type:s.type||'seat',layerId:'seats',w:Number(s.w||14),h:Number(s.h||14),x:Number(s.x||0),y:Number(s.y||0),labelOffsetX:Number(s.labelOffsetX??0),labelOffsetY:Number(s.labelOffsetY??-20),labelSize:Number(s.labelSize??10)})):[];const oldDecor=Array.isArray(data.decor)?data.decor.map(d=>({...d,id:d.id||uid(d.type||'box'),type:d.type||'box',layerId:d.type==='text'?'text':'architecture',x:Number(d.x||0),y:Number(d.y||0),w:Number(d.w||160),h:Number(d.h||80),text:d.text||d.label||''})):[];scene={...scene,objects:[...oldSeats,...oldDecor]};if(data.width&&data.height){scene.canvas.width=data.width;scene.canvas.height=data.height}} $('canvasW').value=scene.canvas.width||1280;$('canvasH').value=scene.canvas.height||900;applyCanvas();selected.clear();render();log('SCENE LOADED: '+scene.objects.length)}
+$('exportBtn').onclick=()=>{jsonOutput.value=JSON.stringify(exportScene(),null,2);log('EXPORTED')}; $('downloadBtn').onclick=()=>{const data=JSON.stringify(exportScene(),null,2);const blob=new Blob([data],{type:'application/json;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='va-hall-ultra-scene.json';a.click();URL.revokeObjectURL(a.href)}; $('saveBrowserBtn').onclick=()=>{localStorage.setItem('va_hall_ultra_autosave',JSON.stringify(exportScene()));log('SAVED')}; $('restoreBrowserBtn').onclick=()=>{const raw=localStorage.getItem('va_hall_ultra_autosave');if(raw)loadScene(JSON.parse(raw));else log('NO AUTOSAVE')}; $('importBtn').onclick=()=>{try{loadScene(JSON.parse(jsonOutput.value))}catch(e){alert('JSON не прочитался')}};
+applyCanvas();applyZoom();refreshLayers();render();log('READY: ULTRA Core v1')
 </script>
 </body>
 </html>
