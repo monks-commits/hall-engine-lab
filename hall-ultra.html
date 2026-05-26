@@ -36,6 +36,9 @@ textarea{min-height:260px;font-family:Consolas,monospace;font-size:12px}.row2{di
 #canvas{position:relative;background:#f8fafc;box-shadow:0 20px 60px rgba(0,0,0,.55);overflow:hidden;user-select:none;cursor:crosshair}
 .grid{position:absolute;inset:0;display:none;pointer-events:none;background-image:linear-gradient(to right,rgba(124,58,237,.16) 1px,transparent 1px),linear-gradient(to bottom,rgba(124,58,237,.16) 1px,transparent 1px);z-index:9998}
 .select-box{position:absolute;border:2px dashed var(--violet);background:rgba(124,58,237,.16);z-index:9999;pointer-events:none}
+.transform-box{position:absolute;border:2px solid rgba(124,58,237,.85);z-index:9996;pointer-events:none;box-shadow:0 0 0 2px rgba(255,255,255,.75)}
+.handle{position:absolute;width:12px;height:12px;background:#fff;border:2px solid #7c3aed;border-radius:50%;z-index:9999;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.35)}
+.handle-se{cursor:nwse-resize}.handle-sw{cursor:nesw-resize}.handle-ne{cursor:nesw-resize}.handle-nw{cursor:nwse-resize}.handle-rotate{width:14px;height:14px;background:#f59e0b;border-color:#fff;cursor:grab}
 .obj{position:absolute;box-sizing:border-box;cursor:pointer;user-select:none;transform-origin:center center}.obj.hidden{display:none}.obj.locked{cursor:not-allowed;opacity:.65}.obj.selected{outline:3px solid rgba(124,58,237,.72);outline-offset:4px}
 .obj-seat{border-radius:50%;background:#dc2626;border:2px solid #fff;box-shadow:0 2px 10px rgba(0,0,0,.35)}
 .obj-chair{background:#b91c1c;border:2px solid #fff;border-radius:8px 8px 5px 5px;box-shadow:inset 0 -7px 0 rgba(0,0,0,.24),0 3px 9px rgba(0,0,0,.28)}
@@ -126,7 +129,7 @@ const defaultLayers=[
  {id:'media',name:'Media',visible:true,locked:false,opacity:1,z:120}
 ];
 let scene={version:1,format:'va-hall-ultra-scene',meta:{title:'VA Hall Scene'},canvas:{width:1280,height:900,background:null},camera:{zoom:1,mode:'flat'},layers:structuredClone(defaultLayers),objects:[],media:[],mood:{preset:'neutral'},agents:{},interactions:{},exports:{}};
-let selected=new Set(),history=[],clipboard=[],idn=1,bgDataUrl='',bgNaturalW=0,bgNaturalH=0,gridShown=false,drag=null,selectBox=null,selectStart=null;
+let selected=new Set(),history=[],clipboard=[],idn=1,bgDataUrl='',bgNaturalW=0,bgNaturalH=0,gridShown=false,drag=null,selectBox=null,selectStart=null,transformDrag=null;
 const registry={seat:{layer:'seats'},chair:{layer:'seats'},table:{layer:'seats'},sofa:{layer:'seats'},box:{layer:'architecture'},zone:{layer:'architecture'},door:{layer:'architecture'},wall:{layer:'architecture'},arc:{layer:'architecture'},stage:{layer:'architecture'},bar:{layer:'architecture'},screen:{layer:'architecture'},text:{layer:'text'},label:{layer:'text'},note:{layer:'text'},media:{layer:'media'},light:{layer:'light'}};
 function uid(p){return p+'_'+Date.now()+'_'+(idn++)} function log(m){logBox.textContent=m||''} function val(id){return String(($(id)||{}).value||'').trim()} function num(id,f=0){const v=parseFloat(val(id));return Number.isFinite(v)?v:f} function cw(){return parseInt(canvas.style.width,10)||scene.canvas.width||1280} function ch(){return parseInt(canvas.style.height,10)||scene.canvas.height||900} function zoomValue(){return Math.max(25,Math.min(300,num('zoom',100)))/100} function snap(v){if(val('snap')!=='1')return Math.round(v);const g=Math.max(1,num('gridSize',20));return Math.round(v/g)*g} function point(e){const r=canvas.getBoundingClientRect(),z=zoomValue();return{x:snap((e.clientX-r.left)/z),y:snap((e.clientY-r.top)/z)}}
 function layerById(id){return scene.layers.find(l=>l.id===id)} function activeLayer(){return val('activeLayer')||'seats'} function objectLayer(o){return layerById(o.layerId)||layerById(registry[o.type]?.layer)||scene.layers[0]} function isLocked(o){return !!objectLayer(o)?.locked} function isVisible(o){return objectLayer(o)?.visible!==false} function selectedObjects(){return scene.objects.filter(o=>selected.has(o.id))} function objectById(id){return scene.objects.find(o=>o.id===id)} function seatKey(o){return `${o.prefix||''}${o.row||''}-M${o.seat||''}`}
@@ -138,15 +141,70 @@ function refreshLayers(){activeLayerEl.innerHTML=scene.layers.filter(l=>!l.locke
 function makeObject(type,x,y){const layerId=activeLayer()||registry[type]?.layer||'seats';const base={id:uid(type),type,layerId,x,y,w:num('objW',160),h:num('objH',80),rotate:num('objRotate',0),z:num('objZ',30),text:val('objText')||type,size:num('objSize',22),style:{}};
  if(type==='seat'||type==='chair'){base.zone=val('zone');base.prefix=val('prefix');base.row=String(num('row',1));base.seat=num('seat',1);base.w=type==='chair'?24:15;base.h=type==='chair'?22:15;base.labelOffsetX=num('labelOffsetX',0);base.labelOffsetY=num('labelOffsetY',-20);base.labelSize=num('labelSize',10);$('seat').value=base.seat+1}
  if(type==='table'){base.w=num('objW',82);base.h=num('objW',82)} if(type==='stage'){base.text=val('objText')||'СЦЕНА';base.w=num('objW',820);base.h=num('objH',95)} if(type==='wall'){base.w=num('objW',230);base.h=num('arcBorder',5);base.text=''} if(type==='arc'){base.w=num('arcW',520);base.h=num('arcH',140);base.border=num('arcBorder',5);base.text=''} if(type==='text'||type==='label'){base.w=0;base.h=0;base.text=val('objText')||'Текст'} if(type==='media'){base.text='MEDIA';base.w=num('objW',300);base.h=num('objH',180)} if(type==='light'){base.w=num('objW',220);base.h=num('objW',220);base.text=''} return base}
-function render(){canvas.querySelectorAll('.obj,.select-box,.seat-number').forEach(el=>el.remove()); refreshLayers();
+function render(){canvas.querySelectorAll('.obj,.select-box,.seat-number,.transform-box,.handle').forEach(el=>el.remove()); refreshLayers();
  scene.objects.slice().sort((a,b)=>((objectLayer(a)?.z||0)+(a.z||0))-((objectLayer(b)?.z||0)+(b.z||0))).forEach(o=>{if(!isVisible(o))return; const el=document.createElement('div'); el.className='obj obj-'+o.type; el.dataset.id=o.id; const layer=objectLayer(o); el.style.left=o.x+'px';el.style.top=o.y+'px';el.style.width=(o.w||0)+'px';el.style.height=(o.h||0)+'px';el.style.transform=`translate(-50%,-50%) rotate(${o.rotate||0}deg)`;el.style.zIndex=(layer?.z||0)+(o.z||0);el.style.opacity=layer?.opacity??1;if(isLocked(o))el.classList.add('locked'); if(selected.has(o.id))el.classList.add('selected');
   if(['box','door','zone','stage','bar','screen','table','media','note'].includes(o.type))el.textContent=o.text||o.type; if(o.type==='text'||o.type==='label'){el.textContent=o.text||'Текст';el.style.fontSize=(o.size||22)+'px'} if(o.type==='arc'){el.style.borderTop=(o.border||5)+'px solid #6b7280'} canvas.appendChild(el);
   if((o.type==='seat'||o.type==='chair')&&(String(o.showLabel ?? val('showSeatLabels'))==='1')){const lab=document.createElement('div');lab.className='seat-number';lab.textContent=(o.row||'')+'/'+(o.seat||'');lab.style.left=(Number(o.x||0)+Number(o.labelOffsetX??num('labelOffsetX',0)))+'px';lab.style.top=(Number(o.y||0)+Number(o.labelOffsetY??num('labelOffsetY',-20)))+'px';lab.style.fontSize=(Number(o.labelSize??num('labelSize',10)))+'px';lab.style.zIndex=9997;canvas.appendChild(lab)} });
- counter.innerHTML='Objects: '+scene.objects.length+'<br>Selected: '+selected.size+'<br>Layers: '+scene.layers.length+'<br>Canvas: '+cw()+'x'+ch(); updateInspector(); try{localStorage.setItem('va_hall_ultra_autosave',JSON.stringify(scene))}catch(e){} }
+ counter.innerHTML='Objects: '+scene.objects.length+'<br>Selected: '+selected.size+'<br>Layers: '+scene.layers.length+'<br>Canvas: '+cw()+'x'+ch(); renderTransformHandles(); updateInspector(); try{localStorage.setItem('va_hall_ultra_autosave',JSON.stringify(scene))}catch(e){} }
+function renderTransformHandles(){
+ const list=selectedObjects();
+ if(list.length!==1)return;
+ const o=list[0];
+ if(isLocked(o))return;
+ const w=Math.max(8,Number(o.w||0));
+ const h=Math.max(8,Number(o.h||0));
+ if((o.type==='text'||o.type==='label') && (!o.w||!o.h))return;
+ const left=Number(o.x||0)-w/2;
+ const top=Number(o.y||0)-h/2;
+ const box=document.createElement('div');
+ box.className='transform-box';
+ box.style.left=left+'px'; box.style.top=top+'px'; box.style.width=w+'px'; box.style.height=h+'px';
+ canvas.appendChild(box);
+ const points=[['nw',left,top],['ne',left+w,top],['sw',left,top+h],['se',left+w,top+h]];
+ points.forEach(([name,x,y])=>{
+  const hnd=document.createElement('div');
+  hnd.className='handle handle-'+name;
+  hnd.dataset.handle=name;
+  hnd.dataset.id=o.id;
+  hnd.style.left=(x-6)+'px'; hnd.style.top=(y-6)+'px';
+  canvas.appendChild(hnd);
+ });
+ const rot=document.createElement('div');
+ rot.className='handle handle-rotate';
+ rot.dataset.handle='rotate'; rot.dataset.id=o.id;
+ rot.style.left=(Number(o.x||0)-7)+'px'; rot.style.top=(top-34)+'px';
+ canvas.appendChild(rot);
+}
 function targetId(e){const el=e.target.closest('.obj');return el?el.dataset.id:null}
-canvas.addEventListener('pointerdown',e=>{const id=targetId(e),p=point(e); if(id){const obj=objectById(id); if(obj&&isLocked(obj))return log('LOCKED LAYER'); if(!selected.has(id)){if(!e.shiftKey)selected.clear();selected.add(id);render()} drag={start:p,orig:selectedObjects().map(o=>({id:o.id,x:o.x,y:o.y}))}; return} selectStart=p;selectBox=document.createElement('div');selectBox.className='select-box';Object.assign(selectBox.style,{left:p.x+'px',top:p.y+'px',width:'0px',height:'0px'});canvas.appendChild(selectBox)});
-canvas.addEventListener('pointermove',e=>{const p=point(e); if(drag){const dx=p.x-drag.start.x,dy=p.y-drag.start.y;drag.orig.forEach(a=>{const o=objectById(a.id);if(o&&!isLocked(o)){o.x=snap(a.x+dx);o.y=snap(a.y+dy)}});render();return} if(selectBox&&selectStart){const l=Math.min(selectStart.x,p.x),t=Math.min(selectStart.y,p.y),w=Math.abs(p.x-selectStart.x),h=Math.abs(p.y-selectStart.y);Object.assign(selectBox.style,{left:l+'px',top:t+'px',width:w+'px',height:h+'px'})}});
-canvas.addEventListener('pointerup',e=>{if(drag){save();drag=null;render();return} if(selectBox&&selectStart){const w=parseFloat(selectBox.style.width)||0,h=parseFloat(selectBox.style.height)||0;if(w<5&&h<5){save();const p=point(e),o=makeObject(val('mode'),p.x,p.y);scene.objects.push(o);selected.clear();selected.add(o.id);log('ADDED: '+o.type)} else {const l=parseFloat(selectBox.style.left),t=parseFloat(selectBox.style.top),r=l+w,b=t+h;if(!e.shiftKey)selected.clear();scene.objects.forEach(o=>{if(!isVisible(o)||isLocked(o))return;if(o.x>=l&&o.x<=r&&o.y>=t&&o.y<=b)selected.add(o.id)});log('SELECTED: '+selected.size)} selectBox.remove();selectBox=null;selectStart=null;render()}});
+function handleTarget(e){const el=e.target.closest('.handle');return el?{id:el.dataset.id,handle:el.dataset.handle}:null}
+canvas.addEventListener('pointerdown',e=>{const ht=handleTarget(e),p=point(e); if(ht){
+ const o=objectById(ht.id); if(!o||isLocked(o))return;
+ e.preventDefault(); e.stopPropagation(); save(); selected.clear(); selected.add(o.id);
+ transformDrag={type:ht.handle,start:p,orig:JSON.parse(JSON.stringify(o)),center:{x:o.x,y:o.y}};
+ return;
+}
+const id=targetId(e); if(id){const obj=objectById(id); if(obj&&isLocked(obj))return log('LOCKED LAYER'); if(!selected.has(id)){if(!e.shiftKey)selected.clear();selected.add(id);render()} drag={start:p,orig:selectedObjects().map(o=>({id:o.id,x:o.x,y:o.y}))}; return} selectStart=p;selectBox=document.createElement('div');selectBox.className='select-box';Object.assign(selectBox.style,{left:p.x+'px',top:p.y+'px',width:'0px',height:'0px'});canvas.appendChild(selectBox)});
+canvas.addEventListener('pointermove',e=>{const p=point(e); if(transformDrag){
+ const o=objectById(transformDrag.orig.id); if(!o)return;
+ const dx=p.x-transformDrag.start.x, dy=p.y-transformDrag.start.y;
+ if(transformDrag.type==='rotate'){
+  const a=Math.atan2(p.y-transformDrag.center.y,p.x-transformDrag.center.x)*180/Math.PI;
+  o.rotate=Math.round(a+90);
+ } else {
+  let w=Number(transformDrag.orig.w||20), h=Number(transformDrag.orig.h||20);
+  let x=Number(transformDrag.orig.x||0), y=Number(transformDrag.orig.y||0);
+  if(transformDrag.type.includes('e')) w=Math.max(6,w+dx);
+  if(transformDrag.type.includes('s')) h=Math.max(6,h+dy);
+  if(transformDrag.type.includes('w')){w=Math.max(6,w-dx); x=Number(transformDrag.orig.x||0)+dx/2;}
+  if(transformDrag.type.includes('n')){h=Math.max(6,h-dy); y=Number(transformDrag.orig.y||0)+dy/2;}
+  if(transformDrag.type.includes('e')) x=Number(transformDrag.orig.x||0)+dx/2;
+  if(transformDrag.type.includes('s')) y=Number(transformDrag.orig.y||0)+dy/2;
+  o.w=Math.round(w); o.h=Math.round(h); o.x=Math.round(x); o.y=Math.round(y);
+ }
+ render(); return;
+}
+if(drag){const dx=p.x-drag.start.x,dy=p.y-drag.start.y;drag.orig.forEach(a=>{const o=objectById(a.id);if(o&&!isLocked(o)){o.x=snap(a.x+dx);o.y=snap(a.y+dy)}});render();return} if(selectBox&&selectStart){const l=Math.min(selectStart.x,p.x),t=Math.min(selectStart.y,p.y),w=Math.abs(p.x-selectStart.x),h=Math.abs(p.y-selectStart.y);Object.assign(selectBox.style,{left:l+'px',top:t+'px',width:w+'px',height:h+'px'})}});
+canvas.addEventListener('pointerup',e=>{if(transformDrag){transformDrag=null;render();return} if(drag){save();drag=null;render();return} if(selectBox&&selectStart){const w=parseFloat(selectBox.style.width)||0,h=parseFloat(selectBox.style.height)||0;if(w<5&&h<5){save();const p=point(e),o=makeObject(val('mode'),p.x,p.y);scene.objects.push(o);selected.clear();selected.add(o.id);log('ADDED: '+o.type)} else {const l=parseFloat(selectBox.style.left),t=parseFloat(selectBox.style.top),r=l+w,b=t+h;if(!e.shiftKey)selected.clear();scene.objects.forEach(o=>{if(!isVisible(o)||isLocked(o))return;if(o.x>=l&&o.x<=r&&o.y>=t&&o.y<=b)selected.add(o.id)});log('SELECTED: '+selected.size)} selectBox.remove();selectBox=null;selectStart=null;render()}});
 canvas.addEventListener('dblclick',e=>{const id=targetId(e);if(!id)return;const o=objectById(id);if(o&&isLocked(o))return;save();scene.objects=scene.objects.filter(x=>x.id!==id);selected.delete(id);render()});
 imageLoader.addEventListener('change',e=>{const f=e.target.files&&e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=ev=>{bgDataUrl=ev.target.result;const im=new Image();im.onload=()=>{bgNaturalW=im.naturalWidth;bgNaturalH=im.naturalHeight;applyBg();render();log('BACKGROUND LOADED')};im.src=bgDataUrl};rd.readAsDataURL(f)});
 $('applyCanvasBtn').onclick=applyCanvas; $('applyBgBtn').onclick=()=>{applyBg();render()}; $('clearBgBtn').onclick=()=>{bgDataUrl='';bgNaturalW=0;bgNaturalH=0;canvas.style.backgroundImage='';imageLoader.value='';scene.canvas.background=null;render();log('BACKGROUND CLEARED')}; $('zoom').oninput=applyZoom; $('gridBtn').onclick=()=>{gridShown=!gridShown;grid.style.display=gridShown?'block':'none';grid.style.backgroundSize=num('gridSize',20)+'px '+num('gridSize',20)+'px'};
