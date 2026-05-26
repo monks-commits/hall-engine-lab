@@ -809,126 +809,92 @@ function render(){
   });
 
   // 2. Потом рисуем подписи и сцену ПОВЕРХ мест
+
   decor.forEach(d => {
-    if (d.type === "text") {
-      const el = document.createElement("div");
-
-      el.className = "decor-text obj";
-      el.dataset.id = d.id;
-
-      el.style.left = d.x + "px";
-      el.style.top = d.y + "px";
-      el.style.fontSize = (d.size || 24) + "px";
-      el.style.fontWeight = d.weight || "700";
-      el.style.transform =
-        `translate(-50%,-50%) rotate(${d.rotate || 0}deg)`;
-      el.style.zIndex = "40";
-
-      el.textContent = d.text || "Текст";
-
-      if (selected.has(d.id)) {
-        el.classList.add("selected");
-      }
-
-      canvas.appendChild(el);
-    }
-
-    if (d.type === "stage") {
-      const el = document.createElement("div");
-
-      el.className = "decor-stage obj";
-      el.dataset.id = d.id;
-
-      el.style.left = d.x + "px";
-      el.style.top = d.y + "px";
-      el.style.width = (d.w || 1500) + "px";
-      el.style.height = (d.h || 120) + "px";
-      el.style.fontSize = (d.size || 44) + "px";
-      el.style.zIndex = "35";
-
-      el.textContent = d.text || "СЦЕНА";
-
-      if (selected.has(d.id)) {
-        el.classList.add("selected");
-      }
-
-if (d.type === "box") {
   const el = document.createElement("div");
-  el.className = "decor-box obj";
+  el.className = `decor-${d.type} obj`;
   el.dataset.id = d.id;
 
+  el.style.position = "absolute";
   el.style.left = d.x + "px";
   el.style.top = d.y + "px";
-  el.style.width = (d.w || 160) + "px";
-  el.style.height = (d.h || 80) + "px";
-  el.style.fontSize = (d.size || 18) + "px";
-  el.style.fontWeight = d.weight || "700";
-  el.style.transform =
-    `translate(-50%,-50%) rotate(${d.rotate || 0}deg)`;
-  el.style.zIndex = "32";
+  el.style.boxSizing = "border-box";
+  el.style.transform = `translate(-50%,-50%) rotate(${d.rotate || 0}deg)`;
+  el.style.zIndex = "80";
+  el.style.cursor = "pointer";
+  el.style.userSelect = "none";
 
-  el.textContent = d.text || "Ложа";
-  if (selected.has(d.id)) el.classList.add("selected");
+  if (d.type === "text") {
+    el.textContent = d.text || "Текст";
+    el.style.fontSize = (d.size || 24) + "px";
+    el.style.fontWeight = d.weight || "700";
+    el.style.whiteSpace = "nowrap";
+  }
+
+  if (d.type === "stage") {
+    el.textContent = d.text || "СЦЕНА";
+    el.style.width = (d.w || 1500) + "px";
+    el.style.height = (d.h || 120) + "px";
+    el.style.background = "#04a9e8";
+    el.style.color = "#fff";
+    el.style.display = "flex";
+    el.style.alignItems = "center";
+    el.style.justifyContent = "center";
+    el.style.fontWeight = "900";
+    el.style.fontSize = (d.size || 44) + "px";
+  }
+
+  if (d.type === "box") {
+    el.textContent = d.text || "Ложа";
+    el.style.width = (d.w || 160) + "px";
+    el.style.height = (d.h || 80) + "px";
+    el.style.border = "2px solid #6b7280";
+    el.style.borderRadius = "12px";
+    el.style.background = "rgba(255,255,255,.8)";
+    el.style.display = "flex";
+    el.style.alignItems = "center";
+    el.style.justifyContent = "center";
+    el.style.fontWeight = d.weight || "700";
+    el.style.fontSize = (d.size || 18) + "px";
+  }
+
+  if (d.type === "door") {
+    el.textContent = d.text || "Вхід";
+    el.style.width = (d.w || 70) + "px";
+    el.style.height = (d.h || 90) + "px";
+    el.style.border = "3px solid #6b7280";
+    el.style.borderBottom = "none";
+    el.style.borderRadius = "12px 12px 0 0";
+    el.style.background = "rgba(255,255,255,.85)";
+    el.style.display = "flex";
+    el.style.alignItems = "center";
+    el.style.justifyContent = "center";
+    el.style.fontWeight = "700";
+    el.style.fontSize = (d.size || 14) + "px";
+  }
+
+  if (d.type === "wall") {
+    el.style.width = (d.w || 220) + "px";
+    el.style.height = (d.h || 4) + "px";
+    el.style.background = "#6b7280";
+    el.style.borderRadius = "999px";
+  }
+
+  if (d.type === "arc") {
+    el.style.width = (d.w || 500) + "px";
+    el.style.height = (d.h || 140) + "px";
+    el.style.borderTop = (d.border || 4) + "px solid #6b7280";
+    el.style.borderRadius = "50% 50% 0 0";
+  }
+
+  if (selected.has(d.id)) {
+    el.classList.add("selected");
+    el.style.outline = "3px solid rgba(37,99,235,.45)";
+    el.style.outlineOffset = "3px";
+  }
+
   canvas.appendChild(el);
-}
-
-if (d.type === "door") {
-  const el = document.createElement("div");
-  el.className = "decor-door obj";
-  el.dataset.id = d.id;
-
-  el.style.left = d.x + "px";
-  el.style.top = d.y + "px";
-  el.style.width = (d.w || 70) + "px";
-  el.style.height = (d.h || 90) + "px";
-  el.style.fontSize = (d.size || 14) + "px";
-  el.style.transform =
-    `translate(-50%,-50%) rotate(${d.rotate || 0}deg)`;
-  el.style.zIndex = "31";
-
-  el.textContent = d.text || "Вхід";
-  if (selected.has(d.id)) el.classList.add("selected");
-  canvas.appendChild(el);
-}
-
-if (d.type === "wall") {
-  const el = document.createElement("div");
-  el.className = "decor-wall obj";
-  el.dataset.id = d.id;
-
-  el.style.left = d.x + "px";
-  el.style.top = d.y + "px";
-  el.style.width = (d.w || 220) + "px";
-  el.style.height = (d.h || 4) + "px";
-  el.style.transform =
-    `translate(-50%,-50%) rotate(${d.rotate || 0}deg)`;
-  el.style.zIndex = "30";
-
-  if (selected.has(d.id)) el.classList.add("selected");
-  canvas.appendChild(el);
-}
-
-if (d.type === "arc") {
-  const el = document.createElement("div");
-  el.className = "decor-arc obj";
-  el.dataset.id = d.id;
-
-  el.style.left = d.x + "px";
-  el.style.top = d.y + "px";
-  el.style.width = (d.w || 500) + "px";
-  el.style.height = (d.h || 140) + "px";
-  el.style.borderTopWidth = (d.border || 4) + "px";
-  el.style.transform =
-    `translate(-50%,-50%) rotate(${d.rotate || 0}deg)`;
-  el.style.zIndex = "29";
-
-  if (selected.has(d.id)) el.classList.add("selected");
-  canvas.appendChild(el);
-}
-      
-      canvas.appendChild(el);
-    }
-  });
+});
 
   counter.innerHTML =
     "Мест: " + seats.length + "<br>" +
