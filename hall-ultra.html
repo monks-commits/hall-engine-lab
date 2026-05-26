@@ -82,17 +82,23 @@ textarea{min-height:260px;font-family:Consolas,monospace;font-size:12px}.row2{di
     <div class="row3"><div class="field"><label>Label X</label><input id="labelOffsetX" type="number" value="0"></div><div class="field"><label>Label Y</label><input id="labelOffsetY" type="number" value="-20"></div><div class="field"><label>Size</label><input id="labelSize" type="number" value="10"></div></div>
     <div class="field"><label>Show Labels</label><select id="showSeatLabels"><option value="1">Да</option><option value="0">Нет</option></select></div>
 
-    <h2>6. Object Defaults</h2>
+    <h2>6. Curved Row</h2>
+    <div class="row3"><div class="field"><label>Seats</label><input id="curveSeats" type="number" value="12"></div><div class="field"><label>Curve</label><input id="curveDepth" type="number" value="45"></div><div class="field"><label>Row</label><input id="curveRow" type="number" value="1"></div></div>
+    <div class="row2"><button class="btn purple" id="curveStartBtn">SET START</button><button class="btn purple" id="curveEndBtn">SET END</button></div>
+    <button class="btn green" id="buildCurveBtn">BUILD CURVED ROW</button>
+    <div class="small" id="curveInfo">Start: — / End: —</div>
+
+    <h2>7. Object Defaults</h2>
     <div class="field"><label>Text</label><input id="objText" value="Текст"></div>
     <div class="row2"><div class="field"><label>W</label><input id="objW" type="number" value="160"></div><div class="field"><label>H</label><input id="objH" type="number" value="80"></div></div>
     <div class="row3"><div class="field"><label>Size</label><input id="objSize" type="number" value="22"></div><div class="field"><label>Rotate</label><input id="objRotate" type="number" value="0"></div><div class="field"><label>Z</label><input id="objZ" type="number" value="30"></div></div>
     <div class="row3"><div class="field"><label>Arc W</label><input id="arcW" type="number" value="520"></div><div class="field"><label>Arc H</label><input id="arcH" type="number" value="140"></div><div class="field"><label>Border</label><input id="arcBorder" type="number" value="5"></div></div>
 
-    <h2>7. Grid / Zoom</h2>
+    <h2>8. Grid / Zoom</h2>
     <div class="field"><label>Zoom</label><input id="zoom" type="range" min="25" max="300" value="100"></div><div class="counter" id="zoomLabel">Zoom: 100%</div>
     <div class="row2"><div class="field"><label>Grid</label><input id="gridSize" type="number" value="20"></div><div class="field"><label>Snap</label><select id="snap"><option value="0">Off</option><option value="1">On</option></select></div></div>
     <button class="btn" id="gridBtn">СЕТКА ВКЛ / ВЫКЛ</button>
-    <h2>8. ULTRA View</h2>
+    <h2>9. ULTRA View</h2>
     <button class="btn gold" id="previewBtn">PREVIEW MODE: OFF</button>
     <div class="small">Навигация: SPACE + drag = pan, колесо мыши = zoom к курсору.</div>
   </aside>
@@ -135,6 +141,7 @@ let scene={version:1,format:'va-hall-ultra-scene',meta:{title:'VA Hall Scene'},c
 let selected=new Set(),history=[],clipboard=[],idn=1,bgDataUrl='',bgNaturalW=0,bgNaturalH=0,gridShown=false,drag=null,selectBox=null,selectStart=null,transformDrag=null;
 let pan={active:false,space:false,startX:0,startY:0,scrollLeft:0,scrollTop:0};
 let previewMode=false;
+let curveTool={mode:null,start:null,end:null};
 const registry={seat:{layer:'seats'},chair:{layer:'seats'},table:{layer:'seats'},sofa:{layer:'seats'},box:{layer:'architecture'},zone:{layer:'architecture'},door:{layer:'architecture'},wall:{layer:'architecture'},arc:{layer:'architecture'},stage:{layer:'architecture'},bar:{layer:'architecture'},screen:{layer:'architecture'},text:{layer:'text'},label:{layer:'text'},note:{layer:'text'},media:{layer:'media'},light:{layer:'light'}};
 function uid(p){return p+'_'+Date.now()+'_'+(idn++)} function log(m){logBox.textContent=m||''} function val(id){return String(($(id)||{}).value||'').trim()} function num(id,f=0){const v=parseFloat(val(id));return Number.isFinite(v)?v:f} function cw(){return parseInt(canvas.style.width,10)||scene.canvas.width||1280} function ch(){return parseInt(canvas.style.height,10)||scene.canvas.height||900} function zoomValue(){return Math.max(25,Math.min(300,num('zoom',100)))/100} function snap(v){if(val('snap')!=='1')return Math.round(v);const g=Math.max(1,num('gridSize',20));return Math.round(v/g)*g} function point(e){const r=canvas.getBoundingClientRect(),z=zoomValue();return{x:snap((e.clientX-r.left)/z),y:snap((e.clientY-r.top)/z)}}
 function layerById(id){return scene.layers.find(l=>l.id===id)} function activeLayer(){return val('activeLayer')||'seats'} function objectLayer(o){return layerById(o.layerId)||layerById(registry[o.type]?.layer)||scene.layers[0]} function isLocked(o){return !!objectLayer(o)?.locked} function isVisible(o){return objectLayer(o)?.visible!==false} function selectedObjects(){return scene.objects.filter(o=>selected.has(o.id))} function objectById(id){return scene.objects.find(o=>o.id===id)} function seatKey(o){return `${o.prefix||''}${o.row||''}-M${o.seat||''}`}
@@ -214,9 +221,51 @@ canvas.addEventListener('pointermove',e=>{const p=point(e); if(transformDrag){
  render(); return;
 }
 if(drag){const dx=p.x-drag.start.x,dy=p.y-drag.start.y;drag.orig.forEach(a=>{const o=objectById(a.id);if(o&&!isLocked(o)){o.x=snap(a.x+dx);o.y=snap(a.y+dy)}});render();return} if(selectBox&&selectStart){const l=Math.min(selectStart.x,p.x),t=Math.min(selectStart.y,p.y),w=Math.abs(p.x-selectStart.x),h=Math.abs(p.y-selectStart.y);Object.assign(selectBox.style,{left:l+'px',top:t+'px',width:w+'px',height:h+'px'})}});
-canvas.addEventListener('pointerup',e=>{if(transformDrag){transformDrag=null;render();return} if(drag){save();drag=null;render();return} if(selectBox&&selectStart){const w=parseFloat(selectBox.style.width)||0,h=parseFloat(selectBox.style.height)||0;if(w<5&&h<5){save();const p=point(e),o=makeObject(val('mode'),p.x,p.y);scene.objects.push(o);selected.clear();selected.add(o.id);log('ADDED: '+o.type)} else {const l=parseFloat(selectBox.style.left),t=parseFloat(selectBox.style.top),r=l+w,b=t+h;if(!e.shiftKey)selected.clear();scene.objects.forEach(o=>{if(!isVisible(o)||isLocked(o))return;if(o.x>=l&&o.x<=r&&o.y>=t&&o.y<=b)selected.add(o.id)});log('SELECTED: '+selected.size)} selectBox.remove();selectBox=null;selectStart=null;render()}});
+canvas.addEventListener('pointerup',e=>{if(transformDrag){transformDrag=null;render();return} if(drag){save();drag=null;render();return} if(selectBox&&selectStart){const w=parseFloat(selectBox.style.width)||0,h=parseFloat(selectBox.style.height)||0;if(w<5&&h<5){const p=point(e);
+  if(curveTool.mode==='start'){curveTool.start=p;curveTool.mode=null;log('CURVE START SET: '+p.x+'/'+p.y);updateCurveInfo();selectBox.remove();selectBox=null;selectStart=null;render();return}
+  if(curveTool.mode==='end'){curveTool.end=p;curveTool.mode=null;log('CURVE END SET: '+p.x+'/'+p.y);updateCurveInfo();selectBox.remove();selectBox=null;selectStart=null;render();return}
+  save();const o=makeObject(val('mode'),p.x,p.y);scene.objects.push(o);selected.clear();selected.add(o.id);log('ADDED: '+o.type)
+} else {const l=parseFloat(selectBox.style.left),t=parseFloat(selectBox.style.top),r=l+w,b=t+h;if(!e.shiftKey)selected.clear();scene.objects.forEach(o=>{if(!isVisible(o)||isLocked(o))return;if(o.x>=l&&o.x<=r&&o.y>=t&&o.y<=b)selected.add(o.id)});log('SELECTED: '+selected.size)} selectBox.remove();selectBox=null;selectStart=null;render()}});
 canvas.addEventListener('dblclick',e=>{const id=targetId(e);if(!id)return;const o=objectById(id);if(o&&isLocked(o))return;save();scene.objects=scene.objects.filter(x=>x.id!==id);selected.delete(id);render()});
 imageLoader.addEventListener('change',e=>{const f=e.target.files&&e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=ev=>{bgDataUrl=ev.target.result;const im=new Image();im.onload=()=>{bgNaturalW=im.naturalWidth;bgNaturalH=im.naturalHeight;applyBg();render();log('BACKGROUND LOADED')};im.src=bgDataUrl};rd.readAsDataURL(f)});
+function updateCurveInfo(){
+ const s=curveTool.start?curveTool.start.x+'/'+curveTool.start.y:'—';
+ const e=curveTool.end?curveTool.end.x+'/'+curveTool.end.y:'—';
+ const el=$('curveInfo'); if(el)el.textContent='Start: '+s+' / End: '+e;
+}
+function buildCurvedRow(){
+ if(!curveTool.start||!curveTool.end)return log('CURVED ROW: задайте START и END.');
+ const count=Math.max(2,Math.round(num('curveSeats',12)));
+ const depth=num('curveDepth',45);
+ const row=String(num('curveRow',num('row',1)));
+ const startSeat=num('seat',1);
+ const a=curveTool.start,b=curveTool.end;
+ const dx=b.x-a.x, dy=b.y-a.y;
+ const len=Math.max(1,Math.sqrt(dx*dx+dy*dy));
+ const nx=-dy/len, ny=dx/len;
+ save(); selected.clear();
+ for(let i=0;i<count;i++){
+   const t=i/(count-1);
+   const baseX=a.x+dx*t;
+   const baseY=a.y+dy*t;
+   const curve=Math.sin(Math.PI*t)*depth;
+   const x=Math.round(baseX+nx*curve);
+   const y=Math.round(baseY+ny*curve);
+   const o=makeObject('chair',x,y);
+   o.row=row;
+   o.seat=startSeat+i;
+   o.rotate=Math.round(Math.atan2(dy,dx)*180/Math.PI);
+   o.text='';
+   scene.objects.push(o);
+   selected.add(o.id);
+ }
+ $('seat').value=startSeat+count;
+ render();
+ log('CURVED ROW OK: '+count+' кресел, row '+row+', seats '+startSeat+'–'+(startSeat+count-1));
+}
+$('curveStartBtn').onclick=()=>{curveTool.mode='start';log('CURVE: кликните точку START на холсте.')};
+$('curveEndBtn').onclick=()=>{curveTool.mode='end';log('CURVE: кликните точку END на холсте.')};
+$('buildCurveBtn').onclick=buildCurvedRow;
 $('applyCanvasBtn').onclick=applyCanvas; $('applyBgBtn').onclick=()=>{applyBg();render()}; $('clearBgBtn').onclick=()=>{bgDataUrl='';bgNaturalW=0;bgNaturalH=0;canvas.style.backgroundImage='';imageLoader.value='';scene.canvas.background=null;render();log('BACKGROUND CLEARED')}; $('zoom').oninput=applyZoom; $('gridBtn').onclick=()=>{gridShown=!gridShown;grid.style.display=gridShown?'block':'none';grid.style.backgroundSize=num('gridSize',20)+'px '+num('gridSize',20)+'px'};
 $('previewBtn').onclick=()=>{
  previewMode=!previewMode;
