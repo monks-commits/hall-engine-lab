@@ -84,6 +84,7 @@ textarea{min-height:260px;font-family:Consolas,monospace;font-size:12px}.row2{di
 
     <h2>6. Curved Row</h2>
     <div class="row3"><div class="field"><label>Seats</label><input id="curveSeats" type="number" value="12"></div><div class="field"><label>Curve</label><input id="curveDepth" type="number" value="45"></div><div class="field"><label>Row</label><input id="curveRow" type="number" value="1"></div></div>
+    <div class="row2"><div class="field"><label>Spacing</label><input id="curveSpacing" type="number" value="34"></div><div class="field"><label>Auto Fit</label><select id="curveAutoFit"><option value="1">On</option><option value="0">Off</option></select></div></div>
     <div class="row2"><button class="btn purple" id="curveStartBtn">SET START</button><button class="btn purple" id="curveEndBtn">SET END</button></div>
     <button class="btn green" id="buildCurveBtn">BUILD CURVED ROW</button>
     <div class="small" id="curveInfo">Start: — / End: —</div>
@@ -239,29 +240,34 @@ function buildCurvedRow(){
  const depth=num('curveDepth',45);
  const row=String(num('curveRow',num('row',1)));
  const startSeat=num('seat',1);
+ const spacing=Math.max(4,num('curveSpacing',34));
+ const autoFit=val('curveAutoFit')==='1';
  const a=curveTool.start,b=curveTool.end;
- const dx=b.x-a.x, dy=b.y-a.y;
- const len=Math.max(1,Math.sqrt(dx*dx+dy*dy));
- const nx=-dy/len, ny=dx/len;
+ let dx=b.x-a.x, dy=b.y-a.y;
+ let len=Math.max(1,Math.sqrt(dx*dx+dy*dy));
+ const ux=dx/len, uy=dy/len;
+ const nx=-uy, ny=ux;
+ const totalLen=autoFit?len:spacing*(count-1);
  save(); selected.clear();
  for(let i=0;i<count;i++){
    const t=i/(count-1);
-   const baseX=a.x+dx*t;
-   const baseY=a.y+dy*t;
+   const dist=autoFit?len*t:spacing*i;
+   const baseX=a.x+ux*dist;
+   const baseY=a.y+uy*dist;
    const curve=Math.sin(Math.PI*t)*depth;
    const x=Math.round(baseX+nx*curve);
    const y=Math.round(baseY+ny*curve);
    const o=makeObject('chair',x,y);
    o.row=row;
    o.seat=startSeat+i;
-   o.rotate=Math.round(Math.atan2(dy,dx)*180/Math.PI);
+   o.rotate=Math.round(Math.atan2(uy,ux)*180/Math.PI);
    o.text='';
    scene.objects.push(o);
    selected.add(o.id);
  }
  $('seat').value=startSeat+count;
  render();
- log('CURVED ROW OK: '+count+' кресел, row '+row+', seats '+startSeat+'–'+(startSeat+count-1));
+ log('CURVED ROW OK: '+count+' кресел, spacing '+(autoFit?'auto':spacing)+', row '+row+', seats '+startSeat+'–'+(startSeat+count-1));
 }
 $('curveStartBtn').onclick=()=>{curveTool.mode='start';log('CURVE: кликните точку START на холсте.')};
 $('curveEndBtn').onclick=()=>{curveTool.mode='end';log('CURVE: кликните точку END на холсте.')};
