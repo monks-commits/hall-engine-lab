@@ -89,17 +89,22 @@ textarea{min-height:260px;font-family:Consolas,monospace;font-size:12px}.row2{di
     <button class="btn green" id="buildCurveBtn">BUILD CURVED ROW</button>
     <div class="small" id="curveInfo">Start: — / End: —</div>
 
-    <h2>7. Object Defaults</h2>
+    <h2>7. Table Composer</h2>
+    <div class="row3"><div class="field"><label>Capacity</label><input id="tableCapacity" type="number" value="6"></div><div class="field"><label>Radius</label><input id="tableRadius" type="number" value="70"></div><div class="field"><label>Start №</label><input id="tableStartSeat" type="number" value="1"></div></div>
+    <div class="row2"><div class="field"><label>Table Size</label><input id="tableSize" type="number" value="70"></div><div class="field"><label>Type</label><select id="tableType"><option value="round">Round</option><option value="square">Square</option><option value="vip">VIP</option></select></div></div>
+    <button class="btn green" id="buildTableBtn">BUILD SMART TABLE</button>
+
+    <h2>8. Object Defaults</h2>
     <div class="field"><label>Text</label><input id="objText" value="Текст"></div>
     <div class="row2"><div class="field"><label>W</label><input id="objW" type="number" value="160"></div><div class="field"><label>H</label><input id="objH" type="number" value="80"></div></div>
     <div class="row3"><div class="field"><label>Size</label><input id="objSize" type="number" value="22"></div><div class="field"><label>Rotate</label><input id="objRotate" type="number" value="0"></div><div class="field"><label>Z</label><input id="objZ" type="number" value="30"></div></div>
     <div class="row3"><div class="field"><label>Arc W</label><input id="arcW" type="number" value="520"></div><div class="field"><label>Arc H</label><input id="arcH" type="number" value="140"></div><div class="field"><label>Border</label><input id="arcBorder" type="number" value="5"></div></div>
 
-    <h2>8. Grid / Zoom</h2>
+    <h2>9. Grid / Zoom</h2>
     <div class="field"><label>Zoom</label><input id="zoom" type="range" min="25" max="300" value="100"></div><div class="counter" id="zoomLabel">Zoom: 100%</div>
     <div class="row2"><div class="field"><label>Grid</label><input id="gridSize" type="number" value="20"></div><div class="field"><label>Snap</label><select id="snap"><option value="0">Off</option><option value="1">On</option></select></div></div>
     <button class="btn" id="gridBtn">СЕТКА ВКЛ / ВЫКЛ</button>
-    <h2>9. ULTRA View</h2>
+    <h2>10. ULTRA View</h2>
     <button class="btn gold" id="previewBtn">PREVIEW MODE: OFF</button>
     <div class="small">Навигация: SPACE + drag = pan, колесо мыши = zoom к курсору.</div>
   </aside>
@@ -272,6 +277,45 @@ function buildCurvedRow(){
 $('curveStartBtn').onclick=()=>{curveTool.mode='start';log('CURVE: кликните точку START на холсте.')};
 $('curveEndBtn').onclick=()=>{curveTool.mode='end';log('CURVE: кликните точку END на холсте.')};
 $('buildCurveBtn').onclick=buildCurvedRow;
+function buildSmartTable(){
+ const center={x:cw()/2,y:ch()/2};
+ const count=Math.max(1,Math.round(num('tableCapacity',6)));
+ const radius=Math.max(20,num('tableRadius',70));
+ const tableSize=Math.max(20,num('tableSize',70));
+ const startSeat=num('tableStartSeat',1);
+ const tableType=val('tableType')||'round';
+ const row=String(num('row',1));
+ const layerId=activeLayer()||'seats';
+ save(); selected.clear();
+ const table={
+   id:uid('table'),type:'table',layerId,
+   x:center.x,y:center.y,w:tableSize,h:tableType==='square'?tableSize:tableSize,
+   rotate:0,z:num('objZ',30),text:val('objText')||'Стіл',size:num('objSize',16),
+   tableType,capacity:count,zone:val('zone'),style:{}
+ };
+ if(tableType==='square'){table.style.shape='square';}
+ if(tableType==='vip'){table.type='box';table.text=val('objText')||'VIP';table.w=tableSize*1.8;table.h=tableSize;}
+ scene.objects.push(table); selected.add(table.id);
+ for(let i=0;i<count;i++){
+   const a=(-90 + i*(360/count))*Math.PI/180;
+   const x=Math.round(center.x+Math.cos(a)*radius);
+   const y=Math.round(center.y+Math.sin(a)*radius);
+   const chair=makeObject('chair',x,y);
+   chair.layerId=layerId;
+   chair.zone=val('zone');
+   chair.prefix=val('prefix')||'T';
+   chair.row=row;
+   chair.seat=startSeat+i;
+   chair.rotate=Math.round(a*180/Math.PI+90);
+   chair.parentId=table.id;
+   chair.text='';
+   scene.objects.push(chair); selected.add(chair.id);
+ }
+ $('seat').value=startSeat+count;
+ render();
+ log('SMART TABLE OK: '+count+' місць, radius '+radius);
+}
+$('buildTableBtn').onclick=buildSmartTable;
 $('applyCanvasBtn').onclick=applyCanvas; $('applyBgBtn').onclick=()=>{applyBg();render()}; $('clearBgBtn').onclick=()=>{bgDataUrl='';bgNaturalW=0;bgNaturalH=0;canvas.style.backgroundImage='';imageLoader.value='';scene.canvas.background=null;render();log('BACKGROUND CLEARED')}; $('zoom').oninput=applyZoom; $('gridBtn').onclick=()=>{gridShown=!gridShown;grid.style.display=gridShown?'block':'none';grid.style.backgroundSize=num('gridSize',20)+'px '+num('gridSize',20)+'px'};
 $('previewBtn').onclick=()=>{
  previewMode=!previewMode;
