@@ -56,6 +56,7 @@ textarea{min-height:260px;font-family:Consolas,monospace;font-size:12px}
 .obj-screen{background:#111827;color:#dbeafe;border:2px solid #60a5fa;display:flex;align-items:center;justify-content:center;font-weight:900}
 .obj-text{color:#111827;font-weight:900;white-space:nowrap}
 .obj-label{color:#374151;font-weight:800;white-space:nowrap;background:rgba(255,255,255,.75);padding:4px 8px;border-radius:8px}
+.seat-number{position:absolute;transform:translate(-50%,-50%);background:rgba(255,255,255,.9);color:#111827;border:1px solid #d1d5db;border-radius:5px;padding:1px 4px;font-weight:900;pointer-events:none;z-index:999}
 .select-box{position:absolute;border:2px dashed var(--accent);background:rgba(124,58,237,.16);z-index:9999;pointer-events:none}
 .log,.counter{font-size:12px;line-height:1.45;background:#10131a;border:1px solid var(--line);border-radius:10px;padding:10px;color:#d1d5db;white-space:pre-wrap}
 .small{font-size:11px;color:var(--muted)}
@@ -103,6 +104,21 @@ textarea{min-height:260px;font-family:Consolas,monospace;font-size:12px}
       <div class="field"><label>Row</label><input id="row" type="number" value="1"></div>
       <div class="field"><label>Seat</label><input id="seat" type="number" value="1"></div>
     </div>
+    <div class="field"><label>Направление нумерации</label><select id="numberDirection">
+      <option value="left-right">Слева → направо</option>
+      <option value="right-left">Справа → налево</option>
+      <option value="top-bottom">Сверху → вниз</option>
+      <option value="bottom-top">Снизу → вверх</option>
+    </select></div>
+    <button class="btn green" id="autoNumberBtn">АВТО НУМЕРАЦИЯ МЕСТ</button>
+
+    <h2>3.5 Номера</h2>
+    <div class="row3">
+      <div class="field"><label>Label X</label><input id="labelOffsetX" type="number" value="0"></div>
+      <div class="field"><label>Label Y</label><input id="labelOffsetY" type="number" value="-18"></div>
+      <div class="field"><label>Label Size</label><input id="labelSize" type="number" value="10"></div>
+    </div>
+    <div class="field"><label>Показывать номера</label><select id="showSeatLabels"><option value="1">Да</option><option value="0">Нет</option></select></div>
 
     <h2>4. Объект</h2>
     <div class="field"><label>Текст объекта</label><input id="objText" value="Текст"></div>
@@ -180,19 +196,30 @@ function applyCanvas(){canvas.style.width=Math.max(100,num('canvasW',1200))+'px'
 function applyBg(){if(!bgDataUrl){canvas.style.backgroundImage='';return} canvas.style.backgroundImage=`url("${bgDataUrl}")`; canvas.style.backgroundRepeat='no-repeat'; const m=val('bgMode'); if(m==='stretch'){canvas.style.backgroundSize='100% 100%';canvas.style.backgroundPosition='0 0'} if(m==='contain'){canvas.style.backgroundSize='contain';canvas.style.backgroundPosition='center top'} if(m==='original'){canvas.style.backgroundSize=bgNaturalW+'px '+bgNaturalH+'px';canvas.style.backgroundPosition='0 0'}}
 function applyZoom(){const z=Math.round(zoomValue()*100); zoomHost.style.transform=`scale(${z/100})`; zoomLabel.textContent='Zoom: '+z+'%'}
 function makeObject(type,x,y){const base={id:uid(type),type,x,y,w:num('objW',160),h:num('objH',80),rotate:num('objRotate',0),z:num('objZ',30),text:val('objText')||type,size:num('objSize',22)};
- if(type==='seat'||type==='chair'){base.zone=val('zone');base.prefix=val('prefix');base.row=String(num('row',1));base.seat=num('seat',1);base.w=type==='chair'?22:14;base.h=type==='chair'?20:14;$('seat').value=base.seat+1}
+ if(type==='seat'||type==='chair'){base.zone=val('zone');base.prefix=val('prefix');base.row=String(num('row',1));base.seat=num('seat',1);base.w=type==='chair'?22:14;base.h=type==='chair'?20:14;base.labelOffsetX=num('labelOffsetX',0);base.labelOffsetY=num('labelOffsetY',-18);base.labelSize=num('labelSize',10);$('seat').value=base.seat+1}
  if(type==='table'){base.w=num('objW',80);base.h=num('objW',80)}
  if(type==='stage'){base.text=val('objText')||'СЦЕНА';base.w=num('objW',800);base.h=num('objH',90);base.z=20}
  if(type==='wall'){base.w=num('objW',220);base.h=num('arcBorder',5);base.text=''}
  if(type==='arc'){base.w=num('arcW',500);base.h=num('arcH',140);base.border=num('arcBorder',5);base.text=''}
  if(type==='text'||type==='label'){base.w=0;base.h=0;base.text=val('objText')||'Текст';base.z=90}
  return base}
-function render(){canvas.querySelectorAll('.obj,.select-box').forEach(el=>el.remove());
+function render(){canvas.querySelectorAll('.obj,.select-box,.seat-number').forEach(el=>el.remove());
  objects.forEach(o=>{const el=document.createElement('div'); el.className='obj obj-'+o.type; el.dataset.id=o.id; el.style.left=o.x+'px'; el.style.top=o.y+'px'; el.style.width=(o.w||0)+'px'; el.style.height=(o.h||0)+'px'; el.style.transform=`translate(-50%,-50%) rotate(${o.rotate||0}deg)`; el.style.zIndex=o.z||30; if(selected.has(o.id))el.classList.add('selected');
   if(['box','door','zone','stage','bar','screen','table'].includes(o.type))el.textContent=o.text||o.type;
   if(o.type==='text'||o.type==='label'){el.textContent=o.text||'Текст';el.style.fontSize=(o.size||22)+'px';el.style.transform=`translate(-50%,-50%) rotate(${o.rotate||0}deg)`}
   if(o.type==='arc'){el.style.borderTop=(o.border||5)+'px solid #6b7280'}
-  canvas.appendChild(el)});
+  canvas.appendChild(el);
+
+  if((o.type==='seat'||o.type==='chair') && val('showSeatLabels')==='1'){
+    const lab=document.createElement('div');
+    lab.className='seat-number';
+    lab.textContent=(o.row||'')+'/'+(o.seat||'');
+    lab.style.left=(Number(o.x||0)+Number(o.labelOffsetX ?? num('labelOffsetX',0)))+'px';
+    lab.style.top=(Number(o.y||0)+Number(o.labelOffsetY ?? num('labelOffsetY',-18)))+'px';
+    lab.style.fontSize=(Number(o.labelSize ?? num('labelSize',10)))+'px';
+    canvas.appendChild(lab);
+  }
+ });
  counter.innerHTML='Objects: '+objects.length+'<br>Selected: '+selected.size+'<br>Canvas: '+cw()+'x'+ch();
  localStorage.setItem('va_hall_studio_next_autosave', JSON.stringify(buildJson()))}
 function targetId(e){const el=e.target.closest('.obj'); return el?el.dataset.id:null}
@@ -202,7 +229,34 @@ canvas.addEventListener('pointerup',e=>{if(drag){save(); drag=null; render(); re
 canvas.addEventListener('dblclick',e=>{const id=targetId(e); if(!id)return; save(); objects=objects.filter(o=>o.id!==id); selected.delete(id); render()});
 imageLoader.addEventListener('change',e=>{const f=e.target.files&&e.target.files[0]; if(!f)return; const rd=new FileReader(); rd.onload=ev=>{bgDataUrl=ev.target.result; const im=new Image(); im.onload=()=>{bgNaturalW=im.naturalWidth; bgNaturalH=im.naturalHeight; applyBg(); render(); log('BACKGROUND LOADED')}; im.src=bgDataUrl}; rd.readAsDataURL(f)});
 $('applyCanvasBtn').onclick=applyCanvas; $('applyBgBtn').onclick=()=>{applyBg();render()}; $('clearBgBtn').onclick=()=>{bgDataUrl='';bgNaturalW=0;bgNaturalH=0;canvas.style.backgroundImage='';imageLoader.value='';render();log('BACKGROUND CLEARED')}; $('zoom').oninput=applyZoom; $('gridBtn').onclick=()=>{gridShown=!gridShown;grid.style.display=gridShown?'block':'none';grid.style.backgroundSize=num('gridSize',20)+'px '+num('gridSize',20)+'px'};
-$('undoBtn').onclick=()=>{const p=history.pop(); if(!p)return; objects=JSON.parse(p).objects||[]; selected.clear(); render()}; $('deleteBtn').onclick=()=>{save();objects=objects.filter(o=>!selected.has(o.id));selected.clear();render()}; $('clearBtn').onclick=()=>{save();objects=[];selected.clear();render()}; $('selectAllBtn').onclick=()=>{selected=new Set(objects.map(o=>o.id));render()}; $('clearSelectionBtn').onclick=()=>{selected.clear();render()};
+$('undoBtn').onclick=()=>{const p=history.pop(); if(!p)return; objects=JSON.parse(p).objects||[]; selected.clear(); render()};
+$('autoNumberBtn').onclick=()=>{
+  const list=selectedObjects().filter(o=>o.type==='seat'||o.type==='chair');
+  if(!list.length)return log('АВТО НУМЕРАЦИЯ: выделите места или кресла.');
+  save();
+  const dir=val('numberDirection')||'left-right';
+  list.sort((a,b)=>{
+    if(dir==='left-right')return a.x-b.x||a.y-b.y;
+    if(dir==='right-left')return b.x-a.x||a.y-b.y;
+    if(dir==='top-bottom')return a.y-b.y||a.x-b.x;
+    if(dir==='bottom-top')return b.y-a.y||a.x-b.x;
+    return a.x-b.x||a.y-b.y;
+  });
+  const row=String(num('row',1));
+  const start=num('seat',1);
+  list.forEach((o,i)=>{
+    o.zone=val('zone');
+    o.prefix=val('prefix');
+    o.row=row;
+    o.seat=start+i;
+    o.labelOffsetX=num('labelOffsetX',0);
+    o.labelOffsetY=num('labelOffsetY',-18);
+    o.labelSize=num('labelSize',10);
+  });
+  $('seat').value=start+list.length;
+  render();
+  log('АВТО НУМЕРАЦИЯ OK: row '+row+', seats '+start+'–'+(start+list.length-1));
+}; $('deleteBtn').onclick=()=>{save();objects=objects.filter(o=>!selected.has(o.id));selected.clear();render()}; $('clearBtn').onclick=()=>{save();objects=[];selected.clear();render()}; $('selectAllBtn').onclick=()=>{selected=new Set(objects.map(o=>o.id));render()}; $('clearSelectionBtn').onclick=()=>{selected.clear();render()};
 function align(axis){const list=selectedObjects(); if(list.length<2)return log('Нужно 2+ объекта'); save(); const avg=Math.round(list.reduce((s,o)=>s+o[axis],0)/list.length); list.forEach(o=>o[axis]=avg); render()} $('alignHBtn').onclick=()=>align('y'); $('alignVBtn').onclick=()=>align('x');
 function distribute(axis){const list=selectedObjects().sort((a,b)=>a[axis]-b[axis]); if(list.length<3)return log('Нужно 3+ объекта'); save(); const first=list[0][axis], last=list[list.length-1][axis], step=(last-first)/(list.length-1); list.forEach((o,i)=>o[axis]=Math.round(first+step*i)); render()} $('distHBtn').onclick=()=>distribute('x'); $('distVBtn').onclick=()=>distribute('y');
 $('copyBtn').onclick=()=>{clipboard=selectedObjects().map(o=>JSON.parse(JSON.stringify(o)));log('COPIED: '+clipboard.length)}; $('pasteBtn').onclick=()=>{if(!clipboard.length)return; save(); selected.clear(); clipboard.forEach(o=>{const c=JSON.parse(JSON.stringify(o));c.id=uid(c.type);c.x+=40;c.y+=40;objects.push(c);selected.add(c.id)});render()}; $('duplicateBtn').onclick=()=>{const dx=num('dupOffsetX',40),dy=num('dupOffsetY',40); clipboard=selectedObjects().map(o=>JSON.parse(JSON.stringify(o))); save(); selected.clear(); clipboard.forEach(o=>{o.id=uid(o.type);o.x+=dx;o.y+=dy;objects.push(o);selected.add(o.id)});render()};
