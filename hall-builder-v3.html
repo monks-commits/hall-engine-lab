@@ -768,8 +768,8 @@ function autoSaveToBrowser(){
   
 function render(){
   canvas
-    .querySelectorAll(".seat-dot,.seat-label,.decor-text,.decor-stage")
-    .forEach(el => el.remove());
+  .querySelectorAll(".seat-dot,.seat-label,.decor-text,.decor-stage,.decor-box,.decor-door,.decor-wall,.decor-arc")
+  .forEach(el => el.remove());
 
   const seatSize = Math.max(2, n("seatSize", 10));
   const labelSize = Math.max(0, n("labelSize", 8));
