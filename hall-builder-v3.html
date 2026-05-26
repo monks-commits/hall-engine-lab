@@ -1007,7 +1007,9 @@ function addArcAt(x, y){
 }
   
 function getTargetId(e){
-  const el = e.target.closest(".seat-dot,.decor-text,.decor-stage");
+  const el = e.target.closest(
+    ".seat-dot,.decor-text,.decor-stage,.decor-box,.decor-door,.decor-wall,.decor-arc"
+  );
   return el ? el.dataset.id : null;
 }
 
