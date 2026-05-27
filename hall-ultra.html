@@ -12,9 +12,10 @@
 <button class="btn gold" id="clearHoverBtn">CLEAR HOVER</button>
 <div class="small">Row — подсвечивает весь ряд. Zone — всю зону. На телефоне tap фиксирует подсветку.</div>
 <h2>7. Magic Trace</h2><div class="row3"><div class="field"><label>Spacing</label><input id="traceSpacing" type="number" value="34"></div><div class="field"><label>Min Move</label><input id="traceMinMove" type="number" value="18"></div><div class="field"><label>Row</label><input id="traceRow" type="number" value="1"></div></div><div class="row3"><div class="field"><label>Assist</label><select id="traceAssist"><option value="snap-row">Snap Row</option><option value="free">Free Hand</option></select></div><div class="field"><label>Auto Next</label><select id="traceAutoNext"><option value="1">On</option><option value="0">Off</option></select></div><div class="field"><label>Ghost</label><select id="traceGhost"><option value="1">On</option><option value="0">Off</option></select></div></div><button class="btn gold" id="traceBtn">MAGIC TRACE: OFF</button><div class="small">Snap Row держит ряд ровным. Auto Next после прохода увеличивает Row и сбрасывает Seat на 1.</div>
-<h2>8. AI Detect v1</h2>
-<div class="row3"><div class="field"><label>Max Seats</label><input id="detectMax" type="number" value="300"></div><div class="field"><label>Min Size</label><input id="detectMinSize" type="number" value="8"></div><div class="field"><label>Step</label><input id="detectStep" type="number" value="6"></div></div>
-<div class="row2"><button class="btn green" id="detectBtn">DETECT SEATS</button><button class="btn purple" id="approveDetectBtn">APPROVE DETECTED</button></div>
+<h2>8. AI Detect v2</h2>
+<div class="row3"><div class="field"><label>Max Seats</label><input id="detectMax" type="number" value="500"></div><div class="field"><label>Min Size</label><input id="detectMinSize" type="number" value="6"></div><div class="field"><label>Step</label><input id="detectStep" type="number" value="3"></div></div>
+<div class="row2"><div class="field"><label>Detect Mode</label><select id="detectMode"><option value="hybrid">Hybrid</option><option value="red">Red Seats</option><option value="edge">Edges</option><option value="dark">Dark Lines</option></select></div><div class="field"><label>Sensitivity</label><input id="detectSensitivity" type="number" value="38"></div></div>
+<div class="row2"><button class="btn green" id="detectBtn">DETECT SEATS v2</button><button class="btn purple" id="approveDetectBtn">APPROVE DETECTED</button></div>
 <button class="btn red" id="clearDetectBtn">CLEAR DETECTED</button>
 <div class="small" id="detectInfo">Detected: 0</div>
 <h2>9. Curved Row</h2><div class="row3"><div class="field"><label>Seats</label><input id="curveSeats" type="number" value="12"></div><div class="field"><label>Curve</label><input id="curveDepth" type="number" value="45"></div><div class="field"><label>Row</label><input id="curveRow" type="number" value="1"></div></div><div class="row2"><div class="field"><label>Spacing</label><input id="curveSpacing" type="number" value="34"></div><div class="field"><label>Auto Fit</label><select id="curveAutoFit"><option value="1">On</option><option value="0">Off</option></select></div></div><div class="row2"><button class="btn purple" id="curveStartBtn">SET START</button><button class="btn purple" id="curveEndBtn">SET END</button></div><button class="btn green" id="buildCurveBtn">BUILD CURVED ROW</button><div class="small" id="curveInfo">Start: — / End: —</div>
@@ -172,12 +173,26 @@ function findMainMediaObject(){
   if(!media.length)return null;
   return media.sort((a,b)=>(b.w*b.h)-(a.w*a.h))[0];
 }
+function rgbToHsv(r,g,b){
+  r/=255;g/=255;b/=255;
+  const max=Math.max(r,g,b),min=Math.min(r,g,b),d=max-min;
+  let h=0,s=max===0?0:d/max,v=max;
+  if(d!==0){
+    if(max===r)h=((g-b)/d)%6;
+    else if(max===g)h=(b-r)/d+2;
+    else h=(r-g)/d+4;
+    h*=60;if(h<0)h+=360;
+  }
+  return {h,s,v};
+}
 function detectSeatsFromMedia(){
   const media=findMainMediaObject();
-  if(!media)return log('DETECT: сначала загрузите картинку в Media Placeholder.');
-  const maxSeats=Math.max(10,Math.round(num('detectMax',300)));
-  const minSize=Math.max(3,Math.round(num('detectMinSize',8)));
-  const step=Math.max(2,Math.round(num('detectStep',6)));
+  if(!media)return log('DETECT v2: сначала загрузите картинку в Media Placeholder.');
+  const maxSeats=Math.max(10,Math.round(num('detectMax',500)));
+  const minSize=Math.max(3,Math.round(num('detectMinSize',6)));
+  const step=Math.max(1,Math.round(num('detectStep',3)));
+  const sensitivity=Math.max(5,Math.round(num('detectSensitivity',38)));
+  const mode=val('detectMode')||'hybrid';
   const img=new Image();
   img.onload=()=>{
     const cvs=document.createElement('canvas');
@@ -186,47 +201,69 @@ function detectSeatsFromMedia(){
     const ctx=cvs.getContext('2d',{willReadFrequently:true});
     ctx.drawImage(img,0,0,cvs.width,cvs.height);
     const data=ctx.getImageData(0,0,cvs.width,cvs.height).data;
+    const gray=(x,y)=>{
+      x=Math.max(0,Math.min(cvs.width-1,x)); y=Math.max(0,Math.min(cvs.height-1,y));
+      const k=(y*cvs.width+x)*4;
+      return data[k]*0.299+data[k+1]*0.587+data[k+2]*0.114;
+    };
     const points=[];
-    for(let y=0;y<cvs.height;y+=step){
-      for(let x=0;x<cvs.width;x+=step){
+    for(let y=1;y<cvs.height-1;y+=step){
+      for(let x=1;x<cvs.width-1;x+=step){
         const k=(y*cvs.width+x)*4,r=data[k],g=data[k+1],b=data[k+2],a=data[k+3];
-        if(a>200 && r>140 && g<150 && b<150 && r>g*1.15 && r>b*1.15){
-          points.push({x,y});
-        }
+        if(a<120)continue;
+        const hsv=rgbToHsv(r,g,b);
+        const redLike=(hsv.h<25||hsv.h>335)&&hsv.s>.18&&hsv.v>.25;
+        const darkLike=(r+g+b)/3<120;
+        const edge=Math.abs(gray(x+1,y)-gray(x-1,y))+Math.abs(gray(x,y+1)-gray(x,y-1));
+        let ok=false;
+        if(mode==='red') ok=redLike;
+        if(mode==='edge') ok=edge>sensitivity;
+        if(mode==='dark') ok=darkLike&&edge>sensitivity*.45;
+        if(mode==='hybrid') ok=redLike || edge>sensitivity || (darkLike&&edge>sensitivity*.45);
+        if(ok)points.push({x,y,edge});
       }
     }
-    // cluster by grid cells
-    const cell=Math.max(10,minSize*2);
+
+    // cluster candidate pixels
+    const cell=Math.max(8,minSize*2);
     const map=new Map();
     points.forEach(p=>{
       const cx=Math.round(p.x/cell),cy=Math.round(p.y/cell);
       const key=cx+','+cy;
-      if(!map.has(key))map.set(key,{n:0,sx:0,sy:0,minX:p.x,maxX:p.x,minY:p.y,maxY:p.y});
-      const m=map.get(key);m.n++;m.sx+=p.x;m.sy+=p.y;m.minX=Math.min(m.minX,p.x);m.maxX=Math.max(m.maxX,p.x);m.minY=Math.min(m.minY,p.y);m.maxY=Math.max(m.maxY,p.y);
+      if(!map.has(key))map.set(key,{n:0,sx:0,sy:0,minX:p.x,maxX:p.x,minY:p.y,maxY:p.y,score:0});
+      const m=map.get(key);
+      m.n++;m.sx+=p.x;m.sy+=p.y;m.score+=p.edge||1;
+      m.minX=Math.min(m.minX,p.x);m.maxX=Math.max(m.maxX,p.x);
+      m.minY=Math.min(m.minY,p.y);m.maxY=Math.max(m.maxY,p.y);
     });
-    const candidates=[];
+
+    const raw=[];
     map.forEach(m=>{
       if(m.n<2)return;
       const lx=m.sx/m.n,ly=m.sy/m.n;
       const w=Math.max(minSize,m.maxX-m.minX+step);
       const h=Math.max(minSize,m.maxY-m.minY+step);
-      // media center transform: image drawn stretched to media box
+      if(w>80||h>80)return; // отсекаем большие линии/надписи
       const sceneX=media.x-media.w/2+lx;
       const sceneY=media.y-media.h/2+ly;
-      candidates.push({x:Math.round(sceneX),y:Math.round(sceneY),w:Math.round(w),h:Math.round(h),score:m.n});
+      raw.push({x:Math.round(sceneX),y:Math.round(sceneY),w:Math.round(w),h:Math.round(h),score:m.score+m.n*8});
     });
-    candidates.sort((a,b)=>b.score-a.score);
-    // suppress near duplicates
+
+    raw.sort((a,b)=>b.score-a.score);
+
+    // suppress duplicates / nearby fragments
     const out=[];
-    for(const c of candidates){
+    const minDist=Math.max(minSize*1.7, step*3);
+    for(const c of raw){
       if(out.length>=maxSeats)break;
-      if(out.some(o=>Math.hypot(o.x-c.x,o.y-c.y)<minSize*1.4))continue;
+      if(out.some(o=>Math.hypot(o.x-c.x,o.y-c.y)<minDist))continue;
       out.push(c);
     }
+
     detectedSeats=out.sort((a,b)=>a.y-b.y||a.x-b.x);
     render();
     renderDetected();
-    log('DETECT OK: '+detectedSeats.length+' candidates. Это черновик, подтверждайте только после проверки.');
+    log('DETECT v2 OK: '+detectedSeats.length+' candidates. Mode: '+mode+', step '+step+', sensitivity '+sensitivity+'.');
   };
   img.src=media.mediaData;
 }
