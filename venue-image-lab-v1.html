@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VA Venue Image Lab v1</title>
+<style>
+:root{--bg:#0b0e14;--panel:#151922;--line:#313849;--text:#f8fafc;--muted:#9ca3af;--blue:#2563eb;--green:#16a34a;--red:#dc2626;--gold:#f59e0b;--violet:#7c3aed}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}.app{display:grid;grid-template-columns:330px 1fr 330px;height:100vh;overflow:hidden}aside{background:var(--panel);padding:14px;overflow:auto}.left{border-right:1px solid var(--line)}.right{border-left:1px solid var(--line)}h1{font-size:21px;margin:0 0 6px}h2{font-size:14px;margin:18px 0 10px;padding-top:12px;border-top:1px solid var(--line)}.note,.small{font-size:12px;color:var(--muted);line-height:1.45}.field{margin-bottom:10px}.field label{display:block;margin-bottom:5px;font-size:12px;font-weight:800;color:#cbd5e1}input,select{width:100%;padding:9px;border:1px solid var(--line);border-radius:8px;background:#0d1118;color:var(--text);font-size:13px}.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.btn{width:100%;padding:10px;margin-bottom:8px;border:0;border-radius:10px;background:#303849;color:#fff;font-weight:900;cursor:pointer}.blue{background:var(--blue)}.green{background:var(--green)}.red{background:var(--red)}.gold{background:var(--gold);color:#111827}.purple{background:var(--violet)}.work{overflow:auto;background:#080a0f}.topbar{position:sticky;top:0;z-index:20;padding:10px 14px;background:#151922;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;font-size:13px;color:#d1d5db}.stage{width:max-content;margin:34px auto}#canvas{background:#f8fafc;box-shadow:0 20px 60px rgba(0,0,0,.55);display:block}.log,.counter{font-size:12px;line-height:1.45;background:#0d1118;border:1px solid var(--line);border-radius:10px;padding:10px;color:#d1d5db;white-space:pre-wrap}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="left">
+<h1>VA Venue Image Lab v1</h1>
+<div class="note">Подготовка фоновой картинки для ULTRA: перспектива, контраст, свет, depth. На выходе PNG.</div>
+<h2>1. Source</h2>
+<div class="field"><label>Загрузить схему / фото</label><input id="imageLoader" type="file" accept="image/*"></div>
+<div class="row2"><div class="field"><label>Canvas W</label><input id="canvasW" type="number" value="1280"></div><div class="field"><label>Canvas H</label><input id="canvasH" type="number" value="900"></div></div>
+<button class="btn blue" id="fitBtn">FIT IMAGE</button>
+<h2>2. Perspective</h2>
+<div class="field"><label>Top Width %</label><input id="topWidth" type="range" min="20" max="130" value="72"></div>
+<div class="field"><label>Bottom Width %</label><input id="bottomWidth" type="range" min="40" max="160" value="110"></div>
+<div class="field"><label>Vertical Compress %</label><input id="vCompress" type="range" min="40" max="120" value="86"></div>
+<div class="field"><label>YOffset</label><input id="yOffset" type="range" min="-300" max="300" value="40"></div>
+<div class="field"><label>Horizon / Tilt</label><input id="tilt" type="range" min="-120" max="120" value="0"></div>
+<h2>3. Cleanup</h2>
+<div class="field"><label>Brightness</label><input id="brightness" type="range" min="-100" max="100" value="0"></div>
+<div class="field"><label>Contrast</label><input id="contrast" type="range" min="-100" max="160" value="35"></div>
+<div class="field"><label>Saturation</label><input id="saturation" type="range" min="-100" max="160" value="20"></div>
+<div class="field"><label>Sharpen</label><input id="sharpen" type="range" min="0" max="100" value="15"></div>
+<h2>4. Depth / Atmosphere</h2>
+<div class="field"><label>Stage Glow</label><input id="stageGlow" type="range" min="0" max="100" value="22"></div>
+<div class="field"><label>Vignette</label><input id="vignette" type="range" min="0" max="100" value="18"></div>
+<div class="field"><label>Distance Fade</label><input id="distanceFade" type="range" min="0" max="100" value="18"></div>
+<div class="field"><label>Background Tint</label><select id="tint"><option value="none">None</option><option value="warm">Warm Theatre</option><option value="cool">Cool Blue</option><option value="dark">Dark Premium</option></select></div>
+</aside>
+<main class="work"><div class="topbar"><b>Venue Image Preview</b><span>Эта картинка потом вставляется в ULTRA как Media/Background.</span></div><div class="stage"><canvas id="canvas"></canvas></div></main>
+<aside class="right">
+<h2>Actions</h2>
+<button class="btn green" id="renderBtn">RENDER</button><button class="btn gold" id="downloadBtn">DOWNLOAD PNG</button><button class="btn purple" id="presetTheatreBtn">PRESET: THEATRE</button><button class="btn purple" id="presetClubBtn">PRESET: CLUB</button><button class="btn purple" id="presetBlueprintBtn">PRESET: BLUEPRINT</button><button class="btn red" id="resetBtn">RESET</button>
+<h2>Status</h2><div class="counter" id="counter">No image</div><h2>Log</h2><div class="log" id="log">READY</div>
+<h2>Workflow</h2><div class="small">1. Загрузить картинку.<br>2. Подобрать перспективу.<br>3. Контраст / яркость / depth.<br>4. Скачать PNG.<br>5. Открыть в ULTRA как фон или Media.</div>
+</aside>
+</div>
+<script>
+'use strict';
+const $=id=>document.getElementById(id),canvas=$('canvas'),ctx=canvas.getContext('2d',{willReadFrequently:true});let img=null,imgName='venue-source.png';
+function num(id,f=0){const v=parseFloat($(id).value);return Number.isFinite(v)?v:f}function log(m){$('log').textContent=m}function setCanvas(){canvas.width=Math.max(200,num('canvasW',1280));canvas.height=Math.max(200,num('canvasH',900))}function clamp(v){return Math.max(0,Math.min(255,v))}
+function applyColorAdjust(imageData){const b=num('brightness',0),c=(num('contrast',0)+100)/100,s=(num('saturation',0)+100)/100,d=imageData.data;for(let i=0;i<d.length;i+=4){let r=d[i],g=d[i+1],bb=d[i+2];r=(r-128)*c+128+b;g=(g-128)*c+128+b;bb=(bb-128)*c+128+b;const gray=r*.299+g*.587+bb*.114;r=gray+(r-gray)*s;g=gray+(g-gray)*s;bb=gray+(bb-gray)*s;d[i]=clamp(r);d[i+1]=clamp(g);d[i+2]=clamp(bb)}return imageData}
+function sharpenCanvas(amount){if(amount<=0)return;const w=canvas.width,h=canvas.height,src=ctx.getImageData(0,0,w,h),dst=ctx.createImageData(w,h),a=amount/100,d=src.data,o=dst.data;for(let y=1;y<h-1;y++){for(let x=1;x<w-1;x++){const i=(y*w+x)*4;for(let ch=0;ch<3;ch++){const v=d[i+ch]*(1+4*a)-d[i-4+ch]*a-d[i+4+ch]*a-d[i-w*4+ch]*a-d[i+w*4+ch]*a;o[i+ch]=clamp(v)}o[i+3]=d[i+3]}}ctx.putImageData(dst,0,0)}
+function drawPerspective(){setCanvas();ctx.clearRect(0,0,canvas.width,canvas.height);ctx.fillStyle='#f8fafc';ctx.fillRect(0,0,canvas.width,canvas.height);if(!img){$('counter').textContent='No image';return}const topW=canvas.width*num('topWidth',72)/100,botW=canvas.width*num('bottomWidth',110)/100,outH=canvas.height*num('vCompress',86)/100,y0=(canvas.height-outH)/2+num('yOffset',40),tilt=num('tilt',0),slices=Math.max(80,Math.round(img.height/4));for(let i=0;i<slices;i++){const t=i/(slices-1),sy=img.height*t,sh=img.height/slices+1,w=topW+(botW-topW)*t,x=(canvas.width-w)/2,y=y0+outH*t+(t-.5)*tilt,dh=outH/slices+1.5;ctx.drawImage(img,0,sy,img.width,sh,x,y,w,dh)}let data=ctx.getImageData(0,0,canvas.width,canvas.height);ctx.putImageData(applyColorAdjust(data),0,0);sharpenCanvas(num('sharpen',15));drawAtmosphere();$('counter').textContent=`Image: ${imgName}\nCanvas: ${canvas.width}x${canvas.height}`}
+function drawAtmosphere(){const w=canvas.width,h=canvas.height,glow=num('stageGlow',0)/100;if(glow>0){const g=ctx.createRadialGradient(w/2,h*.08,10,w/2,h*.12,w*.75);g.addColorStop(0,`rgba(255,220,140,${0.38*glow})`);g.addColorStop(.45,`rgba(255,160,80,${0.16*glow})`);g.addColorStop(1,'rgba(255,160,80,0)');ctx.fillStyle=g;ctx.fillRect(0,0,w,h)}const fade=num('distanceFade',0)/100;if(fade>0){const gr=ctx.createLinearGradient(0,0,0,h);gr.addColorStop(0,`rgba(255,255,255,${0.22*fade})`);gr.addColorStop(.45,'rgba(255,255,255,0)');gr.addColorStop(1,`rgba(0,0,0,${0.08*fade})`);ctx.fillStyle=gr;ctx.fillRect(0,0,w,h)}const tint=$('tint').value;if(tint!=='none'){ctx.globalCompositeOperation='multiply';ctx.fillStyle=tint==='warm'?'rgba(255,214,170,.16)':tint==='cool'?'rgba(120,170,255,.16)':'rgba(15,20,32,.30)';ctx.fillRect(0,0,w,h);ctx.globalCompositeOperation='source-over'}const vig=num('vignette',0)/100;if(vig>0){const v=ctx.createRadialGradient(w/2,h/2,w*.25,w/2,h/2,w*.75);v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,`rgba(0,0,0,${0.45*vig})`);ctx.fillStyle=v;ctx.fillRect(0,0,w,h)}}
+function reset(){['topWidth:72','bottomWidth:110','vCompress:86','yOffset:40','tilt:0','brightness:0','contrast:35','saturation:20','sharpen:15','stageGlow:22','vignette:18','distanceFade:18'].forEach(p=>{const [id,v]=p.split(':');$(id).value=v});$('tint').value='none';drawPerspective()}
+$('imageLoader').addEventListener('change',e=>{const file=e.target.files&&e.target.files[0];if(!file)return;imgName=file.name;const reader=new FileReader();reader.onload=ev=>{img=new Image();img.onload=()=>{$('canvasW').value=Math.max(900,img.width);$('canvasH').value=Math.max(700,Math.round(img.height*.85));drawPerspective();log('IMAGE LOADED: '+file.name)};img.src=ev.target.result};reader.readAsDataURL(file)});
+['topWidth','bottomWidth','vCompress','yOffset','tilt','brightness','contrast','saturation','sharpen','stageGlow','vignette','distanceFade','tint','canvasW','canvasH'].forEach(id=>{$(id).addEventListener('input',drawPerspective);$(id).addEventListener('change',drawPerspective)});
+$('fitBtn').onclick=()=>{if(img){$('canvasW').value=Math.max(900,img.width);$('canvasH').value=Math.max(700,img.height);drawPerspective()}};$('renderBtn').onclick=drawPerspective;$('downloadBtn').onclick=()=>{drawPerspective();const a=document.createElement('a');a.href=canvas.toDataURL('image/png');a.download='venue-background-prepared.png';a.click()};$('resetBtn').onclick=reset;$('presetTheatreBtn').onclick=()=>{$('topWidth').value=68;$('bottomWidth').value=118;$('vCompress').value=84;$('yOffset').value=55;$('contrast').value=45;$('saturation').value=26;$('stageGlow').value=34;$('vignette').value=22;$('distanceFade').value=24;$('tint').value='warm';drawPerspective()};$('presetClubBtn').onclick=()=>{$('topWidth').value=78;$('bottomWidth').value=112;$('vCompress').value=88;$('contrast').value=55;$('saturation').value=42;$('stageGlow').value=18;$('vignette').value=36;$('distanceFade').value=12;$('tint').value='dark';drawPerspective()};$('presetBlueprintBtn').onclick=()=>{$('topWidth').value=72;$('bottomWidth').value=105;$('vCompress').value=92;$('contrast').value=80;$('saturation').value=-70;$('stageGlow').value=0;$('vignette').value=0;$('distanceFade').value=0;$('tint').value='cool';drawPerspective()};setCanvas();drawPerspective();log('READY');
+</script>
+</body>
+</html>
