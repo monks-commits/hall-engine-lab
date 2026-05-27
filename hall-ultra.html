@@ -194,7 +194,7 @@ function findDetectSource(){
 
 function detectSeatsFromMedia(){
   const source=findDetectSource();
-  if(!source)return log('DETECT v3: нет картинки. Загрузите Media Placeholder или Background Image.');
+  if(!source){ const info=$('detectInfo'); if(info)info.textContent='Detected: 0 / Source: NO IMAGE'; return log('DETECT v3: нет картинки. Загрузите Media Placeholder или Background Image.'); }
   const media=source.media;
 
   const maxSeats=Math.max(10,Math.round(num('detectMax',500)));
@@ -249,7 +249,7 @@ function detectSeatsFromMedia(){
     }
 
     if(points.length===0){
-      detectedSeats=[];
+      detectedSeats=[],hoverLock=null;
       render();
       renderDetected();
       log('DETECT v3: 0 pixels matched. Попробуйте mode=Edges, Sensitivity=15-25, Step=1-2.');
@@ -342,12 +342,12 @@ function approveDetectedSeats(){
     scene.objects.push(o);selected.add(o.id);
   });
   $('seat').value=startSeat+detectedSeats.length;
-  detectedSeats=[];
+  detectedSeats=[],hoverLock=null;
   render();
   log('APPROVED: '+selected.size+' кресел создано.');
 }
 function clearDetected(){
-  detectedSeats=[];
+  detectedSeats=[],hoverLock=null;
   render();
   log('DETECT CLEARED');
 }
