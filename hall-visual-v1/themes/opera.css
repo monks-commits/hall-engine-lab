@@ -1,0 +1,9 @@
+body{
+  --bg:#12080d;
+  --topbar:#1d0f16;
+  --panel:#1d0f16;
+  --panel-2:rgba(255,217,130,.14);
+  --text:#fff7ed;
+  --muted:rgba(255,247,237,.64);
+  --accent:#d6a84f;
+}
