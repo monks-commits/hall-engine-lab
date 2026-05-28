@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>VA Hall Visual FX LAB V2</title>
+
+<style>
+*{box-sizing:border-box}
+
+:root{
+  --bg:#0f172a;
+  --topbar:#111827;
+  --panel:#111827;
+  --panel-2:rgba(255,255,255,.08);
+  --text:#fff;
+  --muted:rgba(255,255,255,.65);
+  --accent:#d6a84f;
+  --seat-free:#ffffff;
+  --seat-selected:#22c55e;
+  --seat-sold:#9ca3af;
+  --seat-hold:#d32f2f;
+  --seat-reserved:#f59e0b;
+  --shadow:0 20px 60px rgba(0,0,0,.45);
+}
+
+body{
+  margin:0;
+  background:
+    radial-gradient(circle at top left,rgba(255,255,255,.08),transparent 420px),
+    var(--bg);
+  color:var(--text);
+  font-family:Arial,sans-serif;
+}
+
+body.theme-opera{
+  --bg:#12080d;
+  --topbar:#1d0f16;
+  --panel:#1d0f16;
+  --accent:#d6a84f;
+}
+
+body.theme-kids{
+  --bg:#fff7df;
+  --topbar:#ffffff;
+  --panel:#ffffff;
+  --text:#243047;
+  --muted:rgba(36,48,71,.65);
+  --accent:#ffca3a;
+  --panel-2:rgba(36,48,71,.08);
+}
+
+body.theme-minimal{
+  --bg:#f5f7fb;
+  --topbar:#ffffff;
+  --panel:#ffffff;
+  --text:#172033;
+  --muted:rgba(23,32,51,.6);
+  --accent:#111827;
+  --panel-2:rgba(23,32,51,.07);
+}
+
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:18px;
+  padding:18px 24px;
+  background:var(--topbar);
+  border-bottom:1px solid var(--panel-2);
+  position:sticky;
+  top:0;
+  z-index:50;
+}
+
+.topbar h1{
+  margin:0;
+  font-size:22px;
+}
+
+.badge{
+  color:var(--accent);
+  font-size:12px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  margin-bottom:4px;
+}
+
+.controls{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  align-items:center;
+}
+
+.controls label{
+  display:flex;
+  gap:7px;
+  align-items:center;
+  font-size:13px;
+  color:var(--muted);
+}
+
+.controls select,
+.controls button{
+  border:0;
+  border-radius:10px;
+  padding:9px 11px;
+  font-weight:700;
+}
+
+.controls select{
+  background:var(--panel-2);
+  color:var(--text);
+}
+
+.controls button{
+  cursor:pointer;
+  color:#111;
+  background:var(--accent);
+}
+
+.workspace{
+  display:grid;
+  grid-template-columns:1fr 320px;
+  gap:18px;
+  padding:24px;
+}
+
+.hall-wrap{
+  overflow:auto;
+  border-radius:18px;
+  box-shadow:var(--shadow);
+  background:#111;
+}
+
+#hall{
+  position:relative;
+  width:1200px;
+  height:1400px;
+  overflow:hidden;
+  background:#111;
+}
+
+.hall-bg{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  pointer-events:none;
+  z-index:1;
+}
+
+#seat-layer{
+  position:relative;
+  width:100%;
+  height:100%;
+  z-index:5;
+}
+
+.seat{
+  position:absolute;
+  width:26px;
+  height:26px;
+  border-radius:8px;
+  border:none;
+  cursor:pointer;
+  font-size:11px;
+  font-weight:700;
+  transition:
+    transform .18s ease,
+    box-shadow .18s ease,
+    opacity .18s ease,
+    background .18s ease;
+  box-shadow:0 0 0 rgba(255,255,255,0);
+}
+
+.seat:hover:not(:disabled){
+  transform:scale(1.12);
+}
+
+body.fx-glow .seat:hover:not(:disabled){
+  box-shadow:
+    0 0 12px rgba(255,255,255,.9),
+    0 0 24px rgba(255,255,255,.4);
+}
+
+.seat.selected{
+  transform:scale(1.15);
+  background:var(--seat-selected)!important;
+}
+
+body.fx-glow .seat.selected{
+  box-shadow:
+    0 0 18px rgba(34,197,94,1),
+    0 0 36px rgba(34,197,94,.7);
+}
+
+.seat.sold{
+  background:var(--seat-sold)!important;
+  opacity:.45!important;
+  cursor:not-allowed;
+}
+
+.seat.hold{
+  background:var(--seat-hold)!important;
+  color:#fff;
+  cursor:not-allowed;
+}
+
+body.fx-glow .seat.hold{
+  animation:holdPulse 1.2s infinite;
+}
+
+.seat.reserved{
+  background:var(--seat-reserved)!important;
+  color:#111;
+  cursor:not-allowed;
+}
+
+@keyframes holdPulse{
+  0%,100%{box-shadow:0 0 0 rgba(211,47,47,0)}
+  50%{box-shadow:0 0 24px rgba(211,47,47,.9)}
+}
+
+.side{
+  display:grid;
+  gap:14px;
+  align-content:start;
+}
+
+.panel{
+  background:var(--panel);
+  border:1px solid var(--panel-2);
+  border-radius:18px;
+  padding:14px;
+  box-shadow:var(--shadow);
+}
+
+.panel h3{
+  margin:0 0 12px;
+}
+
+.row{
+  margin-bottom:12px;
+}
+
+.row-head{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:4px;
+  font-size:13px;
+  color:var(--muted);
+}
+
+input[type=range]{
+  width:100%;
+}
+
+.copy-btn,
+.clear-btn{
+  width:100%;
+  padding:10px;
+  border:0;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:700;
+}
+
+.copy-btn{background:var(--accent);color:#111}
+.clear-btn{background:var(--panel-2);color:var(--text);margin-top:8px}
+
+.cart-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.cart-badge{
+  min-width:34px;
+  height:34px;
+  padding:0 10px;
+  border-radius:999px;
+  display:grid;
+  place-items:center;
+  color:#111;
+  background:var(--accent);
+  font-weight:900;
+}
+
+.cart-badge.pulse{
+  animation:cartPulse .38s ease;
+}
+
+@keyframes cartPulse{
+  50%{transform:scale(1.25)}
+}
+
+.cart-list{
+  display:grid;
+  gap:8px;
+  margin-top:12px;
+  min-height:80px;
+}
+
+.empty{
+  color:var(--muted);
+  border:1px dashed var(--panel-2);
+  padding:12px;
+  border-radius:12px;
+  text-align:center;
+}
+
+.cart-item{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  padding:10px;
+  border-radius:12px;
+  background:var(--panel-2);
+  font-size:13px;
+}
+
+.legend{
+  display:grid;
+  gap:8px;
+  font-size:13px;
+  color:var(--muted);
+}
+
+.legend div{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.dot{
+  width:13px;
+  height:13px;
+  border-radius:999px;
+  display:inline-block;
+}
+
+.dot-free{background:var(--seat-free)}
+.dot-selected{background:var(--seat-selected)}
+.dot-sold{background:var(--seat-sold)}
+.dot-hold{background:var(--seat-hold)}
+.dot-reserved{background:var(--seat-reserved)}
+
+.seat-ghost{
+  position:fixed;
+  z-index:9999;
+  pointer-events:none;
+  transition:transform .52s cubic-bezier(.2,.8,.2,1),opacity .52s ease;
+}
+
+@media(max-width:980px){
+  .workspace{
+    grid-template-columns:1fr;
+    padding:12px;
+  }
+
+  .topbar{
+    display:grid;
+    align-items:start;
+  }
+
+  .side{
+    grid-template-columns:1fr;
+  }
+}
+</style>
+</head>
+
+<body class="theme-opera fx-glow">
+
+<div class="topbar">
+  <div>
+    <div class="badge">VA-HALL-VISUAL-FX</div>
+    <h1>Visual FX LAB V2</h1>
+  </div>
+
+  <div class="controls">
+    <label>
+      Theme
+      <select id="themeSelect">
+        <option value="opera">Opera</option>
+        <option value="kids">Kids</option>
+        <option value="minimal">Minimal SaaS</option>
+      </select>
+    </label>
+
+    <label>
+      <input id="glowToggle" type="checkbox" checked>
+      Glow
+    </label>
+
+    <label>
+      <input id="cartFxToggle" type="checkbox" checked>
+      Cart FX
+    </label>
+
+    <button id="reloadBtn">Reload JSON</button>
+  </div>
+</div>
+
+<div class="workspace">
+
+  <div class="hall-wrap">
+    <div id="hall">
+
+      <img
+        class="hall-bg"
+        id="hallBg"
+        src="https://monks-commits.github.io/ticketing-core/site-project/images/client-x-hall.png"
+      >
+
+      <div id="seat-layer"></div>
+
+    </div>
+  </div>
+
+  <aside class="side">
+
+    <div class="panel">
+      <h3>Кошик</h3>
+
+      <div class="cart-head">
+        <span id="cartTotal">0 грн</span>
+        <div id="cartBadge" class="cart-badge">0</div>
+      </div>
+
+      <div id="cartList" class="cart-list">
+        <div class="empty">Оберіть місця на схемі</div>
+      </div>
+
+      <button id="clearCartBtn" class="clear-btn">Очистити вибір</button>
+    </div>
+
+    <div class="panel">
+      <h3>ALIGN</h3>
+
+      <div class="row">
+        <div class="row-head"><span>Scale</span><b id="scaleVal"></b></div>
+        <input id="scale" type="range" min="0.3" max="2" step="0.01">
+      </div>
+
+      <div class="row">
+        <div class="row-head"><span>X</span><b id="xVal"></b></div>
+        <input id="x" type="range" min="-500" max="500" step="1">
+      </div>
+
+      <div class="row">
+        <div class="row-head"><span>Y</span><b id="yVal"></b></div>
+        <input id="y" type="range" min="-500" max="500" step="1">
+      </div>
+
+      <div class="row">
+        <div class="row-head"><span>Opacity</span><b id="opacityVal"></b></div>
+        <input id="opacity" type="range" min="0.1" max="1" step="0.05">
+      </div>
+
+      <button class="copy-btn" id="copyBtn">COPY ALIGN JSON</button>
+    </div>
+
+    <div class="panel legend">
+      <div><span class="dot dot-free"></span>Вільно</div>
+      <div><span class="dot dot-selected"></span>Обрано</div>
+      <div><span class="dot dot-hold"></span>Hold</div>
+      <div><span class="dot dot-reserved"></span>Резерв</div>
+      <div><span class="dot dot-sold"></span>Продано</div>
+    </div>
+
+  </aside>
+
+</div>
+
+<script>
+const VA_RUNTIME = {
+  theme:"opera",
+  glow:true,
+  cartAnimation:true,
+
+  align:{
+    scale:0.85,
+    x:15,
+    y:70,
+    opacity:0.75
+  },
+
+  urls:{
+    bg:"https://monks-commits.github.io/ticketing-core/site-project/images/client-x-hall.png",
+    hallJson:"https://raw.githubusercontent.com/monks-commits/ticketing-core/main/data/hall/client-x.json"
+  },
+
+  demoStatuses:{
+    // ключи можно заменить реальными статусами из Supabase later
+    // пример: "P1-M3":"sold"
+  }
+};
+
+const VA_STATE = {
+  hall:null,
+  selected:new Map()
+};
+
+const layer = document.getElementById("seat-layer");
+
+async function loadHall(){
+  const res = await fetch(VA_RUNTIME.urls.hallJson + "?v=" + Date.now());
+  const hall = await res.json();
+  VA_STATE.hall = hall;
+  renderSeats(hall);
+}
+
+function getSeatKey(s){
+  return (
+    s.key ||
+    s.seat_key ||
+    s.id ||
+    `${s.zone || "Z"}-${s.row || 0}-M${s.seat}`
+  );
+}
+
+function getSeatPrice(s){
+  return Number(s.price || s.amount || s.ticket_price || 0);
+}
+
+function getSeatStatus(s){
+  const key = getSeatKey(s);
+  return VA_RUNTIME.demoStatuses[key] || s.status || "free";
+}
+
+function renderSeats(hall){
+  layer.innerHTML = "";
+
+  const seats = hall.seats || [];
+
+  seats.forEach(s => {
+    const key = getSeatKey(s);
+    const status = getSeatStatus(s);
+
+    const btn = document.createElement("button");
+    btn.className = "seat";
+    btn.textContent = s.seat || "";
+    btn.dataset.key = key;
+    btn.dataset.zone = s.zone || "";
+    btn.dataset.row = s.row || "";
+    btn.dataset.seat = s.seat || "";
+    btn.dataset.price = getSeatPrice(s);
+    btn.dataset.status = status;
+
+    btn.style.left = (Number(s.x) * VA_RUNTIME.align.scale + VA_RUNTIME.align.x) + "px";
+    btn.style.top = (Number(s.y) * VA_RUNTIME.align.scale + VA_RUNTIME.align.y) + "px";
+    btn.style.opacity = VA_RUNTIME.align.opacity;
+    btn.style.background = s.color || "var(--seat-free)";
+
+    if (VA_STATE.selected.has(key)) {
+      btn.classList.add("selected");
+      btn.dataset.status = "selected";
+    } else if (status !== "free") {
+      btn.classList.add(status);
+    }
+
+    if (["sold","hold","reserved"].includes(status)) {
+      btn.disabled = true;
+    }
+
+    btn.onclick = () => toggleSeat(key, btn);
+
+    layer.appendChild(btn);
+  });
+
+  updatePanel();
+  refreshCart();
+}
+
+function toggleSeat(key, btn){
+  const status = btn.dataset.status;
+
+  if (["sold","hold","reserved"].includes(status)) return;
+
+  if (VA_STATE.selected.has(key)) {
+    VA_STATE.selected.delete(key);
+    btn.classList.remove("selected");
+    btn.dataset.status = "free";
+  } else {
+    VA_STATE.selected.set(key, {
+      key,
+      zone:btn.dataset.zone,
+      row:btn.dataset.row,
+      seat:btn.dataset.seat,
+      price:Number(btn.dataset.price || 0)
+    });
+
+    btn.classList.add("selected");
+    btn.dataset.status = "selected";
+
+    flyToCart(btn);
+  }
+
+  refreshCart();
+}
+
+function refreshCart(){
+  const items = Array.from(VA_STATE.selected.values());
+  const list = document.getElementById("cartList");
+  const badge = document.getElementById("cartBadge");
+  const total = document.getElementById("cartTotal");
+
+  const sum = items.reduce((acc,item) => acc + Number(item.price || 0), 0);
+
+  badge.textContent = String(items.length);
+  total.textContent = sum + " грн";
+
+  if (!items.length) {
+    list.innerHTML = '<div class="empty">Оберіть місця на схемі</div>';
+    return;
+  }
+
+  list.innerHTML = items.map(item => `
+    <div class="cart-item">
+      <span>${item.zone || "Зона"} · ряд ${item.row || "-"} · місце ${item.seat || "-"}</span>
+      <b>${item.price || 0} грн</b>
+    </div>
+  `).join("");
+}
+
+function flyToCart(sourceEl){
+  if (!VA_RUNTIME.cartAnimation) return;
+
+  const cartBadge = document.getElementById("cartBadge");
+  const from = sourceEl.getBoundingClientRect();
+  const to = cartBadge.getBoundingClientRect();
+
+  const ghost = sourceEl.cloneNode(true);
+  ghost.classList.add("seat-ghost");
+  ghost.style.left = from.left + "px";
+  ghost.style.top = from.top + "px";
+  ghost.style.width = from.width + "px";
+  ghost.style.height = from.height + "px";
+
+  document.body.appendChild(ghost);
+
+  requestAnimationFrame(() => {
+    ghost.style.transform =
+      `translate(${to.left - from.left}px,${to.top - from.top}px) scale(.35)`;
+    ghost.style.opacity = "0";
+  });
+
+  setTimeout(() => ghost.remove(), 540);
+
+  cartBadge.classList.remove("pulse");
+  void cartBadge.offsetWidth;
+  cartBadge.classList.add("pulse");
+}
+
+function bindRange(id,key){
+  const input = document.getElementById(id);
+  const val = document.getElementById(id + "Val");
+
+  input.value = VA_RUNTIME.align[key];
+
+  const update = () => {
+    VA_RUNTIME.align[key] = Number(input.value);
+    val.textContent = input.value;
+
+    if (VA_STATE.hall) renderSeats(VA_STATE.hall);
+  };
+
+  input.addEventListener("input", update);
+  update();
+}
+
+function updatePanel(){
+  scaleVal.textContent = VA_RUNTIME.align.scale;
+  xVal.textContent = VA_RUNTIME.align.x;
+  yVal.textContent = VA_RUNTIME.align.y;
+  opacityVal.textContent = VA_RUNTIME.align.opacity;
+}
+
+function applyTheme(theme){
+  document.body.classList.remove("theme-opera","theme-kids","theme-minimal");
+  document.body.classList.add("theme-" + theme);
+  VA_RUNTIME.theme = theme;
+}
+
+themeSelect.onchange = e => applyTheme(e.target.value);
+
+glowToggle.onchange = e => {
+  VA_RUNTIME.glow = e.target.checked;
+  document.body.classList.toggle("fx-glow", VA_RUNTIME.glow);
+};
+
+cartFxToggle.onchange = e => {
+  VA_RUNTIME.cartAnimation = e.target.checked;
+};
+
+reloadBtn.onclick = () => loadHall();
+
+clearCartBtn.onclick = () => {
+  VA_STATE.selected.clear();
+  if (VA_STATE.hall) renderSeats(VA_STATE.hall);
+};
+
+copyBtn.onclick = async () => {
+  const a = VA_RUNTIME.align;
+
+  const txt =
+`"align": {
+  "scale": ${a.scale},
+  "x": ${a.x},
+  "y": ${a.y},
+  "opacity": ${a.opacity}
+}`;
+
+  await navigator.clipboard.writeText(txt);
+  alert("ALIGN COPIED");
+};
+
+bindRange("scale","scale");
+bindRange("x","x");
+bindRange("y","y");
+bindRange("opacity","opacity");
+
+loadHall();
+</script>
+
+</body>
+</html>
