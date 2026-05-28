@@ -1,0 +1,10 @@
+body{
+  --bg:#fff7df;
+  --topbar:#ffffff;
+  --panel:#ffffff;
+  --text:#243047;
+  --muted:rgba(36,48,71,.65);
+  --accent:#ffca3a;
+  --panel-2:rgba(36,48,71,.08);
+  --seat-selected:#35c46d;
+}
