@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VA HALL VISUAL FX LAB</title>
+  <link rel="stylesheet" href="./styles/va-hall-vfx.css" />
+</head>
+<body>
+  <div class="va-app">
+    <header class="va-topbar">
+      <div>
+        <div class="va-kicker">VA-HALL-VISUAL-FX</div>
+        <h1>Visual FX Lab</h1>
+      </div>
+
+      <div class="va-controls">
+        <label>
+          Theme
+          <select id="themeSelect">
+            <option value="opera">Opera</option>
+            <option value="kids">Kids</option>
+            <option value="minimal">Minimal SaaS</option>
+          </select>
+        </label>
+
+        <label class="va-check">
+          <input id="glowToggle" type="checkbox" checked />
+          Glow
+        </label>
+
+        <label class="va-check">
+          <input id="cartFxToggle" type="checkbox" checked />
+          Cart FX
+        </label>
+      </div>
+    </header>
+
+    <main class="va-layout">
+      <section class="va-hall-shell">
+        <div class="va-stage">СЦЕНА</div>
+        <div id="hallRoot" class="va-hall"></div>
+      </section>
+
+      <aside class="va-cart-panel">
+        <div class="va-cart-head">
+          <h2>Кошик</h2>
+          <div id="cartBadge" class="va-cart-badge">0</div>
+        </div>
+
+        <div id="cartList" class="va-cart-list">
+          <div class="va-empty">Оберіть місця на схемі</div>
+        </div>
+
+        <button class="va-primary-btn">Перейти до оформлення</button>
+
+        <div class="va-legend">
+          <div><span class="va-dot va-dot-free"></span>Вільно</div>
+          <div><span class="va-dot va-dot-selected"></span>Обрано</div>
+          <div><span class="va-dot va-dot-hold"></span>Hold</div>
+          <div><span class="va-dot va-dot-reserved"></span>Резерв</div>
+          <div><span class="va-dot va-dot-sold"></span>Продано</div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <script src="./runtime/va-runtime-v2.js"></script>
+  <script src="./runtime/va-themes.js"></script>
+  <script src="./fx/va-glow.js"></script>
+  <script src="./fx/va-cart-animation.js"></script>
+  <script src="./lab/lab-hall-renderer.js"></script>
+  <script src="./lab/lab-demo.js"></script>
+</body>
+</html>
