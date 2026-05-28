@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>VA Premium Hall LAB</title>
+
+<style>
+
+body{
+  margin:0;
+  background:#0f172a;
+  color:#fff;
+  font-family:Arial,sans-serif;
+}
+
+.topbar{
+  padding:18px 24px;
+  background:#111827;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+.topbar h1{
+  margin:0;
+  font-size:22px;
+}
+
+.workspace{
+  display:flex;
+  justify-content:center;
+  padding:30px;
+}
+
+#hall{
+  position:relative;
+  width:1200px;
+  height:1400px;
+  overflow:auto;
+  background:#111;
+  border-radius:18px;
+  box-shadow:0 20px 60px rgba(0,0,0,.45);
+}
+
+.hall-bg{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  pointer-events:none;
+  z-index:1;
+}
+
+#seat-layer{
+  position:relative;
+  width:100%;
+  height:100%;
+  z-index:5;
+}
+
+.seat{
+  position:absolute;
+  width:26px;
+  height:26px;
+  border-radius:8px;
+  border:none;
+  cursor:pointer;
+  font-size:11px;
+  font-weight:700;
+  transition:.18s;
+  box-shadow:0 0 0 rgba(255,255,255,0);
+}
+
+.seat:hover{
+  transform:scale(1.12);
+  box-shadow:
+    0 0 12px rgba(255,255,255,.9),
+    0 0 24px rgba(255,255,255,.4);
+}
+
+.seat.selected{
+  transform:scale(1.15);
+  box-shadow:
+    0 0 18px rgba(255,255,255,1),
+    0 0 36px rgba(255,255,255,.7);
+}
+
+.align-panel{
+  position:fixed;
+  left:14px;
+  bottom:14px;
+  z-index:99999;
+  width:250px;
+  background:#111827;
+  border-radius:16px;
+  padding:14px;
+  box-shadow:0 12px 40px rgba(0,0,0,.45);
+}
+
+.align-panel h3{
+  margin:0 0 12px;
+}
+
+.row{
+  margin-bottom:12px;
+}
+
+.row-head{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:4px;
+  font-size:13px;
+}
+
+input[type=range]{
+  width:100%;
+}
+
+.copy-btn{
+  width:100%;
+  padding:10px;
+  border:0;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:700;
+}
+
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>VA PREMIUM HALL LAB</h1>
+</div>
+
+<div class="workspace">
+
+  <div id="hall">
+
+    <img
+      class="hall-bg"
+      id="hallBg"
+      src="https://monks-commits.github.io/ticketing-core/site-project/images/client-x-hall.png"
+    >
+
+    <div id="seat-layer"></div>
+
+  </div>
+
+</div>
+
+<div class="align-panel">
+
+  <h3>ALIGN</h3>
+
+  <div class="row">
+    <div class="row-head">
+      <span>Scale</span>
+      <b id="scaleVal"></b>
+    </div>
+    <input id="scale" type="range" min="0.3" max="2" step="0.01">
+  </div>
+
+  <div class="row">
+    <div class="row-head">
+      <span>X</span>
+      <b id="xVal"></b>
+    </div>
+    <input id="x" type="range" min="-500" max="500" step="1">
+  </div>
+
+  <div class="row">
+    <div class="row-head">
+      <span>Y</span>
+      <b id="yVal"></b>
+    </div>
+    <input id="y" type="range" min="-500" max="500" step="1">
+  </div>
+
+  <div class="row">
+    <div class="row-head">
+      <span>Opacity</span>
+      <b id="opacityVal"></b>
+    </div>
+    <input id="opacity" type="range" min="0.1" max="1" step="0.05">
+  </div>
+
+  <button class="copy-btn" id="copyBtn">
+    COPY ALIGN JSON
+  </button>
+
+</div>
+
+<script>
+
+const ALIGN = {
+  scale:0.85,
+  x:15,
+  y:70,
+  opacity:0.75
+};
+
+const layer = document.getElementById("seat-layer");
+
+async function loadHall(){
+
+  const res = await fetch(
+    "https://raw.githubusercontent.com/monks-commits/ticketing-core/main/data/hall/client-x.json"
+  );
+
+  const hall = await res.json();
+
+  renderSeats(hall);
+}
+
+function renderSeats(hall){
+
+  layer.innerHTML = "";
+
+  const seats = hall.seats || [];
+
+  seats.forEach(s => {
+
+    const btn = document.createElement("button");
+
+    btn.className = "seat";
+    btn.textContent = s.seat;
+
+    btn.style.left =
+      (Number(s.x) * ALIGN.scale + ALIGN.x) + "px";
+
+    btn.style.top =
+      (Number(s.y) * ALIGN.scale + ALIGN.y) + "px";
+
+    btn.style.opacity = ALIGN.opacity;
+
+    btn.style.background = s.color || "#fff";
+
+    btn.onclick = () => {
+      btn.classList.toggle("selected");
+    };
+
+    layer.appendChild(btn);
+  });
+
+  updatePanel();
+}
+
+function bind(id,key){
+
+  const input = document.getElementById(id);
+  const val = document.getElementById(id + "Val");
+
+  input.value = ALIGN[key];
+
+  const update = () => {
+
+    ALIGN[key] = Number(input.value);
+
+    val.textContent = input.value;
+
+    loadHall();
+  };
+
+  input.addEventListener("input", update);
+
+  update();
+}
+
+function updatePanel(){
+
+  scaleVal.textContent = ALIGN.scale;
+  xVal.textContent = ALIGN.x;
+  yVal.textContent = ALIGN.y;
+  opacityVal.textContent = ALIGN.opacity;
+}
+
+bind("scale","scale");
+bind("x","x");
+bind("y","y");
+bind("opacity","opacity");
+
+copyBtn.onclick = async () => {
+
+  const txt =
+`"align": {
+  "scale": ${ALIGN.scale},
+  "x": ${ALIGN.x},
+  "y": ${ALIGN.y},
+  "opacity": ${ALIGN.opacity}
+}`;
+
+  await navigator.clipboard.writeText(txt);
+
+  alert("ALIGN COPIED");
+};
+
+loadHall();
+
+</script>
+
+</body>
+</html>
