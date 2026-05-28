@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VA Hall Visual FX Engine V2</title>
+<link rel="stylesheet" href="./styles/va-engine.css">
+<link id="themeCss" rel="stylesheet" href="./themes/opera.css">
+</head>
+<body>
+<header class="va-topbar">
+  <div>
+    <div class="va-badge">VA-HALL-VISUAL-FX</div>
+    <h1 id="venueTitle">Visual FX Engine V2</h1>
+  </div>
+
+  <div class="va-controls">
+    <label>Venue
+      <select id="venueSelect"></select>
+    </label>
+
+    <label>Theme
+      <select id="themeSelect">
+        <option value="opera">Opera</option>
+        <option value="kids">Kids</option>
+        <option value="club">Club</option>
+        <option value="minimal">Minimal SaaS</option>
+      </select>
+    </label>
+
+    <label>Preset
+      <select id="presetSelect">
+        <option value="theatre">Theatre</option>
+        <option value="kids">Kids</option>
+        <option value="club">Club</option>
+        <option value="minimal">Minimal</option>
+      </select>
+    </label>
+
+    <label><input id="glowToggle" type="checkbox" checked> Glow</label>
+    <label><input id="cartFxToggle" type="checkbox" checked> Cart FX</label>
+
+    <button id="reloadBtn">Reload</button>
+  </div>
+</header>
+
+<main class="va-workspace">
+  <section class="va-hall-wrap">
+    <div id="hall" class="va-hall">
+      <img id="hallBg" class="va-hall-bg" alt="">
+      <div id="seatLayer" class="va-seat-layer"></div>
+    </div>
+  </section>
+
+  <aside class="va-side">
+    <section class="va-panel">
+      <h3>Кошик</h3>
+      <div class="va-cart-head">
+        <span id="cartTotal">0 грн</span>
+        <div id="cartBadge" class="va-cart-badge">0</div>
+      </div>
+      <div id="cartList" class="va-cart-list">
+        <div class="va-empty">Оберіть місця на схемі</div>
+      </div>
+      <button id="clearCartBtn" class="va-soft-btn">Очистити вибір</button>
+    </section>
+
+    <section class="va-panel">
+      <h3>ALIGN</h3>
+      <div class="va-row"><div class="va-row-head"><span>Scale</span><b id="scaleVal"></b></div><input id="scale" type="range" min="0.3" max="2" step="0.01"></div>
+      <div class="va-row"><div class="va-row-head"><span>X</span><b id="xVal"></b></div><input id="x" type="range" min="-900" max="900" step="1"></div>
+      <div class="va-row"><div class="va-row-head"><span>Y</span><b id="yVal"></b></div><input id="y" type="range" min="-900" max="900" step="1"></div>
+      <div class="va-row"><div class="va-row-head"><span>Opacity</span><b id="opacityVal"></b></div><input id="opacity" type="range" min="0.1" max="1" step="0.05"></div>
+      <button id="copyConfigBtn" class="va-primary-btn">COPY VENUE CONFIG</button>
+      <button id="copyAlignBtn" class="va-soft-btn">COPY ALIGN ONLY</button>
+    </section>
+
+    <section class="va-panel va-legend">
+      <div><span class="va-dot va-dot-free"></span>Вільно</div>
+      <div><span class="va-dot va-dot-selected"></span>Обрано</div>
+      <div><span class="va-dot va-dot-hold"></span>Hold</div>
+      <div><span class="va-dot va-dot-reserved"></span>Резерв</div>
+      <div><span class="va-dot va-dot-sold"></span>Продано</div>
+      <div><span class="va-dot va-dot-disabled"></span>Недоступно</div>
+      <div><span class="va-dot va-dot-invite"></span>Запрошення</div>
+      <div><span class="va-dot va-dot-partner"></span>Partner zone</div>
+    </section>
+  </aside>
+</main>
+
+<script src="./configs/venues.registry.js"></script>
+<script src="./configs/client-x.config.js"></script>
+<script src="./configs/academy.config.js"></script>
+<script src="./configs/summer-demo.config.js"></script>
+
+<script src="./runtime/va-config-loader.js"></script>
+<script src="./runtime/va-runtime.js"></script>
+<script src="./runtime/va-presets.js"></script>
+<script src="./runtime/va-seat-state.js"></script>
+<script src="./runtime/va-cart.js"></script>
+
+<script src="./adapters/coordinate-renderer.js"></script>
+<script src="./adapters/table-renderer.js"></script>
+<script src="./runtime/va-app.js"></script>
+</body>
+</html>
