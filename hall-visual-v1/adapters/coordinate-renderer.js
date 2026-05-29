@@ -3,7 +3,6 @@ window.VA_RENDERERS = window.VA_RENDERERS || {};
 window.VA_RENDERERS.coordinate = {
   render(hall) {
     const layer = document.getElementById("seatLayer");
-    const align = window.VA_RUNTIME.getAlign();
 
     layer.innerHTML = "";
 
@@ -25,9 +24,12 @@ window.VA_RENDERERS.coordinate = {
       btn.dataset.seat = rawSeat.seat || "";
       btn.dataset.price = window.VA_RUNTIME.getPrice(rawSeat);
 
-      btn.style.left = (Number(rawSeat.x) * align.scale + align.x) + "px";
-      btn.style.top = (Number(rawSeat.y) * align.scale + align.y) + "px";
-      btn.style.opacity = align.opacity;
+      // ВАЖНО:
+      // места теперь НЕ двигаем и НЕ масштабируем
+      // они стоят ровно по координатам из hall.json
+      btn.style.left = Number(rawSeat.x) + "px";
+      btn.style.top = Number(rawSeat.y) + "px";
+      btn.style.opacity = 1;
 
       if (rawSeat.color) {
         btn.style.setProperty("--seat-source-color", rawSeat.color);
@@ -45,6 +47,10 @@ window.VA_RENDERERS.coordinate = {
 
       layer.appendChild(btn);
     });
+
+    if (window.VA_APP.applyBackgroundAlign) {
+      window.VA_APP.applyBackgroundAlign();
+    }
 
     window.VA_APP.updateAlignPanel();
     window.VA_CART.refresh();
