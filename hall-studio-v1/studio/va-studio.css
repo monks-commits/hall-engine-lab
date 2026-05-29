@@ -1,0 +1,9 @@
+.va-studio-workspace{grid-template-columns:1fr 360px}
+.studio-inspector{display:grid;gap:10px}.is-hidden{display:none!important}
+.studio-kv{display:flex;justify-content:space-between;gap:12px;padding:9px 10px;border-radius:10px;background:var(--panel-2);font-size:13px}
+.studio-kv span{color:var(--muted)}.studio-kv b{text-align:right;word-break:break-all}
+.studio-label{display:grid;gap:6px;color:var(--muted);font-size:13px;margin-top:4px}
+.studio-label select{border:0;border-radius:10px;padding:10px;background:var(--panel-2);color:var(--text);font-weight:700}
+.is-studio-active{outline:3px solid var(--accent)!important;outline-offset:4px;z-index:20}
+.va-studio-panel{border-color:rgba(214,168,79,.35)}
+@media(max-width:980px){.va-studio-workspace{grid-template-columns:1fr}}
