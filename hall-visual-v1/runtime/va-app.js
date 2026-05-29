@@ -7,6 +7,8 @@ window.VA_APP = {
     window.VA_RUNTIME.setPreset(window.VA_RUNTIME.config.preset || "theatre");
 
     await this.loadHall();
+
+    this.applyBackgroundAlign();
   },
 
   async loadHall() {
@@ -24,6 +26,21 @@ window.VA_APP = {
     }
 
     renderer.render(hall);
+
+    this.applyBackgroundAlign();
+  },
+
+  applyBackgroundAlign() {
+    const a = window.VA_RUNTIME.getAlign();
+    const bg = document.getElementById("hallBg");
+
+    if (!bg) return;
+
+    bg.style.transformOrigin = "top left";
+    bg.style.transform =
+      `translate(${a.x}px, ${a.y}px) scale(${a.scale})`;
+
+    bg.style.opacity = a.opacity;
   },
 
   bindControls() {
@@ -55,7 +72,7 @@ window.VA_APP = {
       const a = window.VA_RUNTIME.getAlign();
 
       const txt =
-`"align": {
+`"backgroundAlign": {
   "scale": ${a.scale},
   "x": ${a.x},
   "y": ${a.y},
@@ -63,7 +80,7 @@ window.VA_APP = {
 }`;
 
       await navigator.clipboard.writeText(txt);
-      alert("ALIGN COPIED");
+      alert("BACKGROUND ALIGN COPIED");
     });
   },
 
@@ -81,8 +98,15 @@ window.VA_APP = {
     input.value = window.VA_RUNTIME.getAlign()[key];
 
     const update = () => {
-      window.VA_RUNTIME.setAlign(key, input.value);
+      // ВАЖНО:
+      // теперь ползунки меняют align картинки,
+      // но НЕ перерисовывают и НЕ двигают места
+      window.VA_RUNTIME.config.hall.align[key] = Number(input.value);
+
       val.textContent = input.value;
+
+      this.applyBackgroundAlign();
+      this.updateAlignPanel();
     };
 
     input.addEventListener("input", update);
