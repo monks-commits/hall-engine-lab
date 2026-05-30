@@ -1865,16 +1865,20 @@ $("restoreBrowserBtn").onclick = restoreFromBrowser;
       height: ch(),
       background_mode: $("bgMode") ? $("bgMode").value : "",
       seats: seats.map(s => ({
-        id: s.id || uid("seat"),
-        type: "seat",
-        zone: s.zone || "",
-        prefix: s.prefix || "",
-        row: String(s.row || ""),
-        seat: Number(s.seat || 0),
-        key: seatKey(s),
-        x: Number(s.x || 0),
-        y: Number(s.y || 0)
-      })),
+  id: s.id || uid("seat"),
+  type: "seat",
+  zone: s.zone || "",
+  prefix: s.prefix || "",
+  row: String(s.row || ""),
+  seat: Number(s.seat || 0),
+  key: seatKey(s),
+
+  x: Number(s.x || 0),
+  y: Number(s.y || 0),
+
+  x_pct: +((Number(s.x || 0) / cw()) * 100).toFixed(4),
+  y_pct: +((Number(s.y || 0) / ch()) * 100).toFixed(4)
+}))
       decor: decor.map(d => ({
         ...d,
         id: d.id || uid(d.type || "decor"),
