@@ -1688,6 +1688,9 @@ function exportObject(){
       key: seatKey(s),
       x: Number(s.x),
       y: Number(s.y)
+x_pct: +((Number(s.x) / cw()) * 100).toFixed(4),
+y_pct: +((Number(s.y) / ch()) * 100).toFixed(4)
+      
     })),
     decor: decor.map(d => ({ ...d }))
   };
