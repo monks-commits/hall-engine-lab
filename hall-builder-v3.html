@@ -1881,7 +1881,7 @@ $("restoreBrowserBtn").onclick = restoreFromBrowser;
 
   x_pct: +((Number(s.x || 0) / cw()) * 100).toFixed(4),
   y_pct: +((Number(s.y || 0) / ch()) * 100).toFixed(4)
-}))
+})),
       decor: decor.map(d => ({
         ...d,
         id: d.id || uid(d.type || "decor"),
