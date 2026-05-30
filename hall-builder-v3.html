@@ -1025,27 +1025,28 @@ imageLoader.addEventListener("change", e => {
     const img = new Image();
 
     img.onload = () => {
-      bgNaturalW = img.naturalWidth || img.width;
-      bgNaturalH = img.naturalHeight || img.height;
+  bgNaturalW = img.naturalWidth || img.width;
+  bgNaturalH = img.naturalHeight || img.height;
 
-     $("canvasW").value = 1000;
-$("canvasH").value = 1200;
+  $("canvasW").value = bgNaturalW;
+  $("canvasH").value = bgNaturalH;
+  $("bgMode").value = "stretch";
 
-      applyCanvas();
+  applyCanvas();
 
-      log(
-        "BACKGROUND LOADED: " +
-        file.name +
-        "\\nOriginal: " +
-        bgNaturalW +
-        "x" +
-        bgNaturalH +
-        "\\nStandard canvas: " +
-        $("canvasW").value +
-        "x" +
-        $("canvasH").value
-      );
-    };
+  log(
+    "BACKGROUND LOADED: " +
+    file.name +
+    "\\nOriginal: " +
+    bgNaturalW +
+    "x" +
+    bgNaturalH +
+    "\\nCanvas = image size: " +
+    $("canvasW").value +
+    "x" +
+    $("canvasH").value
+  );
+};
 
     img.src = bgDataUrl;
   };
