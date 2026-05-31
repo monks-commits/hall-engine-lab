@@ -471,6 +471,102 @@ function downloadJsonFile(data,filename){
   a.click();
   URL.revokeObjectURL(a.href);
 }
-function exportScene(){scene.canvas.width=cw();scene.canvas.height=ch();return scene}function loadScene(data){if(data&&data.format==='va-hall-ultra-scene'){scene=data}else{scene={...scene,objects:[...(Array.isArray(data.seats)?data.seats.map(s=>({...s,id:s.id||uid('seat'),type:s.type||'seat',layerId:'seats',w:Number(s.w||14),h:Number(s.h||14),x:Number(s.x||0),y:Number(s.y||0)})):[]),...(Array.isArray(data.decor)?data.decor.map(d=>({...d,id:d.id||uid(d.type||'box'),type:d.type||'box',layerId:d.type==='text'?'text':'architecture',x:Number(d.x||0),y:Number(d.y||0),w:Number(d.w||160),h:Number(d.h||80),text:d.text||''})):[])]};if(data.width&&data.height){scene.canvas.width=data.width;scene.canvas.height=data.height}}$('canvasW').value=scene.canvas.width||1280;$('canvasH').value=scene.canvas.height||900;applyCanvas();selected.clear();render()}$('exportBtn').onclick=()=>{jsonOutput.value=JSON.stringify(exportScene(),null,2)};$('stableExportBtn').onclick=()=>{const data=exportStableScene();jsonOutput.value=JSON.stringify(data,null,2);log('STABLE JSON ГОТОВ: '+data.seats.length+' мест, decor: '+data.decor.length)};$('downloadBtn').onclick=()=>{downloadJsonFile(exportScene(),'va-hall-ultra-scene.json')};$('stableDownloadBtn').onclick=()=>{const data=exportStableScene();downloadJsonFile(data,'va-hall-stable.json');log('STABLE JSON СКАЧАН: '+data.seats.length+' мест, decor: '+data.decor.length)};$('saveBrowserBtn').onclick=()=>{localStorage.setItem('va_hall_ultra_autosave',JSON.stringify(exportScene()))};$('restoreBrowserBtn').onclick=()=>{const raw=localStorage.getItem('va_hall_ultra_autosave');if(raw)loadScene(JSON.parse(raw))};$('importBtn').onclick=()=>{try{loadScene(JSON.parse(jsonOutput.value))}catch(e){alert('JSON не прочитался')}};
-applyCanvas();applyZoom();refreshLayers();render();log('READY: ULTRA Trace v1');
+function exportScene(){
+  scene.canvas.width = cw();
+  scene.canvas.height = ch();
+  return scene;
+}
+
+function loadScene(data){
+  if(data && data.format === 'va-hall-ultra-scene'){
+    scene = data;
+  } else {
+    scene = {
+      ...scene,
+      objects: [
+        ...(Array.isArray(data.seats) ? data.seats.map(s => ({
+          ...s,
+          id: s.id || uid('seat'),
+          type: s.type || 'seat',
+          layerId: 'seats',
+          w: Number(s.w || 14),
+          h: Number(s.h || 14),
+          x: Number(s.x || 0),
+          y: Number(s.y || 0)
+        })) : []),
+
+        ...(Array.isArray(data.decor) ? data.decor.map(d => ({
+          ...d,
+          id: d.id || uid(d.type || 'box'),
+          type: d.type || 'box',
+          layerId: d.type === 'text' ? 'text' : 'architecture',
+          x: Number(d.x || 0),
+          y: Number(d.y || 0),
+          w: Number(d.w || 160),
+          h: Number(d.h || 80),
+          text: d.text || ''
+        })) : [])
+      ]
+    };
+
+    if(data.width && data.height){
+      scene.canvas.width = data.width;
+      scene.canvas.height = data.height;
+    }
+  }
+
+  $('canvasW').value = scene.canvas.width || 1280;
+  $('canvasH').value = scene.canvas.height || 900;
+
+  applyCanvas();
+  selected.clear();
+  render();
+}
+
+$('exportBtn').onclick = () => {
+  const data = exportStableScene();
+  jsonOutput.value = JSON.stringify(data, null, 2);
+  log('STABLE JSON ГОТОВ: ' + data.seats.length + ' мест, decor: ' + data.decor.length);
+};
+
+$('stableExportBtn').onclick = () => {
+  const data = exportStableScene();
+  jsonOutput.value = JSON.stringify(data, null, 2);
+  log('STABLE JSON ГОТОВ: ' + data.seats.length + ' мест, decor: ' + data.decor.length);
+};
+
+$('downloadBtn').onclick = () => {
+  const data = exportStableScene();
+  downloadJsonFile(data, 'va-hall-stable.json');
+  log('STABLE JSON СКАЧАН: ' + data.seats.length + ' мест, decor: ' + data.decor.length);
+};
+
+$('stableDownloadBtn').onclick = () => {
+  const data = exportStableScene();
+  downloadJsonFile(data, 'va-hall-stable.json');
+  log('STABLE JSON СКАЧАН: ' + data.seats.length + ' мест, decor: ' + data.decor.length);
+};
+
+$('saveBrowserBtn').onclick = () => {
+  localStorage.setItem('va_hall_ultra_autosave', JSON.stringify(exportScene()));
+};
+
+$('restoreBrowserBtn').onclick = () => {
+  const raw = localStorage.getItem('va_hall_ultra_autosave');
+  if(raw) loadScene(JSON.parse(raw));
+};
+
+$('importBtn').onclick = () => {
+  try{
+    loadScene(JSON.parse(jsonOutput.value));
+  } catch(e){
+    alert('JSON не прочитался');
+  }
+};
+
+applyCanvas();
+applyZoom();
+refreshLayers();
+render();
+log('READY: ULTRA Trace v1');
 </script></body></html>
