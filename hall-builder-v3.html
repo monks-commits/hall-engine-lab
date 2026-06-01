@@ -707,6 +707,26 @@ function objectById(id){
   return allObjects().find(o => o.id === id);
 }
 
+function ensureUniqueObjectIds(){
+  const used = new Set();
+
+  seats.forEach(s => {
+    const raw = String(s.id || "");
+    if (!raw || raw === "undefined" || raw === "null" || used.has(raw)) {
+      s.id = uid("seat");
+    }
+    used.add(String(s.id));
+  });
+
+  decor.forEach(d => {
+    const raw = String(d.id || "");
+    if (!raw || raw === "undefined" || raw === "null" || used.has(raw)) {
+      d.id = uid(d.type || "decor");
+    }
+    used.add(String(d.id));
+  });
+}
+
 function applyCanvas(){
   const w = Math.max(100, n("canvasW", 1600));
   const h = Math.max(100, n("canvasH", 1000));
@@ -767,6 +787,7 @@ function autoSaveToBrowser(){
 }
   
 function render(){
+  ensureUniqueObjectIds();
   canvas
   .querySelectorAll(".seat-dot,.seat-label,.decor-text,.decor-stage,.decor-box,.decor-door,.decor-wall,.decor-arc")
   .forEach(el => el.remove());
@@ -1861,6 +1882,7 @@ $("restoreBrowserBtn").onclick = restoreFromBrowser;
   }
 
   function stableBuildJson(){
+    ensureUniqueObjectIds();
     return {
       version: 7,
       format: "va-hall-studio-geometry-stable",
@@ -1937,6 +1959,8 @@ $("restoreBrowserBtn").onclick = restoreFromBrowser;
           y: Number(d.y || 0)
         }))
       : [];
+
+    ensureUniqueObjectIds();
 
     if (data.width && data.height) {
       $("canvasW").value = data.width;
