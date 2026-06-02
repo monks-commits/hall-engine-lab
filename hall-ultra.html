@@ -522,7 +522,11 @@ function exportStableScene(){
       prefix:o.prefix||'P',
       row,
       seat,
-      key:o.key||stableSeatKey({prefix:o.prefix,row,seat}),
+      key: stableSeatKey({
+  prefix: o.prefix || "P",
+  row,
+  seat
+}),
       x:Number(o.x||0),
       y:Number(o.y||0),
       x_pct:o.x_pct!==undefined?Number(o.x_pct):toPct(o.x,width),
