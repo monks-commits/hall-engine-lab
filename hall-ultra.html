@@ -46,7 +46,7 @@ function render(){canvas.querySelectorAll('.obj,.select-box,.seat-number,.transf
   ){
     el.style.fontSize = (o.size || 22) + 'px';
   }
-}if(o.type==='media'&&o.mediaData){el.textContent='';const isVideo=String(o.mediaMime||'').startsWith('video/'),m=document.createElement(isVideo?'video':'img');m.src=o.mediaData;m.style.objectFit=o.mediaFit||'cover';if(isVideo){m.autoplay=true;m.loop=true;m.muted=true;m.playsInline=true}el.appendChild(m)}if(o.type==='text'||o.type==='label'){
+if(o.type==='media'&&o.mediaData){el.textContent='';const isVideo=String(o.mediaMime||'').startsWith('video/'),m=document.createElement(isVideo?'video':'img');m.src=o.mediaData;m.style.objectFit=o.mediaFit||'cover';if(isVideo){m.autoplay=true;m.loop=true;m.muted=true;m.playsInline=true}el.appendChild(m)}if(o.type==='text'||o.type==='label'){
   el.textContent = o.text || 'Текст';
   el.style.fontSize = (o.size || 22) + 'px';
   el.style.color = o.textColor || '#111827';
