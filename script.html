@@ -1,0 +1,29 @@
+function scaleHallJson(hallData, scale = 0.75){
+  const out = structuredClone(hallData);
+
+  out.width = Math.round((out.width || 1200) * scale);
+  out.height = Math.round((out.height || 900) * scale);
+
+  if (Array.isArray(out.seats)){
+    out.seats.forEach(s => {
+      s.x = Math.round(Number(s.x || 0) * scale);
+      s.y = Math.round(Number(s.y || 0) * scale);
+      if (s.w) s.w = Math.round(Number(s.w) * scale);
+      if (s.h) s.h = Math.round(Number(s.h) * scale);
+      if (s.size) s.size = Math.round(Number(s.size) * scale);
+    });
+  }
+
+  if (Array.isArray(out.decor)){
+    out.decor.forEach(d => {
+      if (d.x != null) d.x = Math.round(Number(d.x) * scale);
+      if (d.y != null) d.y = Math.round(Number(d.y) * scale);
+      if (d.w != null) d.w = Math.round(Number(d.w) * scale);
+      if (d.h != null) d.h = Math.round(Number(d.h) * scale);
+      if (d.size != null) d.size = Math.round(Number(d.size) * scale);
+      if (d.fontSize != null) d.fontSize = Math.round(Number(d.fontSize) * scale);
+    });
+  }
+
+  return out;
+}
