@@ -26,7 +26,7 @@
 <main class="work"><div class="topbar"><b>ULTRA Scene Canvas</b><span>Trace = ведите мышью. Клик = объект. SPACE+drag = pan.</span></div><div id="zoomHost"><div id="canvas"><div class="grid" id="grid"></div></div></div></main>
 <aside class="right"><h2>Selection</h2><button class="btn" id="selectAllBtn">ВЫДЕЛИТЬ ВСЁ</button><button class="btn" id="clearSelectionBtn">СНЯТЬ ВЫДЕЛЕНИЕ</button><button class="btn red" id="deleteBtn">УДАЛИТЬ</button><button class="btn orange" id="undoBtn">ОТМЕНИТЬ</button><button class="btn red" id="clearBtn">ОЧИСТИТЬ ВСЁ</button>
 <h2>Inspector</h2><div class="small" id="inspectInfo">Выделите объект</div><div class="row2"><div class="field"><label>X</label><input id="insX" type="number"></div><div class="field"><label>Y</label><input id="insY" type="number"></div></div><div class="row2"><div class="field"><label>W</label><input id="insW" type="number"></div><div class="field"><label>H</label><input id="insH" type="number"></div></div><div class="row3"><div class="field"><label>Rotate</label><input id="insRotate" type="number"></div><div class="field"><label>Z</label><input id="insZ" type="number"></div><div class="field"><label>Size</label><input id="insSize" type="number"></div></div><div class="field"><label>Text</label><input id="insText"></div><div class="row2"><div class="field"><label>Fill</label><input id="insFill" type="color" value="#8b5cf6"></div><div class="field"><label>Border</label><input id="insBorder" type="color" value="#ffffff"></div></div><div class="row2"><div class="field"><label>Text Color</label><input id="insTextColor" type="color" value="#111827"></div><div class="field"><label>Opacity</label><input id="insOpacity" type="range" min="0" max="1" step="0.05" value="1"></div></div><div class="field"><label>Glow</label><input id="insGlow" type="range" min="0" max="40" step="1" value="0"></div><div class="field"><label>Media File</label><input id="insMediaFile" type="file" accept="image/*,video/*"></div><div class="field"><label>Media Fit</label><select id="insMediaFit"><option value="cover">Cover</option><option value="contain">Contain</option><option value="fill">Fill</option></select></div><div class="row3"><div class="field"><label>Label X</label><input id="insLabelX" type="number"></div><div class="field"><label>Label Y</label><input id="insLabelY" type="number"></div><div class="field"><label>Label Size</label><input id="insLabelSize" type="number"></div></div><div class="field"><label>Номера selected</label><select id="insShowLabel"><option value="inherit">Как глобально</option><option value="1">Показать</option><option value="0">Скрыть</option></select></div>
-<div class="textfix-box" id="textFixBox"><h2>Текст / цифры</h2><div class="textfix-mini">Выделите текст, плашку, сцену или зону. Автоматические номера мест не являются отдельными объектами.</div><div class="field"><label>Содержимое</label><input id="tfText" value=""></div><div class="row2"><div class="field"><label>Шрифт</label><input id="tfFont" value="Arial"></div><div class="field"><label>Размер</label><input id="tfSize" type="number" value="22"></div></div><div class="row2"><div class="field"><label>Цвет текста</label><input id="tfColor" type="color" value="#ffffff"></div><div class="field"><label>Жирность</label><select id="tfWeight"><option value="400">Обычный</option><option value="700">Жирный</option><option value="900">Очень жирный</option></select></div></div><div class="row2"><div class="field"><label>Контур</label><input id="tfStrokeColor" type="color" value="#000000"></div><div class="field"><label>Толщина контура</label><input id="tfStrokeWidth" type="number" value="0"></div></div><div class="row2"><button class="textfix-btn" id="tfApplyBtn">ПРИМЕНИТЬ К ВЫДЕЛЕННОМУ</button><button class="textfix-btn gold" id="tfWhiteBtn">БЕЛЫЙ + ЧЁРНЫЙ КОНТУР</button></div></div><h2>Transform</h2><button class="btn blue" id="alignYBtn">ВЫРОВНЯТЬ ПО ГОРИЗОНТАЛИ</button><button class="btn blue" id="alignXBtn">ВЫРОВНЯТЬ ПО ВЕРТИКАЛИ</button><button class="btn purple" id="distXBtn">РАСПРЕДЕЛИТЬ ПО ГОРИЗОНТАЛИ</button><button class="btn purple" id="distYBtn">РАСПРЕДЕЛИТЬ ПО ВЕРТИКАЛИ</button><button class="btn purple" id="perspectiveBtn">ПЕРСПЕКТИВА SELECTED</button><div class="row2"><div class="field"><label>Arc Depth +/-</label><input id="arcAlignDepth" type="number" value="40"></div><div class="field"><label>Arc Sort</label><select id="arcAlignSort"><option value="auto">Auto</option><option value="x-asc">X →</option><option value="x-desc">X ←</option><option value="y-asc">Y ↓</option><option value="y-desc">Y ↑</option></select></div></div><button class="btn gold" id="alignArcBtn">ВЫРОВНЯТЬ SELECTED ПО ДУГЕ</button><div class="small">Выделите места одного ряда. Крайние места станут якорями, остальные равномерно лягут по дуге. Если дуга выгнулась не туда — поменяйте знак Arc Depth.</div><div class="row2"><div class="field"><label>Rotate selected °</label><input id="rotateSelectedAngle" type="number" value="3"></div><div class="field"><label>Rows Arc Depth</label><input id="rowsArcDepth" type="number" value="20"></div></div><button class="btn gold" id="rotateSelectedBtn">ПОВЕРНУТЬ SELECTED</button><button class="btn gold" id="alignSelectedRowsLineBtn">ВЫРОВНЯТЬ SELECTED ПО РЯДАМ</button><div class="row2"><button class="btn gold" id="alignSelectedRowsUpBtn">ДУГА РЯДОВ ВВЕРХ</button><button class="btn gold" id="alignSelectedRowsDownBtn">ДУГА РЯДОВ ВНИЗ</button></div><div class="small">Можно выделять сектор с несколькими рядами. Инструмент сам группирует места по Zone+Row и правит каждый ряд отдельно.</div><h2>Быстрое выделение</h2><div class="row2"><button class="btn blue" id="selectCurrentRowBtn">ВЫДЕЛИТЬ РЯД</button><button class="btn blue" id="addCurrentRowBtn">ДОБАВИТЬ РЯД</button></div><button class="btn blue" id="selectCurrentZoneBtn">ВЫДЕЛИТЬ ЗОНУ</button><div class="small">Использует поля Zone и Row слева. Для Оперы удобно: ставим Zone=Амфитеатр, Row=17 и жмём кнопку.</div><h2>Copy / Mirror</h2><button class="btn orange" id="copyBtn">КОПИРОВАТЬ</button><button class="btn orange" id="pasteBtn">ВСТАВИТЬ</button><div class="row2"><div class="field"><label>dx</label><input id="dupOffsetX" type="number" value="40"></div><div class="field"><label>dy</label><input id="dupOffsetY" type="number" value="40"></div></div><button class="btn purple" id="duplicateBtn">ДУБЛИРОВАТЬ</button><button class="btn blue" id="mirrorXBtn">ЗЕРКАЛО X</button><button class="btn blue" id="mirrorYBtn">ЗЕРКАЛО Y</button>
+<div class="textfix-box" id="textFixBox"><h2>Текст / цифры</h2><div class="textfix-mini">Выделите текст, плашку, сцену или зону. Автоматические номера мест не являются отдельными объектами.</div><div class="field"><label>Содержимое</label><input id="tfText" value=""></div><div class="row2"><div class="field"><label>Шрифт</label><input id="tfFont" value="Arial"></div><div class="field"><label>Размер</label><input id="tfSize" type="number" value="22"></div></div><div class="row2"><div class="field"><label>Цвет текста</label><input id="tfColor" type="color" value="#ffffff"></div><div class="field"><label>Жирность</label><select id="tfWeight"><option value="400">Обычный</option><option value="700">Жирный</option><option value="900">Очень жирный</option></select></div></div><div class="row2"><div class="field"><label>Контур</label><input id="tfStrokeColor" type="color" value="#000000"></div><div class="field"><label>Толщина контура</label><input id="tfStrokeWidth" type="number" value="0"></div></div><div class="field"><label>Свечение текста</label><input id="tfGlow" type="range" min="0" max="40" step="1" value="0"></div><div class="row2"><button class="textfix-btn" id="tfApplyBtn">ПРИМЕНИТЬ К ВЫДЕЛЕННОМУ</button><button class="textfix-btn gold" id="tfWhiteBtn">БЕЛЫЙ + ЧЁРНЫЙ КОНТУР + СВЕТ</button></div></div><h2>Transform</h2><button class="btn blue" id="alignYBtn">ВЫРОВНЯТЬ ПО ГОРИЗОНТАЛИ</button><button class="btn blue" id="alignXBtn">ВЫРОВНЯТЬ ПО ВЕРТИКАЛИ</button><button class="btn purple" id="distXBtn">РАСПРЕДЕЛИТЬ ПО ГОРИЗОНТАЛИ</button><button class="btn purple" id="distYBtn">РАСПРЕДЕЛИТЬ ПО ВЕРТИКАЛИ</button><button class="btn purple" id="perspectiveBtn">ПЕРСПЕКТИВА SELECTED</button><div class="row2"><div class="field"><label>Arc Depth +/-</label><input id="arcAlignDepth" type="number" value="40"></div><div class="field"><label>Arc Sort</label><select id="arcAlignSort"><option value="auto">Auto</option><option value="x-asc">X →</option><option value="x-desc">X ←</option><option value="y-asc">Y ↓</option><option value="y-desc">Y ↑</option></select></div></div><button class="btn gold" id="alignArcBtn">ВЫРОВНЯТЬ SELECTED ПО ДУГЕ</button><div class="small">Выделите места одного ряда. Крайние места станут якорями, остальные равномерно лягут по дуге. Если дуга выгнулась не туда — поменяйте знак Arc Depth.</div><div class="row2"><div class="field"><label>Rotate selected °</label><input id="rotateSelectedAngle" type="number" value="3"></div><div class="field"><label>Rows Arc Depth</label><input id="rowsArcDepth" type="number" value="20"></div></div><button class="btn gold" id="rotateSelectedBtn">ПОВЕРНУТЬ SELECTED</button><button class="btn gold" id="alignSelectedRowsLineBtn">ВЫРОВНЯТЬ SELECTED ПО РЯДАМ</button><div class="row2"><button class="btn gold" id="alignSelectedRowsUpBtn">ДУГА РЯДОВ ВВЕРХ</button><button class="btn gold" id="alignSelectedRowsDownBtn">ДУГА РЯДОВ ВНИЗ</button></div><div class="small">Можно выделять сектор с несколькими рядами. Инструмент сам группирует места по Zone+Row и правит каждый ряд отдельно.</div><h2>Быстрое выделение</h2><div class="row2"><button class="btn blue" id="selectCurrentRowBtn">ВЫДЕЛИТЬ РЯД</button><button class="btn blue" id="addCurrentRowBtn">ДОБАВИТЬ РЯД</button></div><button class="btn blue" id="selectCurrentZoneBtn">ВЫДЕЛИТЬ ЗОНУ</button><div class="small">Использует поля Zone и Row слева. Для Оперы удобно: ставим Zone=Амфитеатр, Row=17 и жмём кнопку.</div><h2>Copy / Mirror</h2><button class="btn orange" id="copyBtn">КОПИРОВАТЬ</button><button class="btn orange" id="pasteBtn">ВСТАВИТЬ</button><div class="row2"><div class="field"><label>dx</label><input id="dupOffsetX" type="number" value="40"></div><div class="field"><label>dy</label><input id="dupOffsetY" type="number" value="40"></div></div><button class="btn purple" id="duplicateBtn">ДУБЛИРОВАТЬ</button><button class="btn blue" id="mirrorXBtn">ЗЕРКАЛО X</button><button class="btn blue" id="mirrorYBtn">ЗЕРКАЛО Y</button>
 <h2>Export / Import</h2><button class="btn green" id="exportBtn">ЭКСПОРТ JSON</button><button class="btn blue" id="stableExportBtn">ЭКСПОРТ STABLE JSON</button><button class="btn green" id="downloadBtn">СКАЧАТЬ JSON</button><button class="btn blue" id="stableDownloadBtn">СКАЧАТЬ STABLE JSON</button><button class="btn orange" id="saveBrowserBtn">СОХРАНИТЬ В БРАУЗЕРЕ</button><button class="btn orange" id="restoreBrowserBtn">ВОССТАНОВИТЬ</button><button class="btn" id="importBtn">ИМПОРТ JSON</button><div class="field"><label>JSON</label><textarea id="jsonOutput"></textarea></div><h2>Status</h2><div class="counter" id="counter"></div><h2>Log</h2><div class="log" id="log"></div></aside></div>
 <script>
 'use strict';const $=id=>document.getElementById(id),canvas=$('canvas'),grid=$('grid'),zoomHost=$('zoomHost'),imageLoader=$('imageLoader'),jsonOutput=$('jsonOutput'),counter=$('counter'),logBox=$('log'),zoomLabel=$('zoomLabel'),activeLayerEl=$('activeLayer'),layerListEl=$('layerList');
@@ -43,16 +43,21 @@ function safeColor(v,f){v=String(v||'').trim();return /^#[0-9a-fA-F]{6}$/.test(v
   if(o.textColor)el.style.color=o.textColor;
   if(o.fontFamily)el.style.fontFamily=o.fontFamily;
   if(o.fontWeight)el.style.fontWeight=o.fontWeight;
-  if(o.strokeWidth&&Number(o.strokeWidth)>0){
-    const sw=Number(o.strokeWidth)||0, sc=o.strokeColor||'#000000';
-    el.style.webkitTextStroke=sw+'px '+sc;
-    el.style.textShadow=[
-      `${-sw}px ${-sw}px 0 ${sc}`, `${sw}px ${-sw}px 0 ${sc}`,
-      `${-sw}px ${sw}px 0 ${sc}`, `${sw}px ${sw}px 0 ${sc}`
-    ].join(',');
-  } else {
-    el.style.webkitTextStroke='0px transparent';
-    el.style.textShadow='none';
+  const isTextLike=['text','label','stage','zone','box','bar','screen','table'].includes(o.type);
+  if(isTextLike){
+    const sw=Number(o.strokeWidth||0), sc=o.strokeColor||'#000000', tg=Number(o.textGlow||0);
+    const shadows=[];
+    if(sw>0){
+      el.style.webkitTextStroke=sw+'px '+sc;
+      shadows.push(`${-sw}px ${-sw}px 0 ${sc}`, `${sw}px ${-sw}px 0 ${sc}`, `${-sw}px ${sw}px 0 ${sc}`, `${sw}px ${sw}px 0 ${sc}`, `0 ${-sw}px 0 ${sc}`, `0 ${sw}px 0 ${sc}`, `${-sw}px 0 0 ${sc}`, `${sw}px 0 0 ${sc}`);
+    } else {
+      el.style.webkitTextStroke='0px transparent';
+    }
+    if(tg>0){
+      const tc=o.textColor||'#ffffff';
+      shadows.push(`0 0 ${tg}px ${tc}`, `0 0 ${Math.round(tg*1.8)}px ${tc}`);
+    }
+    el.style.textShadow=shadows.length?shadows.join(','):'none';
   }
   if(o.opacity!==undefined)el.style.opacity=o.opacity;
   if(o.glow&&Number(o.glow)>0)el.style.boxShadow=`0 0 ${Number(o.glow)}px rgba(124,58,237,.9)`
@@ -200,7 +205,7 @@ function textSelectedObjects(){
 function refreshTextFix(){
   const list=textSelectedObjects();
   const disabled=list.length<1;
-  ['tfText','tfFont','tfSize','tfColor','tfWeight','tfStrokeColor','tfStrokeWidth','tfApplyBtn','tfWhiteBtn'].forEach(id=>{const el=$(id);if(el)el.disabled=disabled});
+  ['tfText','tfFont','tfSize','tfColor','tfWeight','tfStrokeColor','tfStrokeWidth','tfGlow','tfApplyBtn','tfWhiteBtn'].forEach(id=>{const el=$(id);if(el)el.disabled=disabled});
   if(disabled)return;
   const o=list[0];
   $('tfText').value=o.text||'';
@@ -210,6 +215,7 @@ function refreshTextFix(){
   $('tfWeight').value=String(o.fontWeight||900);
   $('tfStrokeColor').value=safeColor(o.strokeColor,'#000000');
   $('tfStrokeWidth').value=Number(o.strokeWidth||0);
+  if($('tfGlow')) $('tfGlow').value=Number(o.textGlow||0);
 }
 function applyTextFix(forceWhite=false){
   const list=textSelectedObjects();
@@ -223,11 +229,13 @@ function applyTextFix(forceWhite=false){
     o.fontWeight=forceWhite?900:Number($('tfWeight').value||900);
     o.strokeColor=forceWhite?'#000000':$('tfStrokeColor').value;
     o.strokeWidth=forceWhite?2:num('tfStrokeWidth',0);
+    o.textGlow=forceWhite?14:num('tfGlow',0);
+    o.color=o.textColor;
   });
   render();
   log('TEXT OK: обновлено '+list.length+' объект(ов)');
 }
-['tfText','tfFont','tfSize','tfColor','tfWeight','tfStrokeColor','tfStrokeWidth'].forEach(id=>{const el=$(id);if(el){el.addEventListener('input',()=>applyTextFix(false));el.addEventListener('change',()=>applyTextFix(false));}});
+['tfText','tfFont','tfSize','tfColor','tfWeight','tfStrokeColor','tfStrokeWidth','tfGlow'].forEach(id=>{const el=$(id);if(el){el.addEventListener('input',()=>applyTextFix(false));el.addEventListener('change',()=>applyTextFix(false));}});
 if($('tfApplyBtn'))$('tfApplyBtn').onclick=()=>applyTextFix(false);
 if($('tfWhiteBtn'))$('tfWhiteBtn').onclick=()=>applyTextFix(true);
 
@@ -634,7 +642,7 @@ function exportStableScene(){
         y:Number(o.y||0)
       };
       ['w','h','rotate','z','size','border','opacity','glow'].forEach(k=>{ if(o[k]!==undefined)d[k]=Number(o[k]); });
-      ['text','fill','borderColor','textColor','mediaFit','mediaMime','layerId'].forEach(k=>{ if(o[k]!==undefined)d[k]=o[k]; });
+      ['text','fill','borderColor','textColor','color','fontFamily','fontWeight','strokeColor','strokeWidth','textGlow','mediaFit','mediaMime','layerId'].forEach(k=>{ if(o[k]!==undefined)d[k]=o[k]; });
       return d;
     });
 
