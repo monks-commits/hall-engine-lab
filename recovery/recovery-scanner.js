@@ -117,7 +117,10 @@ async function sendToken(token){
 }
 
   if (!res.ok || data.ok === false) {
-    setStatus(
+
+  playScanSound("error");
+
+  setStatus(
       "bad",
       "Помилка",
       data.error || `HTTP ${res.status}`,
@@ -125,7 +128,8 @@ async function sendToken(token){
     );
     return;
   }
-
+  
+playScanSound("success");
   setStatus(
     "ok",
     "КОМПЕНСАЦІЮ ПІДТВЕРДЖЕНО",
