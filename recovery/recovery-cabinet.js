@@ -252,8 +252,8 @@ if (!token) {
 
         token,
 
-        seat_label:"—",
-        owner_name:"Recovery Client",
+        seat_label,
+owner_name,
 
         compensation_allowed:true,
         compensation_used:false
