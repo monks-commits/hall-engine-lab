@@ -229,14 +229,20 @@ async function quickActivateRecovery(){
     }
 
     const token =
-      document.getElementById("quickToken")
-      .value
-      .trim();
+  document.getElementById("quickToken")
+  .value
+  .trim();
 
-    if (!token) {
-      alert("Введіть token");
-      return;
-    }
+const seat_label =
+  document.getElementById("quickSeat")?.value?.trim() || "";
+
+const owner_name =
+  document.getElementById("quickOwner")?.value?.trim() || "";
+
+if (!token) {
+  alert("Введіть token");
+  return;
+}
 
     const inserted = await supaInsert(
       "recovery_tokens",
