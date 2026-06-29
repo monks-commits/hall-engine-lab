@@ -1,30 +1,43 @@
 let qr = null;
 let lastToken = "";
 let lastScanAt = 0;
-const cooldownMs = 1400;
 
 const $ = (id) => document.getElementById(id);
 
+let audioCtx = null;
+
+function initAudio(){
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === "suspended") audioCtx.resume();
+  } catch(e) {
+    console.warn("audio init error", e);
+  }
+}
+
 function playScanSound(type){
   try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    initAudio();
+    if (!audioCtx) return;
 
-    const beep = (freq, start, duration) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
+    const beep = (freq, start, duration, volume = 0.18) => {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
 
       osc.type = "sine";
       osc.frequency.value = freq;
 
-      gain.gain.setValueAtTime(0.001, ctx.currentTime + start);
-      gain.gain.exponentialRampToValueAtTime(0.18, ctx.currentTime + start + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + duration);
+      const t = audioCtx.currentTime + start;
+
+      gain.gain.setValueAtTime(0.001, t);
+      gain.gain.exponentialRampToValueAtTime(volume, t + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + duration);
 
       osc.connect(gain);
-      gain.connect(ctx.destination);
+      gain.connect(audioCtx.destination);
 
-      osc.start(ctx.currentTime + start);
-      osc.stop(ctx.currentTime + start + duration + 0.02);
+      osc.start(t);
+      osc.stop(t + duration + 0.03);
     };
 
     if (type === "success") {
@@ -34,7 +47,7 @@ function playScanSound(type){
     }
 
     if (type === "used") {
-      beep(260, 0, 0.45);
+      beep(260, 0, 0.45, 0.22);
       return;
     }
 
@@ -58,10 +71,11 @@ function setStatus(kind, title, details, token){
 }
 
 async function sendToken(token){
-
   const secret =
-  RECOVERY_SCANNER_SECRET || $("secret").value.trim();
-  const scanned_by = $("gate").value.trim() || "recovery-gate"; 
+    RECOVERY_SCANNER_SECRET || $("secret").value.trim();
+
+  const scanned_by =
+    $("gate").value.trim() || "recovery-gate";
 
   const res = await fetch(RECOVERY_SCAN_ENDPOINT, {
     method:"POST",
@@ -78,49 +92,41 @@ async function sendToken(token){
   const data = await res.json().catch(() => ({}));
 
   if (res.status === 401) {
-
-  playScanSound("error");
-
-  setStatus(
-    "bad",
-    "Доступ заборонено",
-    "Невірний scanner secret.",
-    token
-  );
-  return;
-}
+    playScanSound("error");
+    setStatus(
+      "bad",
+      "Доступ заборонено",
+      "Невірний scanner secret.",
+      token
+    );
+    return;
+  }
 
   if (res.status === 404) {
+    playScanSound("error");
+    setStatus(
+      "bad",
+      "Квиток не знайдено",
+      "Цього квитка немає у compensation pool.",
+      token
+    );
+    return;
+  }
 
-  playScanSound("error");
-
-  setStatus(
-    "bad",
-    "Квиток не знайдено",
-    "Цього квитка немає у compensation pool.",
-    token
-  );
-  return;
-}
-
- if (res.status === 409) {
-
-  playScanSound("used");
-
-  setStatus(
-    "warn",
-    "Вже використано",
-    "Компенсаційний прохід уже був зафіксований.",
-    token
-  );
-  return;
-}
+  if (res.status === 409) {
+    playScanSound("used");
+    setStatus(
+      "warn",
+      "Вже використано",
+      "Компенсаційний прохід уже був зафіксований.",
+      token
+    );
+    return;
+  }
 
   if (!res.ok || data.ok === false) {
-
-  playScanSound("error");
-
-  setStatus(
+    playScanSound("error");
+    setStatus(
       "bad",
       "Помилка",
       data.error || `HTTP ${res.status}`,
@@ -128,8 +134,9 @@ async function sendToken(token){
     );
     return;
   }
-  
-playScanSound("success");
+
+  playScanSound("success");
+
   setStatus(
     "ok",
     "КОМПЕНСАЦІЮ ПІДТВЕРДЖЕНО",
@@ -148,12 +155,11 @@ function normalizeToken(text){
 let scanLocked = false;
 
 async function onScanSuccess(decodedText){
-
   if (scanLocked) return;
 
   const now = Date.now();
-
   const token = normalizeToken(decodedText);
+
   if (!token) return;
 
   if (
@@ -164,7 +170,6 @@ async function onScanSuccess(decodedText){
   }
 
   scanLocked = true;
-
   lastToken = token;
   lastScanAt = now;
 
@@ -176,11 +181,11 @@ async function onScanSuccess(decodedText){
 }
 
 async function startScanner(){
-
   $("btnStart").disabled = true;
 
-  try {
+  initAudio();
 
+  try {
     qr = new Html5Qrcode("reader");
 
     await qr.start(
@@ -205,7 +210,6 @@ async function startScanner(){
     );
 
   } catch(e){
-
     $("btnStart").disabled = false;
     $("btnStop").disabled = true;
 
@@ -219,11 +223,9 @@ async function startScanner(){
 }
 
 async function stopScanner(){
-
   $("btnStop").disabled = true;
 
   try {
-
     if (qr) {
       await qr.stop();
       await qr.clear();
@@ -240,7 +242,6 @@ async function stopScanner(){
     );
 
   } catch(e){
-
     $("btnStart").disabled = false;
 
     setStatus(
