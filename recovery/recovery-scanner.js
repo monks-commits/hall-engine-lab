@@ -1,63 +1,9 @@
 let qr = null;
 let lastToken = "";
 let lastScanAt = 0;
+const cooldownMs = 1400;
 
 const $ = (id) => document.getElementById(id);
-
-let audioCtx = null;
-
-function initAudio(){
-  try {
-    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
-    if (audioCtx.state === "suspended") audioCtx.resume();
-  } catch(e) {
-    console.warn("audio init error", e);
-  }
-}
-
-function playScanSound(type){
-  try {
-    initAudio();
-    if (!audioCtx) return;
-
-    const beep = (freq, start, duration, volume = 0.18) => {
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-
-      osc.type = "sine";
-      osc.frequency.value = freq;
-
-      const t = audioCtx.currentTime + start;
-
-      gain.gain.setValueAtTime(0.001, t);
-      gain.gain.exponentialRampToValueAtTime(volume, t + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.001, t + duration);
-
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-
-      osc.start(t);
-      osc.stop(t + duration + 0.03);
-    };
-
-    if (type === "success") {
-      beep(900, 0, 0.12);
-      beep(1200, 0.16, 0.12);
-      return;
-    }
-
-    if (type === "used") {
-      beep(260, 0, 0.45, 0.22);
-      return;
-    }
-
-    beep(320, 0, 0.12);
-    beep(220, 0.16, 0.12);
-
-  } catch(e) {
-    console.warn("scan sound error", e);
-  }
-}
 
 function setStatus(kind, title, details, token){
   const box = $("status");
@@ -71,11 +17,10 @@ function setStatus(kind, title, details, token){
 }
 
 async function sendToken(token){
-  const secret =
-    RECOVERY_SCANNER_SECRET || $("secret").value.trim();
 
-  const scanned_by =
-    $("gate").value.trim() || "recovery-gate";
+  const secret =
+  RECOVERY_SCANNER_SECRET || $("secret").value.trim();
+  const scanned_by = $("gate").value.trim() || "recovery-gate"; 
 
   const res = await fetch(RECOVERY_SCAN_ENDPOINT, {
     method:"POST",
@@ -92,7 +37,6 @@ async function sendToken(token){
   const data = await res.json().catch(() => ({}));
 
   if (res.status === 401) {
-    playScanSound("error");
     setStatus(
       "bad",
       "Доступ заборонено",
@@ -103,7 +47,6 @@ async function sendToken(token){
   }
 
   if (res.status === 404) {
-    playScanSound("error");
     setStatus(
       "bad",
       "Квиток не знайдено",
@@ -114,7 +57,6 @@ async function sendToken(token){
   }
 
   if (res.status === 409) {
-    playScanSound("used");
     setStatus(
       "warn",
       "Вже використано",
@@ -125,7 +67,6 @@ async function sendToken(token){
   }
 
   if (!res.ok || data.ok === false) {
-    playScanSound("error");
     setStatus(
       "bad",
       "Помилка",
@@ -134,8 +75,6 @@ async function sendToken(token){
     );
     return;
   }
-
-  playScanSound("success");
 
   setStatus(
     "ok",
@@ -155,11 +94,12 @@ function normalizeToken(text){
 let scanLocked = false;
 
 async function onScanSuccess(decodedText){
+
   if (scanLocked) return;
 
   const now = Date.now();
-  const token = normalizeToken(decodedText);
 
+  const token = normalizeToken(decodedText);
   if (!token) return;
 
   if (
@@ -170,6 +110,7 @@ async function onScanSuccess(decodedText){
   }
 
   scanLocked = true;
+
   lastToken = token;
   lastScanAt = now;
 
@@ -181,11 +122,11 @@ async function onScanSuccess(decodedText){
 }
 
 async function startScanner(){
+
   $("btnStart").disabled = true;
 
-  initAudio();
-
   try {
+
     qr = new Html5Qrcode("reader");
 
     await qr.start(
@@ -210,6 +151,7 @@ async function startScanner(){
     );
 
   } catch(e){
+
     $("btnStart").disabled = false;
     $("btnStop").disabled = true;
 
@@ -223,9 +165,11 @@ async function startScanner(){
 }
 
 async function stopScanner(){
+
   $("btnStop").disabled = true;
 
   try {
+
     if (qr) {
       await qr.stop();
       await qr.clear();
@@ -242,6 +186,7 @@ async function stopScanner(){
     );
 
   } catch(e){
+
     $("btnStart").disabled = false;
 
     setStatus(
