@@ -78,34 +78,43 @@ async function sendToken(token){
   const data = await res.json().catch(() => ({}));
 
   if (res.status === 401) {
-    setStatus(
-      "bad",
-      "Доступ заборонено",
-      "Невірний scanner secret.",
-      token
-    );
-    return;
-  }
+
+  playScanSound("error");
+
+  setStatus(
+    "bad",
+    "Доступ заборонено",
+    "Невірний scanner secret.",
+    token
+  );
+  return;
+}
 
   if (res.status === 404) {
-    setStatus(
-      "bad",
-      "Квиток не знайдено",
-      "Цього квитка немає у compensation pool.",
-      token
-    );
-    return;
-  }
 
-  if (res.status === 409) {
-    setStatus(
-      "warn",
-      "Вже використано",
-      "Компенсаційний прохід уже був зафіксований.",
-      token
-    );
-    return;
-  }
+  playScanSound("error");
+
+  setStatus(
+    "bad",
+    "Квиток не знайдено",
+    "Цього квитка немає у compensation pool.",
+    token
+  );
+  return;
+}
+
+ if (res.status === 409) {
+
+  playScanSound("used");
+
+  setStatus(
+    "warn",
+    "Вже використано",
+    "Компенсаційний прохід уже був зафіксований.",
+    token
+  );
+  return;
+}
 
   if (!res.ok || data.ok === false) {
     setStatus(
