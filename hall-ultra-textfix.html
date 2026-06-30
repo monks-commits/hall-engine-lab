@@ -111,10 +111,22 @@ function normalizeCanvas(){
   moveAllObjects(dx, dy);
 
   const newW = Math.ceil(bounds.width + margin * 2);
-  const newH = Math.ceil(bounds.height + margin * 2);
+const newH = Math.ceil(bounds.height + margin * 2);
 
-  scene.canvas.width = Math.max(100, newW);
-  scene.canvas.height = Math.max(100, newH);
+// Важно: не сжимаем холст под объекты.
+// Если текущий холст уже большой — только добавляем поле вокруг него.
+const finalW = Math.max(
+  newW,
+  cw() + margin * 2
+);
+
+const finalH = Math.max(
+  newH,
+  ch() + margin * 2
+);
+
+scene.canvas.width = Math.max(100, finalW);
+scene.canvas.height = Math.max(100, finalH);
 
   $("canvasW").value = scene.canvas.width;
   $("canvasH").value = scene.canvas.height;
