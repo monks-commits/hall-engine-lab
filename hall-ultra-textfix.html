@@ -795,17 +795,32 @@ function exportStableScene(){
       return d;
     });
 
-  return {
-    version:7,
-    format:'va-hall-studio-geometry-stable',
-    title:scene?.meta?.title||'Назва залу',
-    width,
-    height,
-    background_mode:scene?.canvas?.background?.mode||val('bgMode')||'contain',
-    seats,
-    decor
+ const bgSrc = prompt(
+  "Background URL для сайту/каси або порожньо без фону",
+  "../assets/halls/opera-bg.jpg"
+);
+
+const result = {
+  version: 7,
+  format: "va-hall-studio-geometry-stable",
+  title: scene?.meta?.title || "Назва залу",
+  width,
+  height,
+  background_mode: scene?.canvas?.background?.mode || val("bgMode") || "contain",
+  seats,
+  decor
+};
+
+if (bgSrc && bgSrc.trim()) {
+  result.background = {
+    type: "image",
+    src: bgSrc.trim(),
+    mode: scene?.canvas?.background?.mode || val("bgMode") || "contain",
+    opacity: 1
   };
 }
+
+return result;
 function downloadJsonFile(data,filename){
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json;charset=utf-8'});
   const a=document.createElement('a');
