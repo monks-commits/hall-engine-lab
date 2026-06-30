@@ -815,7 +815,7 @@ if (bgSrc && bgSrc.trim()) {
   result.background = {
     type: "image",
     src: bgSrc.trim(),
-    mode: scene?.canvas?.background?.mode || val("bgMode") || "contain",
+    mode: scene?.canvas?.background?.mode || val("bgMode") || "contain", 
     opacity: 1
   };
 }
