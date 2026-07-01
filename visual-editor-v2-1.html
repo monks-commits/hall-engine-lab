@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VA Visual Editor V2.1</title>
+
+<style>
+*{box-sizing:border-box}
+:root{
+  --bg:#0f172a;
+  --card:#111827;
+  --field:#020617;
+  --line:rgba(255,255,255,.12);
+  --text:#fff;
+  --muted:#94a3b8;
+  --soft:#cbd5e1;
+  --gold:#d4af37;
+  --blue:#334155;
+  --green:#22c55e;
+}
+body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--text)}
+.page{max-width:1180px;margin:0 auto;padding:28px 16px 44px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:18px}
+h1{margin:0 0 8px;font-size:34px}
+h2{margin:0 0 12px;font-size:22px}
+h3{margin:20px 0 10px;font-size:17px;color:#e5e7eb}
+label{display:block;margin:14px 0 6px;color:var(--soft);font-size:13px}
+select,input,textarea{width:100%;padding:11px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:var(--field);color:#fff;font:inherit}
+textarea{resize:vertical;min-height:130px}
+input[type="checkbox"]{width:auto}
+input[type="range"]{padding:0}
+button{border:0;border-radius:12px;padding:12px 14px;font-weight:800;cursor:pointer}
+.btn{background:var(--gold);color:#111827;width:100%;margin-top:14px}
+.btn2{background:var(--blue);color:#fff;width:100%;margin-top:10px}
+.btn3{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.18);width:100%;margin-top:10px}
+.btn-danger{background:#7f1d1d;color:#fff;border:1px solid rgba(248,113,113,.35);width:100%;margin-top:10px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.small{color:var(--muted);font-size:13px;line-height:1.45}
+.status{margin-top:12px;color:#a7f3d0;font-size:14px;white-space:pre-wrap}
+.panel{margin-top:12px;padding:14px;border:1px solid rgba(255,255,255,.12);border-radius:14px;background:#0b1220}
+.checkline{display:flex;gap:10px;align-items:center;margin-top:10px;color:#e5e7eb}
+.checkline label{margin:0;color:#e5e7eb;font-size:14px}
+.preview4{display:grid;grid-template-columns:220px 220px 1fr 1fr;gap:18px}
+.box{background:#020617;border:1px solid rgba(255,255,255,.12);border-radius:16px;overflow:hidden;min-height:220px;position:relative}
+.posterBox{aspect-ratio:2/3}
+.bgBox{min-height:330px}
+.box img,.box video{width:100%;height:100%;object-fit:cover;display:block}
+.preview-bg-inner{position:absolute;inset:0;overflow:hidden;background:#020617}
+.preview-bg-inner img,.preview-bg-inner video{position:absolute;left:50%;top:50%;width:100%;height:100%;transform:translate(-50%,-50%);object-fit:cover}
+.overlay-demo{position:absolute;inset:0;background:#000;pointer-events:none}
+.range-row{display:grid;grid-template-columns:1fr 82px;gap:10px;align-items:center}
+.range-row input[type="number"]{padding:9px 10px}
+.hr{border-top:1px solid rgba(255,255,255,.1);margin:18px 0 4px}
+@media(max-width:1050px){.preview4{grid-template-columns:1fr 1fr}.grid3{grid-template-columns:1fr}}
+@media(max-width:760px){.grid,.preview4{grid-template-columns:1fr}h1{font-size:28px}.page{padding:20px 12px 32px}}
+</style>
+</head>
+
+<body>
+<div class="page">
+
+  <h1>VA Visual Editor V2.1</h1>
+  <div class="small">Візуальне оформлення сеансу: афіша, Live Poster, фон-зображення, відеофон та опис події.</div>
+
+  <div class="card">
+    <h2>Сеанс</h2>
+    <label>Сеанс</label>
+    <select id="seanceSelect">
+      <option>Завантаження...</option>
+    </select>
+  </div>
+
+  <div class="card">
+    <h2>Основні матеріали</h2>
+
+    <div class="grid">
+      <div>
+        <label>Афіша</label>
+        <input id="posterFile" type="file" accept="image/*">
+      </div>
+
+      <div>
+        <label>Live Poster mp4</label>
+        <input id="livePosterFile" type="file" accept="video/mp4,video/*">
+      </div>
+    </div>
+
+    <label>Опис події</label>
+    <textarea id="eventText" rows="8" placeholder="Короткий опис для вітрини, схеми залу і квитка"></textarea>
+
+    <div class="grid">
+      <div>
+        <label>Тривалість Live Poster, ms</label>
+        <input id="durationInput" type="number" value="6200">
+      </div>
+
+      <div class="panel">
+        <div style="font-weight:700;margin-bottom:12px">Налаштування</div>
+
+        <div class="checkline">
+          <input type="checkbox" id="enableLivePoster" checked>
+          <label for="enableLivePoster">Використовувати Live Poster</label>
+        </div>
+
+        <div class="checkline">
+          <input type="checkbox" id="showEventInfo" checked>
+          <label for="showEventInfo">Показувати кнопку «Про подію»</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Фон сеансу</h2>
+    <div class="small">Фон належить конкретному сеансу, а не JSON-схемі залу. Можна використовувати PNG/JPG, відео або обидва шари разом.</div>
+
+    <h3>Background Image</h3>
+    <div class="grid">
+      <div>
+        <label>PNG / JPG фон</label>
+        <input id="bgImageFile" type="file" accept="image/*">
+      </div>
+      <div class="panel">
+        <div class="checkline">
+          <input type="checkbox" id="enableBgImage">
+          <label for="enableBgImage">Використовувати зображення</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid3">
+      <div>
+        <label>Image Fit</label>
+        <select id="bgImageFit">
+          <option value="cover">Cover</option>
+          <option value="contain">Contain</option>
+          <option value="fill">Stretch / Fill</option>
+          <option value="none">Original</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Image Scale</label>
+        <div class="range-row">
+          <input id="bgImageScale" type="range" min="0.5" max="2" step="0.01" value="1">
+          <input id="bgImageScaleNum" type="number" min="0.5" max="2" step="0.01" value="1">
+        </div>
+      </div>
+
+      <div>
+        <label>Image Opacity</label>
+        <div class="range-row">
+          <input id="bgImageOpacity" type="range" min="0" max="1" step="0.01" value="1">
+          <input id="bgImageOpacityNum" type="number" min="0" max="1" step="0.01" value="1">
+        </div>
+      </div>
+    </div>
+
+    <div class="grid3">
+      <div>
+        <label>Image X</label>
+        <input id="bgImageX" type="number" value="0">
+      </div>
+      <div>
+        <label>Image Y</label>
+        <input id="bgImageY" type="number" value="0">
+      </div>
+      <div>
+        <label>Overlay Opacity</label>
+        <div class="range-row">
+          <input id="bgOverlayOpacity" type="range" min="0" max="1" step="0.01" value="0">
+          <input id="bgOverlayOpacityNum" type="number" min="0" max="1" step="0.01" value="0">
+        </div>
+      </div>
+    </div>
+
+    <div class="hr"></div>
+
+    <h3>Background Video</h3>
+    <div class="grid">
+      <div>
+        <label>Відеофон</label>
+        <input id="bgVideoFile" type="file" accept="video/webm,video/mp4,video/*">
+      </div>
+      <div class="panel">
+        <div class="checkline">
+          <input type="checkbox" id="enableBgVideo">
+          <label for="enableBgVideo">Використовувати відео</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid3">
+      <div>
+        <label>Video Fit</label>
+        <select id="bgVideoFit">
+          <option value="cover">Cover</option>
+          <option value="contain">Contain</option>
+          <option value="fill">Stretch / Fill</option>
+          <option value="none">Original</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Video Scale</label>
+        <div class="range-row">
+          <input id="bgVideoScale" type="range" min="0.5" max="2" step="0.01" value="1">
+          <input id="bgVideoScaleNum" type="number" min="0.5" max="2" step="0.01" value="1">
+        </div>
+      </div>
+
+      <div>
+        <label>Video Opacity</label>
+        <div class="range-row">
+          <input id="bgVideoOpacity" type="range" min="0" max="1" step="0.01" value="1">
+          <input id="bgVideoOpacityNum" type="number" min="0" max="1" step="0.01" value="1">
+        </div>
+      </div>
+    </div>
+
+    <div class="grid3">
+      <div>
+        <label>Video X</label>
+        <input id="bgVideoX" type="number" value="0">
+      </div>
+      <div>
+        <label>Video Y</label>
+        <input id="bgVideoY" type="number" value="0">
+      </div>
+      <div class="panel">
+        <div class="checkline">
+          <input type="checkbox" id="bgVideoLoop" checked>
+          <label for="bgVideoLoop">Loop</label>
+        </div>
+        <div class="checkline">
+          <input type="checkbox" id="bgVideoMuted" checked>
+          <label for="bgVideoMuted">Muted</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <button class="btn" id="saveBtn">Завантажити файли і зберегти</button>
+    <button class="btn2" id="loadBtn">Завантажити поточний visual</button>
+    <button class="btn3" id="resetBgBtn">Скинути налаштування фону</button>
+    <button class="btn-danger" id="clearBgImageBtn">🗑 Видалити Background Image</button>
+    <button class="btn-danger" id="clearBgVideoBtn">🗑 Видалити Background Video</button>
+    <button class="btn-danger" id="clearAllBgBtn">🧹 Очистити весь фон сеансу</button>
+    <div class="status" id="status"></div>
+  </div>
+
+  <div class="card">
+    <h2>Preview</h2>
+    <div class="preview4">
+      <div>
+        <div class="box posterBox" id="posterPreview"></div>
+        <div class="small" id="posterStatus">Афіша</div>
+      </div>
+
+      <div>
+        <div class="box posterBox" id="livePosterPreview"></div>
+        <div class="small" id="livePosterStatus">Live Poster</div>
+      </div>
+
+      <div>
+        <div class="box bgBox" id="bgImagePreview"></div>
+        <div class="small" id="bgImageStatus">Background Image</div>
+      </div>
+
+      <div>
+        <div class="box bgBox" id="bgVideoPreview"></div>
+        <div class="small" id="bgVideoStatus">Background Video</div>
+      </div>
+    </div>
+
+    <button class="btn2" id="openSeanceBtn">Відкрити сторінку сеансу</button>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const SUPABASE_URL = "https://fhusjlkneckbvnrdhbil.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_nCCfptJOb8Lzy1uAwGBJzA_OJtDneTS";
+
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const seanceSelect = document.getElementById("seanceSelect");
+const posterFile = document.getElementById("posterFile");
+const livePosterFile = document.getElementById("livePosterFile");
+const bgImageFile = document.getElementById("bgImageFile");
+const bgVideoFile = document.getElementById("bgVideoFile");
+const durationInput = document.getElementById("durationInput");
+const statusEl = document.getElementById("status");
+
+let seances = [];
+let currentVisual = null;
+
+function setStatus(text){
+  statusEl.textContent = text || "";
+}
+
+function safeName(name){
+  const raw = String(name || "file");
+  const ext = (raw.includes(".") ? raw.split(".").pop() : "bin")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "") || "bin";
+
+  // Supabase Storage надежнее работает с ASCII-only ключами.
+  // Исходное имя файла пользователю не нужно: URL хранится в seance_visuals.
+  return "file." + ext;
+}
+
+function numValue(id, fallback = 0){
+  const n = Number(document.getElementById(id)?.value);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function boolValue(id){
+  return !!document.getElementById(id)?.checked;
+}
+
+function valueOf(id, fallback = ""){
+  return document.getElementById(id)?.value ?? fallback;
+}
+
+function fitToObjectFit(v){
+  if (v === "fill") return "fill";
+  if (v === "none") return "none";
+  if (v === "contain") return "contain";
+  return "cover";
+}
+
+function bindRange(rangeId, numberId, cb){
+  const r = document.getElementById(rangeId);
+  const n = document.getElementById(numberId);
+  if (!r || !n) return;
+
+  const syncFromRange = () => {
+    n.value = r.value;
+    cb?.();
+  };
+
+  const syncFromNumber = () => {
+    r.value = n.value;
+    cb?.();
+  };
+
+  r.addEventListener("input", syncFromRange);
+  n.addEventListener("input", syncFromNumber);
+}
+
+async function loadSeances(){
+  const { data, error } = await sb
+    .from("seances")
+    .select("id,show,date,time,venue_id,poster_url,active,status")
+    .order("date", { ascending:true });
+
+  if (error) {
+    console.error(error);
+    seanceSelect.innerHTML = `<option>Помилка завантаження</option>`;
+    return;
+  }
+
+  seances = (data || []).filter(s => s.status !== "archived");
+
+  seanceSelect.innerHTML = `<option value="">Оберіть сеанс</option>`;
+
+  seances.forEach(s => {
+    const opt = document.createElement("option");
+    opt.value = s.id;
+    opt.textContent = `${s.show || "Подія"} — ${s.date || ""} ${s.time || ""} — ${s.id}`;
+    seanceSelect.appendChild(opt);
+  });
+}
+
+async function uploadFile(bucket, folder, file){
+  if (!file) return "";
+
+  const seanceId = seanceSelect.value;
+  const path = `${folder}/${seanceId}/${Date.now()}-${safeName(file.name)}`;
+
+  const { error } = await sb.storage
+    .from(bucket)
+    .upload(path, file, {
+      cacheControl:"3600",
+      upsert:true
+    });
+
+  if (error) throw error;
+
+  const { data } = sb.storage.from(bucket).getPublicUrl(path);
+  return data.publicUrl;
+}
+
+function setControlValues(v){
+  const eventTextEl = document.getElementById("eventText");
+  if (eventTextEl) {
+    eventTextEl.value = v?.event_text || v?.ticket_text || "";
+  }
+
+  durationInput.value = v?.live_poster_duration || 6200;
+
+  document.getElementById("enableLivePoster").checked = v?.enable_live_poster ?? true;
+  document.getElementById("showEventInfo").checked = v?.show_event_info ?? true;
+
+  document.getElementById("enableBgImage").checked = v?.background_image_enabled ?? !!v?.background_image_url;
+  document.getElementById("bgImageFit").value = v?.background_image_fit || "cover";
+  document.getElementById("bgImageScale").value = v?.background_image_scale ?? 1;
+  document.getElementById("bgImageScaleNum").value = v?.background_image_scale ?? 1;
+  document.getElementById("bgImageOpacity").value = v?.background_image_opacity ?? 1;
+  document.getElementById("bgImageOpacityNum").value = v?.background_image_opacity ?? 1;
+  document.getElementById("bgImageX").value = v?.background_image_x ?? 0;
+  document.getElementById("bgImageY").value = v?.background_image_y ?? 0;
+  document.getElementById("bgOverlayOpacity").value = v?.background_overlay_opacity ?? 0;
+  document.getElementById("bgOverlayOpacityNum").value = v?.background_overlay_opacity ?? 0;
+
+  document.getElementById("enableBgVideo").checked = v?.background_video_enabled ?? !!v?.background_video_url;
+  document.getElementById("bgVideoFit").value = v?.background_video_fit || "cover";
+  document.getElementById("bgVideoScale").value = v?.background_video_scale ?? 1;
+  document.getElementById("bgVideoScaleNum").value = v?.background_video_scale ?? 1;
+  document.getElementById("bgVideoOpacity").value = v?.background_video_opacity ?? 1;
+  document.getElementById("bgVideoOpacityNum").value = v?.background_video_opacity ?? 1;
+  document.getElementById("bgVideoX").value = v?.background_video_x ?? 0;
+  document.getElementById("bgVideoY").value = v?.background_video_y ?? 0;
+  document.getElementById("bgVideoLoop").checked = v?.background_video_loop ?? true;
+  document.getElementById("bgVideoMuted").checked = v?.background_video_muted ?? true;
+}
+
+async function loadCurrentVisual(){
+  const seanceId = seanceSelect.value;
+  if (!seanceId) return;
+
+  setStatus("Завантажую visual...");
+
+  const { data, error } = await sb
+    .from("seance_visuals")
+    .select("*")
+    .eq("seance_id", seanceId)
+    .maybeSingle();
+
+  if (error) {
+    console.error(error);
+    setStatus("Помилка завантаження visual");
+    return;
+  }
+
+  currentVisual = data || null;
+  setControlValues(currentVisual || {});
+  renderPreview(currentVisual);
+  setStatus(currentVisual ? "Visual завантажено" : "Для цього сеансу visual ще не створено");
+}
+
+function renderTransformedMedia(box, type, src, settings){
+  box.innerHTML = "";
+
+  if (!src) return;
+
+  const wrap = document.createElement("div");
+  wrap.className = "preview-bg-inner";
+
+  const media = document.createElement(type === "video" ? "video" : "img");
+  media.src = src;
+  media.style.objectFit = fitToObjectFit(settings.fit);
+  media.style.opacity = String(settings.opacity);
+  media.style.width = (settings.scale * 100) + "%";
+  media.style.height = (settings.scale * 100) + "%";
+  media.style.transform = `translate(calc(-50% + ${settings.x}px), calc(-50% + ${settings.y}px))`;
+
+  if (type === "video") {
+    media.controls = true;
+    media.muted = settings.muted;
+    media.loop = settings.loop;
+    media.playsInline = true;
+  }
+
+  wrap.appendChild(media);
+
+  if (settings.overlay > 0) {
+    const overlay = document.createElement("div");
+    overlay.className = "overlay-demo";
+    overlay.style.opacity = String(settings.overlay);
+    wrap.appendChild(overlay);
+  }
+
+  box.appendChild(wrap);
+}
+
+function getImageSettings(){
+  return {
+    enabled: boolValue("enableBgImage"),
+    fit: valueOf("bgImageFit", "cover"),
+    scale: numValue("bgImageScale", 1),
+    opacity: numValue("bgImageOpacity", 1),
+    x: numValue("bgImageX", 0),
+    y: numValue("bgImageY", 0),
+    overlay: numValue("bgOverlayOpacity", 0)
+  };
+}
+
+function getVideoSettings(){
+  return {
+    enabled: boolValue("enableBgVideo"),
+    fit: valueOf("bgVideoFit", "cover"),
+    scale: numValue("bgVideoScale", 1),
+    opacity: numValue("bgVideoOpacity", 1),
+    x: numValue("bgVideoX", 0),
+    y: numValue("bgVideoY", 0),
+    overlay: numValue("bgOverlayOpacity", 0),
+    loop: boolValue("bgVideoLoop"),
+    muted: boolValue("bgVideoMuted")
+  };
+}
+
+function renderPreview(v){
+  const posterBox = document.getElementById("posterPreview");
+  const liveBox = document.getElementById("livePosterPreview");
+  const bgImageBox = document.getElementById("bgImagePreview");
+  const bgVideoBox = document.getElementById("bgVideoPreview");
+
+  const posterStatus = document.getElementById("posterStatus");
+  const liveStatus = document.getElementById("livePosterStatus");
+  const bgImageStatus = document.getElementById("bgImageStatus");
+  const bgVideoStatus = document.getElementById("bgVideoStatus");
+
+  posterBox.innerHTML = "";
+  liveBox.innerHTML = "";
+  bgImageBox.innerHTML = "";
+  bgVideoBox.innerHTML = "";
+
+  posterStatus.textContent = "Афіша: не завантажена";
+  liveStatus.textContent = "Live Poster: не завантажено";
+  bgImageStatus.textContent = "Background Image: не завантажено";
+  bgVideoStatus.textContent = "Background Video: не завантажено";
+
+  if (v?.poster_url) {
+    posterBox.innerHTML = `<img src="${v.poster_url}" alt="">`;
+    posterStatus.textContent = "Афіша: завантажена";
+  }
+
+  if (v?.live_poster_url) {
+    liveBox.innerHTML = `<video src="${v.live_poster_url}" controls playsinline></video>`;
+    liveStatus.textContent = "Live Poster: завантажено";
+  }
+
+  if (v?.background_image_url) {
+    renderTransformedMedia(bgImageBox, "image", v.background_image_url, getImageSettings());
+    bgImageStatus.textContent = "Background Image: завантажено";
+  }
+
+  if (v?.background_video_url) {
+    renderTransformedMedia(bgVideoBox, "video", v.background_video_url, getVideoSettings());
+    bgVideoStatus.textContent = "Background Video: завантажено";
+  }
+}
+
+async function saveVisual(){
+  const seanceId = seanceSelect.value;
+  if (!seanceId) {
+    alert("Оберіть сеанс");
+    return;
+  }
+
+  try {
+    setStatus("Завантажую файли...");
+
+    const posterUrl = await uploadFile("posters", "seances", posterFile.files[0]);
+    const livePosterUrl = await uploadFile("video", "live-posters", livePosterFile.files[0]);
+    const bgImageUrl = await uploadFile("posters", "background-images", bgImageFile.files[0]);
+    const bgVideoUrl = await uploadFile("video", "backgrounds", bgVideoFile.files[0]);
+
+    const eventText = document.getElementById("eventText")?.value.trim() || "";
+
+    const payload = {
+      seance_id: seanceId,
+
+      poster_url: posterUrl || currentVisual?.poster_url || null,
+      live_poster_url: livePosterUrl || currentVisual?.live_poster_url || null,
+      live_poster_duration: Number(durationInput.value || currentVisual?.live_poster_duration || 6200),
+      enable_live_poster: boolValue("enableLivePoster"),
+      show_event_info: boolValue("showEventInfo"),
+
+      background_image_url: bgImageUrl || currentVisual?.background_image_url || null,
+      background_image_enabled: boolValue("enableBgImage"),
+      background_image_opacity: numValue("bgImageOpacity", 1),
+      background_image_scale: numValue("bgImageScale", 1),
+      background_image_x: numValue("bgImageX", 0),
+      background_image_y: numValue("bgImageY", 0),
+      background_image_fit: valueOf("bgImageFit", "cover"),
+
+      background_video_url: bgVideoUrl || currentVisual?.background_video_url || null,
+      background_video_enabled: boolValue("enableBgVideo"),
+      background_video_opacity: numValue("bgVideoOpacity", 1),
+      background_video_scale: numValue("bgVideoScale", 1),
+      background_video_x: numValue("bgVideoX", 0),
+      background_video_y: numValue("bgVideoY", 0),
+      background_video_fit: valueOf("bgVideoFit", "cover"),
+      background_video_loop: boolValue("bgVideoLoop"),
+      background_video_muted: boolValue("bgVideoMuted"),
+
+      background_overlay_opacity: numValue("bgOverlayOpacity", 0),
+
+      event_text: eventText,
+      ticket_text: eventText,
+      enabled: true,
+      updated_at: new Date().toISOString()
+    };
+
+    setStatus("Зберігаю visual...");
+
+    const { data, error } = await sb
+      .from("seance_visuals")
+      .upsert(payload, { onConflict:"seance_id" })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    currentVisual = data;
+    setControlValues(currentVisual);
+    renderPreview(currentVisual);
+
+    setStatus("Готово. Visual, фон і опис події збережено.");
+  } catch (e) {
+    console.error("SAVE VISUAL ERROR:", e);
+    setStatus(
+      "Помилка: " +
+      (
+        e.message ||
+        e.details ||
+        e.hint ||
+        JSON.stringify(e)
+      )
+    );
+  }
+}
+
+function resetBackgroundControls(){
+  document.getElementById("enableBgImage").checked = false;
+  document.getElementById("bgImageFit").value = "cover";
+  document.getElementById("bgImageScale").value = 1;
+  document.getElementById("bgImageScaleNum").value = 1;
+  document.getElementById("bgImageOpacity").value = 1;
+  document.getElementById("bgImageOpacityNum").value = 1;
+  document.getElementById("bgImageX").value = 0;
+  document.getElementById("bgImageY").value = 0;
+
+  document.getElementById("enableBgVideo").checked = false;
+  document.getElementById("bgVideoFit").value = "cover";
+  document.getElementById("bgVideoScale").value = 1;
+  document.getElementById("bgVideoScaleNum").value = 1;
+  document.getElementById("bgVideoOpacity").value = 1;
+  document.getElementById("bgVideoOpacityNum").value = 1;
+  document.getElementById("bgVideoX").value = 0;
+  document.getElementById("bgVideoY").value = 0;
+  document.getElementById("bgVideoLoop").checked = true;
+  document.getElementById("bgVideoMuted").checked = true;
+
+  document.getElementById("bgOverlayOpacity").value = 0;
+  document.getElementById("bgOverlayOpacityNum").value = 0;
+
+  renderPreview(currentVisual);
+}
+
+async function updateVisualFields(fields, successMessage){
+  const seanceId = seanceSelect.value;
+
+  if (!seanceId) {
+    alert("Оберіть сеанс");
+    return;
+  }
+
+  setStatus("Оновлюю visual...");
+
+  const { data, error } = await sb
+    .from("seance_visuals")
+    .update({
+      ...fields,
+      updated_at: new Date().toISOString()
+    })
+    .eq("seance_id", seanceId)
+    .select()
+    .maybeSingle();
+
+  if (error) {
+    console.error("UPDATE VISUAL ERROR:", error);
+    setStatus("Помилка: " + (error.message || JSON.stringify(error)));
+    return;
+  }
+
+  currentVisual = data || { ...(currentVisual || {}), ...fields };
+  setControlValues(currentVisual);
+  renderPreview(currentVisual);
+  setStatus(successMessage || "Visual оновлено.");
+}
+
+async function clearBackgroundImage(){
+  if (!confirm("Видалити Background Image з цього сеансу?")) return;
+
+  bgImageFile.value = "";
+
+  await updateVisualFields({
+    background_image_url: null,
+    background_image_enabled: false,
+    background_image_opacity: 1,
+    background_image_scale: 1,
+    background_image_x: 0,
+    background_image_y: 0,
+    background_image_fit: "cover"
+  }, "Background Image видалено з цього сеансу.");
+}
+
+async function clearBackgroundVideo(){
+  if (!confirm("Видалити Background Video з цього сеансу?")) return;
+
+  bgVideoFile.value = "";
+
+  await updateVisualFields({
+    background_video_url: null,
+    background_video_enabled: false,
+    background_video_opacity: 1,
+    background_video_scale: 1,
+    background_video_x: 0,
+    background_video_y: 0,
+    background_video_fit: "cover",
+    background_video_loop: true,
+    background_video_muted: true
+  }, "Background Video видалено з цього сеансу.");
+}
+
+async function clearAllBackground(){
+  if (!confirm("Очистити Background Image і Background Video для цього сеансу?")) return;
+
+  bgImageFile.value = "";
+  bgVideoFile.value = "";
+
+  await updateVisualFields({
+    background_image_url: null,
+    background_image_enabled: false,
+    background_image_opacity: 1,
+    background_image_scale: 1,
+    background_image_x: 0,
+    background_image_y: 0,
+    background_image_fit: "cover",
+
+    background_video_url: null,
+    background_video_enabled: false,
+    background_video_opacity: 1,
+    background_video_scale: 1,
+    background_video_x: 0,
+    background_video_y: 0,
+    background_video_fit: "cover",
+    background_video_loop: true,
+    background_video_muted: true,
+
+    background_overlay_opacity: 0
+  }, "Фон сеансу повністю очищено.");
+}
+
+["enableBgImage","bgImageFit","bgImageX","bgImageY","enableBgVideo","bgVideoFit","bgVideoX","bgVideoY","bgVideoLoop","bgVideoMuted"].forEach(id => {
+  document.getElementById(id)?.addEventListener("input", () => renderPreview(currentVisual));
+  document.getElementById(id)?.addEventListener("change", () => renderPreview(currentVisual));
+});
+
+bindRange("bgImageScale", "bgImageScaleNum", () => renderPreview(currentVisual));
+bindRange("bgImageOpacity", "bgImageOpacityNum", () => renderPreview(currentVisual));
+bindRange("bgOverlayOpacity", "bgOverlayOpacityNum", () => renderPreview(currentVisual));
+bindRange("bgVideoScale", "bgVideoScaleNum", () => renderPreview(currentVisual));
+bindRange("bgVideoOpacity", "bgVideoOpacityNum", () => renderPreview(currentVisual));
+
+document.getElementById("saveBtn").addEventListener("click", saveVisual);
+document.getElementById("loadBtn").addEventListener("click", loadCurrentVisual);
+document.getElementById("resetBgBtn").addEventListener("click", resetBackgroundControls);
+document.getElementById("clearBgImageBtn").addEventListener("click", clearBackgroundImage);
+document.getElementById("clearBgVideoBtn").addEventListener("click", clearBackgroundVideo);
+document.getElementById("clearAllBgBtn").addEventListener("click", clearAllBackground);
+seanceSelect.addEventListener("change", loadCurrentVisual);
+
+document.getElementById("openSeanceBtn").addEventListener("click", () => {
+  const seanceId = seanceSelect.value;
+
+  if (!seanceId) {
+    alert("Оберіть сеанс");
+    return;
+  }
+
+  window.open(
+    `../site-project/pages/hall-client-x.html?seance=${encodeURIComponent(seanceId)}`,
+    "_blank"
+  );
+});
+
+loadSeances();
+</script>
+</body>
+</html>
