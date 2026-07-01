@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>VA Hall Studio V3 — Clean Builder</title>
+<style>
+:root{
+  --bg:#090d14;--panel:#151b26;--panel2:#101722;--line:#303849;
+  --text:#f8fafc;--muted:#94a3b8;--blue:#2563eb;--green:#16a34a;
+  --red:#dc2626;--orange:#f97316;--violet:#7c3aed;--gold:#f59e0b;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
+.app{height:100vh;display:grid;grid-template-columns:320px 1fr 340px;overflow:hidden}
+aside{background:var(--panel);overflow:auto;padding:14px}
+.left{border-right:1px solid var(--line)}
+.right{border-left:1px solid var(--line)}
+h1{font-size:20px;margin:0 0 6px}
+h2{font-size:13px;margin:16px 0 9px;padding-top:12px;border-top:1px solid var(--line);letter-spacing:.02em}
+.note,.small{font-size:12px;color:var(--muted);line-height:1.45}
+input,select,textarea,button{font-family:inherit}
+input,select,textarea{width:100%;padding:8px;border:1px solid var(--line);border-radius:8px;background:#0d1118;color:var(--text);font-size:13px}
+input[type=color]{height:39px;padding:3px}
+textarea{min-height:180px;font-family:Consolas,monospace;font-size:12px}
+.field{margin-bottom:9px}
+.field label{display:block;font-size:12px;font-weight:800;color:#cbd5e1;margin-bottom:5px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.btn{width:100%;padding:9px;margin-bottom:8px;border:0;border-radius:9px;background:#303849;color:#fff;font-weight:900;cursor:pointer}
+.btn:hover{opacity:.92}
+.blue{background:var(--blue)}.green{background:var(--green)}.red{background:var(--red)}
+.orange{background:var(--orange)}.purple{background:var(--violet)}.gold{background:var(--gold);color:#111827}
+.work{position:relative;overflow:auto;background:#070a10}
+.topbar{position:sticky;top:0;z-index:50;padding:10px 14px;background:#151b26;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;color:#d1d5db;font-size:13px}
+#zoomHost{position:relative;width:max-content;height:max-content;margin:35px auto;transform-origin:top left}
+#canvas{position:relative;width:1200px;height:900px;background:#f8fafc;box-shadow:0 20px 60px rgba(0,0,0,.55);overflow:hidden;user-select:none;cursor:crosshair}
+#traceBg{position:absolute;left:0;top:0;width:100%;height:100%;background-repeat:no-repeat;pointer-events:none;z-index:0;transform-origin:center center}
+.grid{position:absolute;inset:0;display:none;pointer-events:none;z-index:9990;background-image:linear-gradient(to right,rgba(124,58,237,.16) 1px,transparent 1px),linear-gradient(to bottom,rgba(124,58,237,.16) 1px,transparent 1px)}
+.obj{position:absolute;box-sizing:border-box;cursor:pointer;user-select:none;transform-origin:center center}
+.obj.selected{outline:3px solid rgba(124,58,237,.82);outline-offset:4px}
+.obj.locked{opacity:.55;pointer-events:none}
+.seat,.chair{border:2px solid #fff;background:#dc2626;box-shadow:0 2px 8px rgba(0,0,0,.32)}
+.seat{border-radius:50%}
+.chair{border-radius:8px 8px 5px 5px;box-shadow:inset 0 -7px 0 rgba(0,0,0,.25),0 3px 9px rgba(0,0,0,.28)}
+.table{border-radius:50%;background:#8b5cf6;border:3px solid #fff;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900}
+.stage{background:#04a9e8;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;letter-spacing:.08em}
+.zone{border:2px dashed #7c3aed;border-radius:18px;background:rgba(124,58,237,.12);display:flex;align-items:center;justify-content:center;color:#4c1d95;font-weight:900}
+.box{border:2px solid #6b7280;border-radius:14px;background:rgba(255,255,255,.82);display:flex;align-items:center;justify-content:center;color:#374151;font-weight:900}
+.wall{background:#6b7280;border-radius:999px}
+.text,.label{color:#111827;font-weight:900;white-space:nowrap}
+.label{background:rgba(255,255,255,.8);padding:4px 8px;border-radius:8px}
+.seat-label{position:absolute;transform:translate(-50%,-50%);background:rgba(255,255,255,.92);color:#111827;border:1px solid #d1d5db;border-radius:5px;padding:1px 4px;font-size:10px;font-weight:900;pointer-events:none;z-index:9000}
+.selectBox{position:absolute;border:2px dashed var(--violet);background:rgba(124,58,237,.15);z-index:9999;pointer-events:none}
+.layerItem{display:grid;grid-template-columns:28px 28px 1fr 28px;gap:6px;align-items:center;background:#0d1118;border:1px solid var(--line);border-radius:10px;padding:6px;margin-bottom:6px}
+.layerItem.active{border-color:var(--violet);box-shadow:0 0 0 2px rgba(124,58,237,.2)}
+.layerBtn{border:0;border-radius:7px;background:#263044;color:#fff;height:26px;cursor:pointer}
+.counter,.log{font-size:12px;line-height:1.45;background:#0d1118;border:1px solid var(--line);border-radius:10px;padding:10px;color:#d1d5db;white-space:pre-wrap}
+.panel{border:1px solid #2f3748;background:var(--panel2);border-radius:12px;padding:10px;margin-bottom:10px}
+.preview .grid,.preview .seat-label,.preview .selectBox{display:none!important}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="left">
+  <h1>VA Hall Studio V3</h1>
+  <div class="note">Clean Builder. Без Media. Фон — только Trace-подложка для построения схемы.</div>
+
+  <h2>Canvas Tools</h2>
+  <div class="row2">
+    <div class="field"><label>Canvas W</label><input id="canvasW" type="number" value="1200"></div>
+    <div class="field"><label>Canvas H</label><input id="canvasH" type="number" value="900"></div>
+  </div>
+  <button class="btn blue" id="applyCanvasBtn">ПРИМЕНИТЬ ХОЛСТ</button>
+  <div class="field"><label>Margin</label><input id="margin" type="number" value="80"></div>
+  <div class="row2">
+    <button class="btn gold" id="canvasPlusBtn">Canvas +</button>
+    <button class="btn gold" id="canvasMinusBtn">Canvas –</button>
+  </div>
+  <button class="btn gold" id="normalizeBtn">NORMALIZE</button>
+  <button class="btn gold" id="centerBtn">CENTER CONTENT</button>
+
+  <h2>Trace Background</h2>
+  <div class="field"><label>PNG / JPG</label><input type="file" id="traceFile" accept="image/*"></div>
+  <div class="row2">
+    <div class="field"><label>X</label><input id="traceX" type="number" value="0"></div>
+    <div class="field"><label>Y</label><input id="traceY" type="number" value="0"></div>
+  </div>
+  <div class="row3">
+    <div class="field"><label>Scale %</label><input id="traceScale" type="number" value="100"></div>
+    <div class="field"><label>Rotate</label><input id="traceRotate" type="number" value="0"></div>
+    <div class="field"><label>Opacity</label><input id="traceOpacity" type="number" value="0.45" step="0.05"></div>
+  </div>
+  <button class="btn blue" id="applyTraceBtn">ПРИМЕНИТЬ TRACE</button>
+  <button class="btn red" id="clearTraceBtn">УБРАТЬ TRACE</button>
+
+  <h2>Layers</h2>
+  <div class="field"><label>Active Layer</label><select id="activeLayer"></select></div>
+  <div id="layers"></div>
+
+  <h2>Create Object</h2>
+  <div class="field"><label>Инструмент</label>
+    <select id="tool">
+      <option value="chair">Кресло</option>
+      <option value="seat">Место-точка</option>
+      <option value="table">Стол</option>
+      <option value="stage">Сцена</option>
+      <option value="zone">Зона</option>
+      <option value="box">Блок / Ложа</option>
+      <option value="wall">Стена</option>
+      <option value="text">Текст</option>
+      <option value="label">Плашка</option>
+    </select>
+  </div>
+
+  <div class="panel" id="seatPanel">
+    <b>Seat Tool</b>
+    <div class="field"><label>Zone</label><input id="seatZone" value="Партер"></div>
+    <div class="row3">
+      <div class="field"><label>Prefix</label><input id="seatPrefix" value="P"></div>
+      <div class="field"><label>Row</label><input id="seatRow" value="1"></div>
+      <div class="field"><label>Seat</label><input id="seatNum" type="number" value="1"></div>
+    </div>
+    <div class="row3">
+      <div class="field"><label>Size W</label><input id="seatW" type="number" value="24"></div>
+      <div class="field"><label>Size H</label><input id="seatH" type="number" value="22"></div>
+      <div class="field"><label>Label</label><select id="seatShowLabel"><option value="1">Да</option><option value="0">Нет</option></select></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Fill</label><input id="seatFill" type="color" value="#dc2626"></div>
+      <div class="field"><label>Border</label><input id="seatBorder" type="color" value="#ffffff"></div>
+    </div>
+  </div>
+
+  <div class="panel" id="textPanel">
+    <b>Text Tool</b>
+    <div class="field"><label>Текст</label><input id="textValue" value="Текст"></div>
+    <div class="row2">
+      <div class="field"><label>Шрифт</label><input id="textFont" value="Arial"></div>
+      <div class="field"><label>Размер</label><input id="textSize" type="number" value="26"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Толщина</label><select id="textWeight"><option value="400">400</option><option value="700">700</option><option value="900" selected>900</option></select></div>
+      <div class="field"><label>Цвет</label><input id="textColor" type="color" value="#111827"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Контур</label><input id="textStroke" type="color" value="#ffffff"></div>
+      <div class="field"><label>Контур px</label><input id="textStrokeW" type="number" value="0"></div>
+    </div>
+    <div class="field"><label>Подсветка</label><input id="textGlow" type="number" value="0"></div>
+    <button class="btn blue" id="applyTextToSelectedBtn">ПРИМЕНИТЬ К ТЕКСТУ</button>
+  </div>
+
+  <h2>Grid / Zoom</h2>
+  <div class="field"><label>Zoom</label><input id="zoom" type="range" min="25" max="250" value="100"></div>
+  <div class="counter" id="zoomLabel">Zoom: 100%</div>
+  <div class="row2">
+    <div class="field"><label>Grid</label><input id="gridSize" type="number" value="20"></div>
+    <div class="field"><label>Snap</label><select id="snap"><option value="0">Off</option><option value="1">On</option></select></div>
+  </div>
+  <button class="btn" id="gridBtn">СЕТКА ВКЛ / ВЫКЛ</button>
+</aside>
+
+<main class="work">
+  <div class="topbar"><b>V3 Scene Canvas</b><span>ЛКМ — создать/выбрать. Drag — двигать. Shift — мультивыбор.</span></div>
+  <div id="zoomHost">
+    <div id="canvas">
+      <div id="traceBg"></div>
+      <div class="grid" id="grid"></div>
+    </div>
+  </div>
+</main>
+
+<aside class="right">
+  <h2>Selection</h2>
+  <button class="btn" id="selectAllBtn">ВЫДЕЛИТЬ ВСЁ</button>
+  <button class="btn" id="clearSelBtn">СНЯТЬ ВЫДЕЛЕНИЕ</button>
+  <button class="btn red" id="deleteBtn">УДАЛИТЬ</button>
+  <button class="btn orange" id="undoBtn">ОТМЕНИТЬ</button>
+
+  <h2>Object Inspector</h2>
+  <div class="small" id="info">Выделите объект</div>
+  <div class="row2">
+    <div class="field"><label>X</label><input id="iX" type="number"></div>
+    <div class="field"><label>Y</label><input id="iY" type="number"></div>
+  </div>
+  <div class="row2">
+    <div class="field"><label>W</label><input id="iW" type="number"></div>
+    <div class="field"><label>H</label><input id="iH" type="number"></div>
+  </div>
+  <div class="row2">
+    <div class="field"><label>Rotate</label><input id="iR" type="number"></div>
+    <div class="field"><label>Z</label><input id="iZ" type="number"></div>
+  </div>
+
+  <h2>Alignment</h2>
+  <button class="btn blue" id="alignHBtn">ВЫРОВНЯТЬ ПО ГОРИЗОНТАЛИ</button>
+  <button class="btn blue" id="alignVBtn">ВЫРОВНЯТЬ ПО ВЕРТИКАЛИ</button>
+  <button class="btn purple" id="distHBtn">РАСПРЕДЕЛИТЬ ПО ГОРИЗОНТАЛИ</button>
+  <button class="btn purple" id="distVBtn">РАСПРЕДЕЛИТЬ ПО ВЕРТИКАЛИ</button>
+
+  <h2>Export / Import V3</h2>
+  <button class="btn green" id="exportBtn">EXPORT STABLE JSON</button>
+  <button class="btn green" id="downloadBtn">СКАЧАТЬ JSON</button>
+  <button class="btn" id="importBtn">IMPORT JSON</button>
+  <textarea id="json"></textarea>
+
+  <h2>Status</h2>
+  <div class="counter" id="counter"></div>
+  <h2>Log</h2>
+  <div class="log" id="log"></div>
+</aside>
+</div>
+
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const canvas=$('canvas'), traceBg=$('traceBg'), grid=$('grid'), zoomHost=$('zoomHost');
+let scene={
+  format:'va-hall-studio-v3',
+  version:3,
+  canvas:{width:1200,height:900},
+  trace:{data:null,x:0,y:0,scale:100,rotate:0,opacity:.45},
+  layers:[
+    {id:'trace',name:'Trace Background',visible:true,locked:true,z:0},
+    {id:'architecture',name:'Architecture',visible:true,locked:false,z:10},
+    {id:'seats',name:'Seats',visible:true,locked:false,z:30},
+    {id:'text',name:'Text',visible:true,locked:false,z:80}
+  ],
+  objects:[]
+};
+let selected=new Set(), history=[], idn=1, drag=null, selectBox=null, selectStart=null, gridShown=false;
+
+function uid(t){return t+'_'+Date.now()+'_'+(idn++);}
+function val(id){return String(($(id)||{}).value||'').trim();}
+function num(id,f=0){const v=parseFloat(val(id));return Number.isFinite(v)?v:f;}
+function log(t){$('log').textContent=t||'';}
+function save(){history.push(JSON.stringify(scene)); if(history.length>80)history.shift();}
+function layer(id){return scene.layers.find(l=>l.id===id);}
+function activeLayer(){return val('activeLayer')||'seats';}
+function objectById(id){return scene.objects.find(o=>o.id===id);}
+function selectedObjects(){return scene.objects.filter(o=>selected.has(o.id));}
+function layerForType(t){
+  if(t==='seat'||t==='chair'||t==='table')return 'seats';
+  if(t==='text'||t==='label')return 'text';
+  return 'architecture';
+}
+function isLocked(o){return !!layer(o.layerId)?.locked;}
+function isVisible(o){return layer(o.layerId)?.visible!==false;}
+function zoom(){return Math.max(25,Math.min(250,num('zoom',100)))/100;}
+function snap(v){if(val('snap')!=='1')return Math.round(v); const g=Math.max(1,num('gridSize',20)); return Math.round(v/g)*g;}
+function point(e){const r=canvas.getBoundingClientRect(),z=zoom(); return {x:snap((e.clientX-r.left)/z),y:snap((e.clientY-r.top)/z)};}
+function targetId(e){const el=e.target.closest('.obj'); return el?el.dataset.id:null;}
+
+function refreshLayers(){
+  $('activeLayer').innerHTML=scene.layers.filter(l=>l.id!=='trace').map(l=>`<option value="${l.id}">${l.name}</option>`).join('');
+  if(!$('activeLayer').value)$('activeLayer').value='seats';
+  $('layers').innerHTML=scene.layers.map(l=>`
+    <div class="layerItem ${l.id===activeLayer()?'active':''}" data-layer="${l.id}">
+      <button class="layerBtn" data-act="vis">${l.visible?'👁':'—'}</button>
+      <button class="layerBtn" data-act="lock">${l.locked?'🔒':'🔓'}</button>
+      <div>${l.name}</div>
+      <button class="layerBtn" data-act="set">✓</button>
+    </div>`).join('');
+}
+
+function applyCanvas(){
+  scene.canvas.width=Math.max(100,num('canvasW',1200));
+  scene.canvas.height=Math.max(100,num('canvasH',900));
+  canvas.style.width=scene.canvas.width+'px';
+  canvas.style.height=scene.canvas.height+'px';
+  render();
+}
+
+function applyTrace(){
+  scene.trace.x=num('traceX',0);
+  scene.trace.y=num('traceY',0);
+  scene.trace.scale=num('traceScale',100);
+  scene.trace.rotate=num('traceRotate',0);
+  scene.trace.opacity=num('traceOpacity',.45);
+  traceBg.style.backgroundImage=scene.trace.data?`url("${scene.trace.data}")`:'';
+  traceBg.style.backgroundSize='contain';
+  traceBg.style.backgroundPosition=`${scene.trace.x}px ${scene.trace.y}px`;
+  traceBg.style.opacity=scene.trace.opacity;
+  traceBg.style.transform=`scale(${scene.trace.scale/100}) rotate(${scene.trace.rotate}deg)`;
+}
+
+function makeObject(t,x,y){
+  const o={id:uid(t),type:t,layerId:layerForType(t),x,y,w:120,h:60,rotate:0,z:0,text:''};
+  if(t==='seat'||t==='chair'){
+    o.zone=val('seatZone'); o.prefix=val('seatPrefix'); o.row=val('seatRow'); o.seat=num('seatNum',1);
+    o.w=num('seatW',24); o.h=num('seatH',22); o.fill=val('seatFill'); o.border=val('seatBorder'); o.showLabel=val('seatShowLabel');
+    $('seatNum').value=o.seat+1;
+  }
+  if(t==='seat'){o.w=Math.min(o.w,o.h); o.h=o.w;}
+  if(t==='table'){o.w=72;o.h=72;o.text='СТІЛ';o.fill='#8b5cf6';}
+  if(t==='stage'){o.w=760;o.h=90;o.text='СЦЕНА';o.fill='#04a9e8';o.textColor='#ffffff';o.size=22;o.weight=900;}
+  if(t==='zone'){o.w=260;o.h=120;o.text='ЗОНА';}
+  if(t==='box'){o.w=180;o.h=90;o.text='БЛОК';}
+  if(t==='wall'){o.w=240;o.h=8;o.text='';}
+  if(t==='text'||t==='label'){
+    o.text=val('textValue')||'Текст'; o.w=0;o.h=0;
+    o.font=val('textFont')||'Arial'; o.size=num('textSize',26); o.weight=Number(val('textWeight')||900);
+    o.textColor=val('textColor'); o.stroke=val('textStroke'); o.strokeW=num('textStrokeW',0); o.glow=num('textGlow',0);
+  }
+  if(t==='label'){o.fill='rgba(255,255,255,.82)';}
+  return o;
+}
+
+function styleText(el,o){
+  el.style.fontFamily=o.font||'Arial';
+  el.style.fontSize=(o.size||24)+'px';
+  el.style.fontWeight=o.weight||900;
+  el.style.color=o.textColor||'#111827';
+  const sw=Number(o.strokeW||0), sc=o.stroke||'#ffffff', glow=Number(o.glow||0), shadows=[];
+  if(sw>0){
+    shadows.push(`${-sw}px ${-sw}px 0 ${sc}`,`${sw}px ${-sw}px 0 ${sc}`,`${-sw}px ${sw}px 0 ${sc}`,`${sw}px ${sw}px 0 ${sc}`,`0 ${-sw}px 0 ${sc}`,`0 ${sw}px 0 ${sc}`,`${-sw}px 0 0 ${sc}`,`${sw}px 0 0 ${sc}`);
+  }
+  if(glow>0){
+    const c=o.textColor||'#ffffff';
+    shadows.push(`0 0 ${glow}px ${c}`,`0 0 ${Math.round(glow*1.8)}px ${c}`);
+  }
+  el.style.textShadow=shadows.join(',');
+}
+
+function render(){
+  canvas.querySelectorAll('.obj,.seat-label,.selectBox').forEach(e=>e.remove());
+  applyCanvas(); applyTrace(); refreshLayers();
+  scene.objects.slice().sort((a,b)=>(layer(a.layerId)?.z||0)+(a.z||0)-((layer(b.layerId)?.z||0)+(b.z||0))).forEach(o=>{
+    if(!isVisible(o))return;
+    const el=document.createElement('div');
+    el.className='obj '+o.type+(selected.has(o.id)?' selected':'')+(isLocked(o)?' locked':'');
+    el.dataset.id=o.id;
+    el.style.left=o.x+'px'; el.style.top=o.y+'px';
+    el.style.width=(o.w||0)+'px'; el.style.height=(o.h||0)+'px';
+    el.style.zIndex=(layer(o.layerId)?.z||0)+(o.z||0);
+    el.style.transform=`translate(-50%,-50%) rotate(${o.rotate||0}deg)`;
+    if(o.fill)el.style.background=o.fill;
+    if(o.border)el.style.borderColor=o.border;
+    if(['text','label'].includes(o.type)){
+      el.textContent=o.text||'Текст';
+      el.style.width='auto'; el.style.height='auto'; el.style.minWidth='20px'; el.style.minHeight='20px';
+      styleText(el,o);
+    } else if(['stage','zone','box','table'].includes(o.type)){
+      el.textContent=o.text||o.type;
+      if(o.textColor)el.style.color=o.textColor;
+      if(o.size)el.style.fontSize=o.size+'px';
+      if(o.weight)el.style.fontWeight=o.weight;
+    }
+    canvas.appendChild(el);
+    if((o.type==='seat'||o.type==='chair')&&String(o.showLabel)==='1'){
+      const lab=document.createElement('div');
+      lab.className='seat-label'; lab.textContent=(o.row||'')+'/'+(o.seat||'');
+      lab.style.left=o.x+'px'; lab.style.top=(o.y-22)+'px';
+      canvas.appendChild(lab);
+    }
+  });
+  updateInspector();
+  $('counter').innerHTML=`Objects: ${scene.objects.length}<br>Selected: ${selected.size}<br>Canvas: ${scene.canvas.width}×${scene.canvas.height}`;
+}
+
+function bounds(o){
+  let w=o.w||20,h=o.h||20;
+  if(o.type==='text'||o.type==='label'){w=Math.max(40,String(o.text||'').length*(o.size||24)*.65);h=Math.max(24,(o.size||24)*1.4);}
+  return {l:o.x-w/2,t:o.y-h/2,r:o.x+w/2,b:o.y+h/2,w,h};
+}
+function contentBounds(){
+  const objs=scene.objects;
+  if(!objs.length)return null;
+  let l=Infinity,t=Infinity,r=-Infinity,b=-Infinity;
+  objs.forEach(o=>{const bb=bounds(o);l=Math.min(l,bb.l);t=Math.min(t,bb.t);r=Math.max(r,bb.r);b=Math.max(b,bb.b);});
+  return {l,t,r,b,w:r-l,h:b-t};
+}
+function moveAll(dx,dy){scene.objects.forEach(o=>{o.x=Math.round(o.x+dx);o.y=Math.round(o.y+dy);});}
+function normalize(){
+  const b=contentBounds(); if(!b)return alert('Нет объектов');
+  save(); const m=Math.max(0,num('margin',80));
+  moveAll(m-b.l,m-b.t);
+  scene.canvas.width=Math.ceil(b.w+m*2); scene.canvas.height=Math.ceil(b.h+m*2);
+  $('canvasW').value=scene.canvas.width; $('canvasH').value=scene.canvas.height;
+  render(); log('NORMALIZE OK');
+}
+function centerContent(){
+  const b=contentBounds(); if(!b)return alert('Нет объектов');
+  save(); moveAll(scene.canvas.width/2-(b.l+b.w/2), scene.canvas.height/2-(b.t+b.h/2));
+  render(); log('CENTER OK');
+}
+
+function updateInspector(){
+  const list=selectedObjects(), ids=['iX','iY','iW','iH','iR','iZ'];
+  ids.forEach(id=>$(id).disabled=list.length!==1);
+  if(list.length!==1){$('info').textContent=list.length?'Выделено: '+list.length:'Выделите объект';return;}
+  const o=list[0]; $('info').textContent=o.type+' / '+o.id;
+  $('iX').value=Math.round(o.x); $('iY').value=Math.round(o.y);
+  $('iW').value=Math.round(o.w||0); $('iH').value=Math.round(o.h||0);
+  $('iR').value=Math.round(o.rotate||0); $('iZ').value=Math.round(o.z||0);
+  if(o.type==='text'||o.type==='label'){
+    $('textValue').value=o.text||''; $('textFont').value=o.font||'Arial'; $('textSize').value=o.size||26;
+    $('textWeight').value=String(o.weight||900); $('textColor').value=o.textColor||'#111827';
+    $('textStroke').value=o.stroke||'#ffffff'; $('textStrokeW').value=o.strokeW||0; $('textGlow').value=o.glow||0;
+  }
+}
+function applyInspector(){
+  const list=selectedObjects(); if(list.length!==1)return; save();
+  const o=list[0]; o.x=num('iX',o.x);o.y=num('iY',o.y);o.w=num('iW',o.w);o.h=num('iH',o.h);o.rotate=num('iR',o.rotate);o.z=num('iZ',o.z);
+  render();
+}
+function applyTextSelected(){
+  const list=selectedObjects().filter(o=>o.type==='text'||o.type==='label'||o.type==='stage'||o.type==='zone'||o.type==='box'||o.type==='table');
+  if(!list.length)return log('Выделите текстовый объект');
+  save();
+  list.forEach(o=>{
+    o.text=val('textValue')||o.text||'Текст'; o.font=val('textFont')||'Arial'; o.size=num('textSize',o.size||26);
+    o.weight=Number(val('textWeight')||900); o.textColor=val('textColor'); o.stroke=val('textStroke');
+    o.strokeW=num('textStrokeW',0); o.glow=num('textGlow',0);
+  });
+  render(); log('TEXT OK');
+}
+
+canvas.addEventListener('pointerdown',e=>{
+  const id=targetId(e), p=point(e);
+  if(id){
+    const o=objectById(id); if(!o||isLocked(o))return;
+    if(!selected.has(id)){if(!e.shiftKey)selected.clear(); selected.add(id); render();}
+    drag={start:p,orig:selectedObjects().map(o=>({id:o.id,x:o.x,y:o.y}))};
+    return;
+  }
+  selectStart=p; selectBox=document.createElement('div'); selectBox.className='selectBox';
+  Object.assign(selectBox.style,{left:p.x+'px',top:p.y+'px',width:'0px',height:'0px'});
+  canvas.appendChild(selectBox);
+});
+canvas.addEventListener('pointermove',e=>{
+  const p=point(e);
+  if(drag){
+    const dx=p.x-drag.start.x,dy=p.y-drag.start.y;
+    drag.orig.forEach(a=>{const o=objectById(a.id); if(o&&!isLocked(o)){o.x=snap(a.x+dx);o.y=snap(a.y+dy);}});
+    render(); return;
+  }
+  if(selectBox&&selectStart){
+    const l=Math.min(selectStart.x,p.x),t=Math.min(selectStart.y,p.y),w=Math.abs(p.x-selectStart.x),h=Math.abs(p.y-selectStart.y);
+    Object.assign(selectBox.style,{left:l+'px',top:t+'px',width:w+'px',height:h+'px'});
+  }
+});
+canvas.addEventListener('pointerup',e=>{
+  if(drag){save();drag=null;render();return;}
+  if(selectBox&&selectStart){
+    const w=parseFloat(selectBox.style.width)||0,h=parseFloat(selectBox.style.height)||0;
+    if(w<5&&h<5){
+      save(); const p=point(e), o=makeObject(val('tool'),p.x,p.y);
+      scene.objects.push(o); selected.clear(); selected.add(o.id); log('ADDED '+o.type);
+    }else{
+      const l=parseFloat(selectBox.style.left),t=parseFloat(selectBox.style.top),r=l+w,b=t+h;
+      if(!e.shiftKey)selected.clear();
+      scene.objects.forEach(o=>{if(!isLocked(o)&&isVisible(o)&&o.x>=l&&o.x<=r&&o.y>=t&&o.y<=b)selected.add(o.id);});
+    }
+    selectBox.remove(); selectBox=null; selectStart=null; render();
+  }
+});
+
+function align(axis){
+  const list=selectedObjects().filter(o=>!isLocked(o)); if(list.length<2)return;
+  save(); const avg=Math.round(list.reduce((s,o)=>s+o[axis],0)/list.length); list.forEach(o=>o[axis]=avg); render();
+}
+function distribute(axis){
+  const list=selectedObjects().filter(o=>!isLocked(o)).sort((a,b)=>a[axis]-b[axis]); if(list.length<3)return;
+  save(); const first=list[0][axis], last=list[list.length-1][axis], step=(last-first)/(list.length-1);
+  list.forEach((o,i)=>o[axis]=Math.round(first+step*i)); render();
+}
+function exportStable(){
+  const out={
+    format:'va-hall-v3',
+    version:3,
+    canvas:{...scene.canvas},
+    layers:scene.layers.filter(l=>l.id!=='trace').map(l=>({...l})),
+    objects:scene.objects.map(o=>{
+      const x={...o};
+      delete x.mediaData; delete x.mediaMime;
+      return x;
+    })
+  };
+  $('json').value=JSON.stringify(out,null,2);
+  log('EXPORT V3 OK. Trace/Media не экспортируются.');
+}
+function download(){
+  exportStable();
+  const blob=new Blob([$('json').value],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='hall-v3.json'; a.click();
+  URL.revokeObjectURL(a.href);
+}
+function importJson(){
+  const data=JSON.parse($('json').value);
+  save();
+  scene.canvas=data.canvas||scene.canvas;
+  scene.layers=data.layers||scene.layers.filter(l=>l.id!=='trace');
+  if(!scene.layers.find(l=>l.id==='trace'))scene.layers.unshift({id:'trace',name:'Trace Background',visible:true,locked:true,z:0});
+  scene.objects=data.objects||[];
+  $('canvasW').value=scene.canvas.width; $('canvasH').value=scene.canvas.height;
+  selected.clear(); render(); log('IMPORT OK');
+}
+
+$('applyCanvasBtn').onclick=()=>{save();applyCanvas();};
+$('canvasPlusBtn').onclick=()=>{save();const m=num('margin',80);scene.canvas.width+=m*2;scene.canvas.height+=m*2;moveAll(m,m);$('canvasW').value=scene.canvas.width;$('canvasH').value=scene.canvas.height;render();};
+$('canvasMinusBtn').onclick=()=>{save();const m=num('margin',80);scene.canvas.width=Math.max(100,scene.canvas.width-m*2);scene.canvas.height=Math.max(100,scene.canvas.height-m*2);moveAll(-m,-m);$('canvasW').value=scene.canvas.width;$('canvasH').value=scene.canvas.height;render();};
+$('normalizeBtn').onclick=normalize;
+$('centerBtn').onclick=centerContent;
+$('traceFile').onchange=e=>{
+  const f=e.target.files&&e.target.files[0]; if(!f)return;
+  const r=new FileReader(); r.onload=ev=>{scene.trace.data=ev.target.result;applyTrace();log('TRACE LOADED');}; r.readAsDataURL(f);
+};
+['traceX','traceY','traceScale','traceRotate','traceOpacity'].forEach(id=>$(id).oninput=applyTrace);
+$('applyTraceBtn').onclick=applyTrace;
+$('clearTraceBtn').onclick=()=>{scene.trace.data=null;traceBg.style.backgroundImage='';log('TRACE CLEARED');};
+$('layers').onclick=e=>{
+  const item=e.target.closest('.layerItem'); if(!item)return; const l=layer(item.dataset.layer), act=e.target.dataset.act; if(!l)return;
+  if(act==='vis')l.visible=!l.visible;
+  if(act==='lock'&&l.id!=='trace')l.locked=!l.locked;
+  if(act==='set'&&l.id!=='trace')$('activeLayer').value=l.id;
+  render();
+};
+$('activeLayer').onchange=refreshLayers;
+$('zoom').oninput=()=>{const z=zoom();zoomHost.style.transform=`scale(${z})`;$('zoomLabel').textContent='Zoom: '+Math.round(z*100)+'%';};
+$('gridBtn').onclick=()=>{gridShown=!gridShown;grid.style.display=gridShown?'block':'none';grid.style.backgroundSize=num('gridSize',20)+'px '+num('gridSize',20)+'px';};
+['iX','iY','iW','iH','iR','iZ'].forEach(id=>$(id).onchange=applyInspector);
+$('applyTextToSelectedBtn').onclick=applyTextSelected;
+$('selectAllBtn').onclick=()=>{selected=new Set(scene.objects.filter(o=>!isLocked(o)&&isVisible(o)).map(o=>o.id));render();};
+$('clearSelBtn').onclick=()=>{selected.clear();render();};
+$('deleteBtn').onclick=()=>{save();scene.objects=scene.objects.filter(o=>!selected.has(o.id)||isLocked(o));selected.clear();render();};
+$('undoBtn').onclick=()=>{const p=history.pop();if(!p)return;scene=JSON.parse(p);selected.clear();render();};
+$('alignHBtn').onclick=()=>align('y');
+$('alignVBtn').onclick=()=>align('x');
+$('distHBtn').onclick=()=>distribute('x');
+$('distVBtn').onclick=()=>distribute('y');
+$('exportBtn').onclick=exportStable;
+$('downloadBtn').onclick=download;
+$('importBtn').onclick=importJson;
+
+render();
+</script>
+</body>
+</html>
