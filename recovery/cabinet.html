@@ -3,7 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <title>VA Recovery Cabinet</title>
-<meta name="viewport" content="width=device-width, initial-scale=1"> 
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 
 <script src="./recovery-config.js"></script>
 
@@ -161,14 +165,12 @@ button,a.btn{
       <label>Майданчик</label>
       <input id="venueName" value="Демо-майданчик">
     </div>
-<div>
-  <label>Населений пункт</label>
 
-  <input
-    id="locality"
-    value="Кривий Ріг"
-  >
-</div>
+    <div>
+      <label>Населений пункт</label>
+      <input id="locality" value="Кривий Ріг">
+    </div>
+
     <div>
       <label>Тип події</label>
       <select id="eventScope">
@@ -202,26 +204,15 @@ button,a.btn{
     </div>
   </div>
 
-<div>
-  <label>Operational status</label>
+  <div>
+    <label>Operational status</label>
+    <select id="operationalStatus">
+      <option value="ACTIVE">ACTIVE</option>
+      <option value="RESOLVED">RESOLVED</option>
+      <option value="ARCHIVED">ARCHIVED</option>
+    </select>
+  </div>
 
-  <select id="operationalStatus">
-
-    <option value="ACTIVE">
-      ACTIVE
-    </option>
-
-    <option value="RESOLVED">
-      RESOLVED
-    </option>
-
-    <option value="ARCHIVED">
-      ARCHIVED
-    </option>
-
-  </select>
-</div>
-   
   <label>Коментар</label>
   <textarea id="incidentNote" placeholder="Додаткова інформація..."></textarea>
 
@@ -259,38 +250,38 @@ button,a.btn{
 
 </section>
 
-  <section class="card">
+<section class="card">
 
-    <h2>3. Імпорт квитків</h2>
+  <h2>3. Імпорт квитків</h2>
 
-    <p style="color:#b8c4d6;">
-      Формат CSV: token, seat_label, owner_name
-    </p>
+  <p style="color:#b8c4d6;">
+    Формат CSV: token, seat_label, owner_name
+  </p>
 
-    <label>CSV</label>
-    <textarea id="csvInput">token,seat_label,owner_name
+  <label>CSV</label>
+  <textarea id="csvInput">token,seat_label,owner_name
 2787601013,Партер Ряд 13 Місце 8,Рябов Олександр
 TEST-0002,Партер Ряд 13 Місце 9,Тестовий глядач
 TEST-0003,Партер Ряд 13 Місце 10,Тестовий глядач</textarea>
 
-    <div class="actions">
-      <button class="btn-success" onclick="importTokens()">
-        Активувати компенсацію
-      </button>
+  <div class="actions">
+    <button class="btn-success" onclick="importTokens()">
+      Активувати компенсацію
+    </button>
 
-      <a class="btn btn-neutral" href="./recovery-scanner.html" target="_blank">
-        Відкрити scanner
-      </a>
-    </div>
+    <a class="btn btn-neutral" href="./recovery-scanner.html" target="_blank">
+      Відкрити scanner
+    </a>
+  </div>
 
-    <div id="importResult" class="result">
-      Квитки ще не імпортовані.
-    </div>
+  <div id="importResult" class="result">
+    Квитки ще не імпортовані.
+  </div>
 
-  </section>
+</section>
 
 </div>
 
-<script src="./recovery-cabinet.js"></script>
+<script src="./recovery-cabinet-clean-01.js"></script>
 </body>
 </html>
