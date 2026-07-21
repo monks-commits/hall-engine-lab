@@ -41,6 +41,26 @@ h1{
 
 p{ color:#b8c4d6; }
 
+.mode{
+  margin:14px 0 0;
+  padding:14px 16px;
+  border-radius:16px;
+  background:#223552;
+  border:1px solid rgba(255,255,255,.12);
+  color:#e5e7eb;
+  line-height:1.45;
+}
+
+.mode.prepare{
+  background:#5b3a08;
+  border-color:rgba(245,180,0,.45);
+}
+
+.mode.entry{
+  background:#12472a;
+  border-color:rgba(34,197,94,.45);
+}
+
 #reader{
   position:relative;
   width:100%;
@@ -155,6 +175,10 @@ input{
     Працює з QR або штрихкодом, завантаженим у Recovery Cabinet.
   </p>
 
+  <div id="modeBox" class="mode">
+    Визначаю режим роботи…
+  </div>
+
   <div class="card">
 
     <label>Контролер / вхід</label>
@@ -173,7 +197,7 @@ input{
     <div id="status" class="status">
       <div id="statusTitle" class="status-title">Завантаження...</div>
       <div id="statusDetails" class="status-details">
-        Перевіряю поточний сеанс.
+        Визначаю режим роботи.
       </div>
       <div id="tokenText" class="token">—</div>
     </div>
@@ -181,6 +205,6 @@ input{
   </div>
 </div>
 
-<script src="./recovery-scanner.js?v=20260721-camera-session-v3"></script>
+<script src="./recovery-scanner.js?v=20260721-two-modes-v4"></script>
 </body>
 </html>
