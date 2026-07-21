@@ -1,253 +1,397 @@
-let CURRENT_RECOVERY_EVENT_ID = "";
+"use strict";
+
+let qr = null;
+let lastToken = "";
+let lastScanAt = 0;
+let scanLocked = false;
+
+const RECOVERY_SCAN_PARAMS = new URLSearchParams(location.search);
+
+const RECOVERY_SCAN_SEANCE_ID =
+  RECOVERY_SCAN_PARAMS.get("seance") ||
+  RECOVERY_SCAN_PARAMS.get("seance_id") ||
+  "";
+
+const RECOVERY_TEST_MODE = RECOVERY_SCAN_PARAMS.get("test") === "1";
 
 const $ = (id) => document.getElementById(id);
 
-function show(id, text){
-  const el = $(id);
-  if (el) el.textContent = text || "";
+let audioCtx = null;
+
+function initAudio(){
+  try {
+    audioCtx =
+      audioCtx ||
+      new (window.AudioContext || window.webkitAudioContext)();
+
+    if (audioCtx.state === "suspended") {
+      audioCtx.resume().catch(() => {});
+    }
+  } catch(e) {
+    console.warn("audio init error", e);
+  }
 }
 
-function normalizeToken(value){
-  return String(value || "").trim();
-}
+function playScanSound(type){
+  try {
+    initAudio();
+    if (!audioCtx) return;
 
-function normalizeText(value){
-  return String(value || "").trim();
-}
+    const beep = (freq, start, duration, volume = 0.18) => {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = "sine";
+      osc.frequency.value = freq;
 
-function parseCsv(text){
-  const lines = String(text || "")
-    .split(/\r?\n/)
-    .map(x => x.trim())
-    .filter(Boolean);
+      const t = audioCtx.currentTime + start;
+      gain.gain.setValueAtTime(0.001, t);
+      gain.gain.exponentialRampToValueAtTime(volume, t + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + duration);
 
-  if (lines.length < 2) return [];
-
-  const headers = lines[0].split(",").map(x => x.trim());
-
-  return lines.slice(1).map(line => {
-    const cols = line.split(",").map(x => x.trim());
-    const row = {};
-    headers.forEach((h, i) => row[h] = cols[i] || "");
-    return row;
-  });
-}
-
-async function supaFetch(table, query = ""){
-  const res = await fetch(`${RECOVERY_SUPABASE_URL}/rest/v1/${table}${query}`, {
-    headers:{
-      apikey: RECOVERY_SUPABASE_KEY,
-      Authorization:"Bearer " + RECOVERY_SUPABASE_KEY
-    },
-    cache:"no-store"
-  });
-
-  if (!res.ok) throw new Error(await res.text());
-  return await res.json();
-}
-
-async function supaInsert(table, body){
-  const res = await fetch(`${RECOVERY_SUPABASE_URL}/rest/v1/${table}`, {
-    method:"POST",
-    headers:{
-      apikey: RECOVERY_SUPABASE_KEY,
-      Authorization:"Bearer " + RECOVERY_SUPABASE_KEY,
-      "Content-Type":"application/json",
-      Prefer:"return=representation"
-    },
-    body:JSON.stringify(body)
-  });
-
-  if (!res.ok) throw new Error(await res.text());
-  return await res.json();
-}
-
-async function findTicketByQrPayload(token){
-  const rows = await supaFetch(
-    "tickets",
-    `?qr_payload=eq.${encodeURIComponent(token)}` +
-    `&select=id,order_id,show_slug,seat_label,price,buyer_name,buyer_email,qr_payload` +
-    `&limit=2`
-  );
-
-  if (!Array.isArray(rows) || rows.length === 0) return null;
-  return rows[0];
-}
-
-async function findExistingRecoveryToken(token){
-  const rows = await supaFetch(
-    "recovery_tokens",
-    `?recovery_event_id=eq.${encodeURIComponent(CURRENT_RECOVERY_EVENT_ID)}` +
-    `&token=eq.${encodeURIComponent(token)}` +
-    `&select=*` +
-    `&limit=2`
-  );
-
-  if (!Array.isArray(rows) || rows.length === 0) return null;
-  return rows[0];
-}
-
-async function activateRecoveryToken(rawToken, fallback = {}){
-  const token = normalizeToken(rawToken);
-
-  if (!token) throw new Error("empty token");
-  if (!CURRENT_RECOVERY_EVENT_ID) throw new Error("Спочатку створіть recovery-подію");
-
-  const existing = await findExistingRecoveryToken(token);
-
-  if (existing) {
-    return {
-      status:"exists",
-      row:existing,
-      source:"recovery_tokens"
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(t);
+      osc.stop(t + duration + 0.03);
     };
-  }
 
-  const ticket = await findTicketByQrPayload(token);
-
-  const payload = {
-    recovery_event_id: CURRENT_RECOVERY_EVENT_ID,
-    token,
-    seat_label:
-      normalizeText(ticket?.seat_label) ||
-      normalizeText(fallback.seat_label) ||
-      "",
-    owner_name:
-      normalizeText(ticket?.buyer_name) ||
-      normalizeText(fallback.owner_name) ||
-      "",
-    owner_email:
-      normalizeText(ticket?.buyer_email) ||
-      normalizeText(fallback.owner_email) ||
-      null,
-    compensation_allowed:true,
-    compensation_used:false
-  };
-
-  const inserted = await supaInsert("recovery_tokens", payload);
-
-  return {
-    status:"inserted",
-    row:inserted[0],
-    source:ticket ? "tickets.qr_payload" : "external"
-  };
-}
-
-async function createRecoveryEvent(){
-  try {
-    const title = normalizeText($("title").value);
-    const original_event = normalizeText($("originalEvent").value);
-    const recovery_event = normalizeText($("recoveryEvent").value);
-    const venue_name = normalizeText($("venueName").value);
-    const locality = normalizeText($("locality").value);
-    const event_scope = $("eventScope").value;
-    const incident_type = $("incidentType").value;
-    const incident_reason = $("incidentReason").value;
-    const operational_status = $("operationalStatus").value;
-    const incident_note = normalizeText($("incidentNote").value);
-
-    if (!title) return alert("Вкажіть назву події");
-    if (!venue_name) return alert("Вкажіть майданчик");
-
-    const rows = await supaInsert("recovery_events", {
-      title,
-      original_event,
-      recovery_event,
-      venue_id: venue_name.toLowerCase().replaceAll(" ", "-"),
-      venue_name,
-      locality,
-      event_scope,
-      incident_type,
-      incident_reason,
-      incident_note,
-      operational_status,
-      status:"active"
-    });
-
-    const event = rows[0];
-    CURRENT_RECOVERY_EVENT_ID = event.id;
-
-    show("eventResult", `✅ Recovery-подію створено
-ID: ${event.id}
-Майданчик: ${event.venue_name}
-Тип: ${event.incident_type}
-Причина: ${event.incident_reason}
-${event.title}`);
-
-  } catch(e){
-    console.error(e);
-    show("eventResult", "❌ Помилка створення recovery-події:\n" + String(e.message || e));
-  }
-}
-
-async function importTokens(){
-  try {
-    if (!CURRENT_RECOVERY_EVENT_ID) return alert("Спочатку створіть recovery-подію");
-
-    const rows = parseCsv($("csvInput").value);
-    if (!rows.length) return alert("CSV порожній або некоректний");
-
-    const items = rows.filter(r => normalizeToken(r.token));
-    if (!items.length) return alert("Немає token для імпорту");
-
-    const results = [];
-
-    for (const r of items) {
-      try {
-        const result = await activateRecoveryToken(r.token, {
-          seat_label:r.seat_label,
-          owner_name:r.owner_name,
-          owner_email:r.owner_email
-        });
-        results.push(result);
-      } catch(e) {
-        results.push({ status:"error", token:r.token, error:String(e.message || e) });
-      }
+    if (type === "success") {
+      beep(900, 0, 0.12);
+      beep(1200, 0.16, 0.12);
+      return;
     }
 
-    const inserted = results.filter(x => x.status === "inserted");
-    const exists = results.filter(x => x.status === "exists");
-    const errors = results.filter(x => x.status === "error");
+    if (type === "used") {
+      beep(260, 0, 0.45, 0.22);
+      return;
+    }
 
-    show("importResult", `✅ Імпорт завершено
-Нових активацій: ${inserted.length}
-Вже існували: ${exists.length}
-Помилок: ${errors.length}
-
-` + results.map(x => {
-      if (x.status === "error") return `❌ ${x.token}: ${x.error}`;
-      const row = x.row || {};
-      const mark = x.status === "exists" ? "↻ вже було" : "✅ активовано";
-      return `${mark}: ${row.token} — ${row.seat_label || "—"} — ${row.owner_name || "—"} (${x.source})`;
-    }).join("\n"));
-
-  } catch(e){
-    console.error(e);
-    show("importResult", "❌ Помилка імпорту:\n" + String(e.message || e));
+    beep(320, 0, 0.12);
+    beep(220, 0.16, 0.12);
+  } catch(e) {
+    console.warn("scan sound error", e);
   }
 }
 
-async function quickActivateRecovery(){
+function setStatus(kind, title, details, token){
+  const box = $("status");
+  box.classList.remove("ok","bad","warn");
+  if (kind) box.classList.add(kind);
+
+  $("statusTitle").textContent = title || "";
+  $("statusDetails").textContent = details || "";
+  $("tokenText").textContent = token || "—";
+}
+
+function scannerSecret(){
+  if (
+    typeof RECOVERY_SCANNER_SECRET !== "undefined" &&
+    RECOVERY_SCANNER_SECRET
+  ) {
+    return RECOVERY_SCANNER_SECRET;
+  }
+
+  return $("secret").value.trim();
+}
+
+async function sendToken(token){
+  const secret = scannerSecret();
+  const scanned_by = $("gate").value.trim() || "recovery-gate";
+
+  const endpoint =
+    typeof RECOVERY_SCAN_ENDPOINT !== "undefined"
+      ? RECOVERY_SCAN_ENDPOINT
+      : "";
+
+  if (!endpoint) {
+    playScanSound("error");
+    setStatus("bad", "Помилка", "RECOVERY_SCAN_ENDPOINT не задано.", token);
+    return;
+  }
+
+  const res = await fetch(endpoint, {
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "x-scanner-secret": secret
+    },
+    body: JSON.stringify({
+      token,
+      scanned_by,
+      scan_seance_id: RECOVERY_SCAN_SEANCE_ID
+    })
+  });
+
+  const data = await res.json().catch(() => ({}));
+  const ticket = data.ticket || {};
+
+  const sourceLine = ticket.source_seance_id
+    ? `Компенсація від: ${ticket.source_seance_id}`
+    : "";
+
+  const usedLine = ticket.used_seance_id
+    ? `Погашено на: ${ticket.used_seance_id}`
+    : RECOVERY_SCAN_SEANCE_ID
+      ? `Погашено на: ${RECOVERY_SCAN_SEANCE_ID}`
+      : "";
+
+  const oldSeatLine = ticket.source_seat_label
+    ? `Старе місце: ${ticket.source_seat_label}`
+    : "";
+
+  const viewerLine = ticket.owner_name
+    ? `Глядач: ${ticket.owner_name}`
+    : "";
+
+  if (res.status === 401) {
+    playScanSound("error");
+    setStatus("bad", "Доступ заборонено", "Невірний scanner secret.", token);
+    return;
+  }
+
+  if (res.status === 404) {
+    playScanSound("error");
+    setStatus(
+      "bad",
+      "Квиток не знайдено",
+      "Цього квитка немає у compensation pool.",
+      token
+    );
+    return;
+  }
+
+  if (res.status === 409 || data.error === "already_used") {
+    playScanSound(data.error === "duplicate_token" ? "error" : "used");
+
+    setStatus(
+      data.error === "duplicate_token" ? "bad" : "warn",
+      data.error === "duplicate_token"
+        ? "Дублікат токена"
+        : "Вже використано",
+      data.error === "duplicate_token"
+        ? "У recovery_tokens знайдено кілька однакових token."
+        : [
+            "Компенсаційний прохід уже був зафіксований.",
+            viewerLine,
+            sourceLine,
+            usedLine,
+            oldSeatLine
+          ].filter(Boolean).join(" • "),
+      token
+    );
+    return;
+  }
+
+  if (!res.ok || data.ok === false) {
+    playScanSound("error");
+    setStatus("bad", "Помилка", data.error || `HTTP ${res.status}`, token);
+    return;
+  }
+
+  playScanSound("success");
+
+  setStatus(
+    "ok",
+    "КОМПЕНСАЦІЮ ПІДТВЕРДЖЕНО",
+    [
+      viewerLine,
+      sourceLine,
+      usedLine,
+      oldSeatLine
+    ].filter(Boolean).join(" • ") || "Компенсаційний прохід дозволено.",
+    token
+  );
+}
+
+function normalizeToken(text){
+  return String(text || "").trim();
+}
+
+async function onScanSuccess(decodedText){
+  if (scanLocked) return;
+
+  const now = Date.now();
+  const token = normalizeToken(decodedText);
+
+  if (!token) return;
+  if (token === lastToken && now - lastScanAt < 8000) return;
+
+  scanLocked = true;
+  lastToken = token;
+  lastScanAt = now;
+
   try {
-    if (!CURRENT_RECOVERY_EVENT_ID) return alert("Спочатку створіть recovery-подію");
-
-    const token = normalizeToken($("quickToken").value);
-    if (!token) return alert("Введіть token / barcode / QR payload");
-
-    const result = await activateRecoveryToken(token);
-    const row = result.row || {};
-
-    $("quickResult").innerHTML = `
-${result.status === "exists" ? "↻ Recovery вже було активовано" : "✅ Recovery активовано"}<br><br>
-Token: ${row.token || token}<br>
-Джерело: ${result.source}<br>
-Місце: ${row.seat_label || "—"}<br>
-Глядач: ${row.owner_name || "—"}<br>
-Email: ${row.owner_email || "—"}
-    `;
-
-  } catch(e){
-    console.error(e);
-    $("quickResult").innerHTML = "❌ " + String(e.message || e);
+    await sendToken(token);
+  } finally {
+    setTimeout(() => {
+      scanLocked = false;
+    }, 8000);
   }
 }
+
+function chooseRearCamera(cameras){
+  if (!Array.isArray(cameras) || !cameras.length) return null;
+
+  const rearPattern =
+    /(back|rear|environment|задн|основн|camera 0)/i;
+
+  return (
+    cameras.find(c => rearPattern.test(String(c.label || ""))) ||
+    cameras[cameras.length - 1]
+  );
+}
+
+function waitForVideoFrame(timeoutMs = 6000){
+  return new Promise((resolve, reject) => {
+    const started = Date.now();
+
+    const check = () => {
+      const video = document.querySelector("#reader video");
+
+      if (
+        video &&
+        video.srcObject &&
+        video.readyState >= 2 &&
+        video.videoWidth > 0 &&
+        video.videoHeight > 0
+      ) {
+        resolve(video);
+        return;
+      }
+
+      if (Date.now() - started >= timeoutMs) {
+        reject(
+          new Error(
+            "Камера дозволена, але відеопотік не з'явився. Оновіть сторінку і запустіть камеру повторно."
+          )
+        );
+        return;
+      }
+
+      requestAnimationFrame(check);
+    };
+
+    check();
+  });
+}
+
+async function startScanner(){
+  $("btnStart").disabled = true;
+  initAudio();
+
+  try {
+    if (qr) {
+      try {
+        await qr.stop();
+        await qr.clear();
+      } catch {}
+      qr = null;
+    }
+
+    const cameras = await Html5Qrcode.getCameras();
+    const rear = chooseRearCamera(cameras);
+
+    const cameraConfig = rear?.id
+      ? rear.id
+      : { facingMode:"environment" };
+
+    qr = new Html5Qrcode("reader", { verbose:false });
+
+    await qr.start(
+      cameraConfig,
+      {
+        fps:10,
+        qrbox:(viewWidth, viewHeight) => {
+          const edge = Math.max(
+            180,
+            Math.min(280, Math.floor(Math.min(viewWidth, viewHeight) * 0.72))
+          );
+          return { width:edge, height:edge };
+        },
+        disableFlip:false
+      },
+      onScanSuccess,
+      () => {}
+    );
+
+    const video = await waitForVideoFrame();
+
+    video.setAttribute("playsinline", "");
+    video.setAttribute("autoplay", "");
+    video.muted = true;
+
+    try {
+      await video.play();
+    } catch {}
+
+    $("btnStop").disabled = false;
+
+    const modeLine = RECOVERY_TEST_MODE ? "ТЕСТ • " : "";
+
+    setStatus(
+      "",
+      "Камера працює",
+      RECOVERY_SCAN_SEANCE_ID
+        ? `${modeLine}Сканування на сеансі: ${RECOVERY_SCAN_SEANCE_ID}`
+        : `${modeLine}Скануйте QR або штрихкод компенсаційного квитка.`,
+      ""
+    );
+
+  } catch(e){
+    $("btnStart").disabled = false;
+    $("btnStop").disabled = true;
+
+    try {
+      if (qr) {
+        await qr.stop();
+        await qr.clear();
+      }
+    } catch {}
+
+    qr = null;
+
+    setStatus(
+      "bad",
+      "Помилка камери",
+      String(e?.message || e),
+      ""
+    );
+  }
+}
+
+async function stopScanner(){
+  $("btnStop").disabled = true;
+
+  try {
+    if (qr) {
+      await qr.stop();
+      await qr.clear();
+      qr = null;
+    }
+
+    $("btnStart").disabled = false;
+    setStatus("", "Камеру зупинено", "Можна запустити повторно.", "");
+
+  } catch(e){
+    $("btnStart").disabled = false;
+    setStatus(
+      "warn",
+      "Камеру зупинено з попередженням",
+      String(e?.message || e),
+      ""
+    );
+  }
+}
+
+window.addEventListener("load", () => {
+  $("btnStart").addEventListener("click", startScanner);
+  $("btnStop").addEventListener("click", stopScanner);
+
+  if (RECOVERY_SCAN_SEANCE_ID) {
+    setStatus(
+      RECOVERY_TEST_MODE ? "warn" : "",
+      RECOVERY_TEST_MODE ? "Тестовий сканер готовий" : "Сканер готовий",
+      `Погашення буде зафіксовано на сеансі: ${RECOVERY_SCAN_SEANCE_ID}`,
+      ""
+    );
+  }
+});
