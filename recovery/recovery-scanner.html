@@ -2,10 +2,14 @@
 <html lang="uk">
 <head>
 <meta charset="UTF-8">
-<title>VA Recovery Scanner</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<!-- Фиксированная проверенная версия, как в обычном VA Scanner -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<title>VA Recovery Scanner</title>
+
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="./recovery-config.js"></script>
 
@@ -35,9 +39,7 @@ h1{
   font-size:34px;
 }
 
-p{
-  color:#b8c4d6;
-}
+p{ color:#b8c4d6; }
 
 #reader{
   position:relative;
@@ -49,7 +51,11 @@ p{
   overflow:hidden;
 }
 
-/* Android/Html5Qrcode: не даём video остаться невидимым под белой подложкой */
+#reader:empty{
+  min-height:0;
+  margin:0;
+}
+
 #reader video{
   display:block !important;
   width:100% !important;
@@ -63,10 +69,6 @@ p{
 
 #reader canvas{
   max-width:100% !important;
-}
-
-#reader img{
-  display:none !important;
 }
 
 .status{
@@ -112,12 +114,19 @@ button{
 }
 
 button:disabled{
-  opacity:.55;
+  opacity:.48;
   cursor:default;
 }
 
-.btn-start{ background:#22c55e; color:#08111f; }
-.btn-stop{ background:#ef4444; color:#fff; }
+.btn-start{
+  background:#22c55e;
+  color:#08111f;
+}
+
+.btn-stop{
+  background:#ef4444;
+  color:#fff;
+}
 
 input{
   width:100%;
@@ -155,16 +164,16 @@ input{
     <input id="secret" type="text" placeholder="SCANNER_SECRET">
 
     <div class="controls">
-      <button class="btn-start" id="btnStart">Запустити камеру</button>
+      <button class="btn-start" id="btnStart" disabled>Запустити камеру</button>
       <button class="btn-stop" id="btnStop" disabled>Зупинити</button>
     </div>
 
     <div id="reader"></div>
 
     <div id="status" class="status">
-      <div id="statusTitle" class="status-title">Готово</div>
+      <div id="statusTitle" class="status-title">Завантаження...</div>
       <div id="statusDetails" class="status-details">
-        Запустіть камеру і скануйте компенсаційний квиток.
+        Перевіряю поточний сеанс.
       </div>
       <div id="tokenText" class="token">—</div>
     </div>
@@ -172,6 +181,6 @@ input{
   </div>
 </div>
 
-<script src="./recovery-scanner.js"></script>
+<script src="./recovery-scanner.js?v=20260721-camera-session-v3"></script>
 </body>
 </html>
