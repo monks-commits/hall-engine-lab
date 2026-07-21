@@ -1,3 +1,5 @@
+"use strict";
+
 let CURRENT_RECOVERY_EVENT_ID = "";
 
 const $ = (id) => document.getElementById(id);
