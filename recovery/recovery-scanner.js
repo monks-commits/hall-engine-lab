@@ -1,46 +1,20 @@
 "use strict";
 
 let qr = null;
-let scannerStarting = false;
-let scannerRunning = false;
-let scanLocked = false;
-
 let lastToken = "";
 let lastScanAt = 0;
+let scanLocked = false;
 
-const PARAMS = new URLSearchParams(location.search);
+const RECOVERY_SCAN_PARAMS = new URLSearchParams(location.search);
 
-const REQUESTED_SEANCE_ID =
-  PARAMS.get("seance") ||
-  PARAMS.get("seance_id") ||
+const RECOVERY_SCAN_SEANCE_ID =
+  RECOVERY_SCAN_PARAMS.get("seance") ||
+  RECOVERY_SCAN_PARAMS.get("seance_id") ||
   "";
 
-const RECOVERY_TEST_MODE = PARAMS.get("test") === "1";
-const LAUNCH_TS = Number(PARAMS.get("launch_ts") || 0);
-const LAUNCH_MAX_AGE_MS = 10 * 60 * 1000;
+const RECOVERY_TEST_MODE = RECOVERY_SCAN_PARAMS.get("test") === "1";
 
-let RECOVERY_SCAN_SEANCE_ID = "";
-let RECOVERY_SCAN_SEANCE = null;
-
-/*
-  Два режима одного Recovery Scanner:
-
-  PREPARE
-  - открыт из Recovery Cabinet или напрямую;
-  - текущий сеанс не нужен;
-  - токен только проверяется / фиксируется в Audit;
-  - компенсация НЕ погашается.
-
-  ENTRY
-  - открыт из «Вхідного контролю»;
-  - имеет текущий seance_id;
-  - активированный токен погашается;
-  - used_seance_id получает текущий сеанс.
-*/
-let RECOVERY_MODE = "prepare";
-
-const $ = id => document.getElementById(id);
-const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+const $ = (id) => document.getElementById(id);
 
 let audioCtx = null;
 
@@ -66,7 +40,6 @@ function playScanSound(type){
     const beep = (freq, start, duration, volume = 0.18) => {
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
-
       osc.type = "sine";
       osc.frequency.value = freq;
 
@@ -77,7 +50,6 @@ function playScanSound(type){
 
       osc.connect(gain);
       gain.connect(audioCtx.destination);
-
       osc.start(t);
       osc.stop(t + duration + 0.03);
     };
@@ -110,155 +82,6 @@ function setStatus(kind, title, details, token){
   $("tokenText").textContent = token || "—";
 }
 
-function setModeBox(){
-  const box = $("modeBox");
-
-  box.classList.remove("prepare", "entry");
-
-  if (RECOVERY_MODE === "entry") {
-    box.classList.add("entry");
-    box.textContent =
-      `Режим входу: компенсація буде погашена на сеансі ` +
-      `${seanceText(RECOVERY_SCAN_SEANCE)}.`;
-    return;
-  }
-
-  box.classList.add("prepare");
-  box.textContent =
-    "Режим підготовки: сканування лише фіксує або перевіряє token. " +
-    "Компенсаційний прохід не погашається.";
-}
-
-function localDateKey(date = new Date()){
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
-}
-
-function seanceDateTime(s){
-  const date = String(s?.date || "").trim();
-  const time = String(s?.time || "00:00").slice(0,5);
-  const d = new Date(`${date}T${time}:00`);
-  return Number.isNaN(d.getTime()) ? null : d;
-}
-
-function seanceText(s){
-  if (!s) return "";
-
-  return [
-    s.show || "",
-    s.date || "",
-    s.time || "",
-    s.venue_id || ""
-  ].filter(Boolean).join(" • ");
-}
-
-async function loadSeances(){
-  const url =
-    `${RECOVERY_SUPABASE_URL}/rest/v1/seances` +
-    `?select=id,show,date,time,venue_id,active,archived` +
-    `&order=date.asc,time.asc`;
-
-  const res = await fetch(url, {
-    headers:{
-      apikey:RECOVERY_SUPABASE_KEY,
-      Authorization:`Bearer ${RECOVERY_SUPABASE_KEY}`
-    },
-    cache:"no-store"
-  });
-
-  if (!res.ok) throw new Error(await res.text());
-
-  const rows = await res.json();
-
-  return (Array.isArray(rows) ? rows : [])
-    .filter(s => s.archived !== true && s.active !== false);
-}
-
-async function resolveMode(){
-  /*
-    Нет seance_id:
-    это нормальный режим подготовки из Recovery Cabinet.
-  */
-  if (!REQUESTED_SEANCE_ID) {
-    RECOVERY_MODE = "prepare";
-    RECOVERY_SCAN_SEANCE = null;
-    RECOVERY_SCAN_SEANCE_ID = "";
-    return;
-  }
-
-  const rows = await loadSeances();
-
-  const requested = rows.find(
-    s => String(s.id) === String(REQUESTED_SEANCE_ID)
-  ) || null;
-
-  /*
-    Тестовый вход принимается только по свежей ссылке из gate-control.
-    Старая ссылка из истории (например, Дон Жуан) не используется.
-  */
-  if (RECOVERY_TEST_MODE) {
-    const freshLaunch =
-      Number.isFinite(LAUNCH_TS) &&
-      LAUNCH_TS > 0 &&
-      Math.abs(Date.now() - LAUNCH_TS) <= LAUNCH_MAX_AGE_MS;
-
-    if (requested && freshLaunch) {
-      RECOVERY_MODE = "entry";
-      RECOVERY_SCAN_SEANCE = requested;
-      RECOVERY_SCAN_SEANCE_ID = String(requested.id);
-      return;
-    }
-
-    RECOVERY_MODE = "prepare";
-    RECOVERY_SCAN_SEANCE = null;
-    RECOVERY_SCAN_SEANCE_ID = "";
-    return;
-  }
-
-  /*
-    Рабочий режим без test=1:
-    переданный сеанс принимается только в реальном рабочем окне.
-  */
-  const now = new Date();
-  const today = localDateKey(now);
-
-  const currentMatches = rows
-    .filter(s => String(s.date || "") === today)
-    .map(s => {
-      const dt = seanceDateTime(s);
-      const diffMin = dt
-        ? Math.round((dt.getTime() - now.getTime()) / 60000)
-        : 999999;
-
-      return {
-        seance:s,
-        diffMin
-      };
-    })
-    .filter(x => x.diffMin <= 120 && x.diffMin >= -240);
-
-  const validRequested = currentMatches.find(
-    x => String(x.seance.id) === String(requested?.id || "")
-  );
-
-  if (validRequested) {
-    RECOVERY_MODE = "entry";
-    RECOVERY_SCAN_SEANCE = validRequested.seance;
-    RECOVERY_SCAN_SEANCE_ID = String(validRequested.seance.id);
-    return;
-  }
-
-  /*
-    Устаревший или неактуальный seance_id не блокирует камеру
-    и не превращается в фактическое погашение.
-  */
-  RECOVERY_MODE = "prepare";
-  RECOVERY_SCAN_SEANCE = null;
-  RECOVERY_SCAN_SEANCE_ID = "";
-}
-
 function scannerSecret(){
   if (
     typeof RECOVERY_SCANNER_SECRET !== "undefined" &&
@@ -285,19 +108,16 @@ async function sendToken(token){
     return;
   }
 
-  const lookupOnly = RECOVERY_MODE !== "entry";
-
   const res = await fetch(endpoint, {
     method:"POST",
     headers:{
       "Content-Type":"application/json",
-      "x-scanner-secret":secret
+      "x-scanner-secret": secret
     },
-    body:JSON.stringify({
+    body: JSON.stringify({
       token,
       scanned_by,
-      scan_seance_id:RECOVERY_SCAN_SEANCE_ID || null,
-      lookup_only:lookupOnly
+      scan_seance_id: RECOVERY_SCAN_SEANCE_ID
     })
   });
 
@@ -330,41 +150,10 @@ async function sendToken(token){
 
   if (res.status === 404) {
     playScanSound("error");
-
     setStatus(
       "bad",
-      RECOVERY_MODE === "prepare"
-        ? "Квиток не знайдено"
-        : "Квиток не активовано",
-      RECOVERY_MODE === "prepare"
-        ? "Token зафіксовано в Recovery Audit. Тепер його можна активувати в Cabinet."
-        : "Цього квитка немає у compensation pool.",
-      token
-    );
-    return;
-  }
-
-  if (
-    RECOVERY_MODE === "prepare" &&
-    res.ok &&
-    data.mode === "lookup"
-  ) {
-    const isUsed = ticket.compensation_used === true;
-
-    playScanSound(isUsed ? "used" : "success");
-
-    setStatus(
-      isUsed ? "warn" : "ok",
-      isUsed
-        ? "КОМПЕНСАЦІЮ ВЖЕ ВИКОРИСТАНО"
-        : "КВИТОК ВЖЕ АКТИВОВАНО",
-      [
-        "Режим підготовки: погашення не виконувалось.",
-        viewerLine,
-        sourceLine,
-        ticket.used_seance_id ? usedLine : "",
-        oldSeatLine
-      ].filter(Boolean).join(" • "),
+      "Квиток не знайдено",
+      "Цього квитка немає у compensation pool.",
       token
     );
     return;
@@ -439,48 +228,6 @@ async function onScanSuccess(decodedText){
   }
 }
 
-function stopVideoTracks(){
-  document.querySelectorAll("video").forEach(video => {
-    try {
-      const stream = video.srcObject;
-
-      if (stream && typeof stream.getTracks === "function") {
-        stream.getTracks().forEach(track => {
-          try { track.stop(); } catch {}
-        });
-      }
-
-      video.srcObject = null;
-    } catch {}
-  });
-}
-
-async function releaseCamera({ showStatus = false } = {}){
-  stopVideoTracks();
-
-  const instance = qr;
-  qr = null;
-  scannerRunning = false;
-  scannerStarting = false;
-
-  if (instance) {
-    try { await instance.stop(); } catch {}
-    try { await instance.clear(); } catch {}
-  }
-
-  stopVideoTracks();
-
-  const reader = $("reader");
-  if (reader) reader.innerHTML = "";
-
-  $("btnStart").disabled = false;
-  $("btnStop").disabled = true;
-
-  if (showStatus) {
-    setStatus("", "Камеру звільнено", "Можна запустити повторно.", "");
-  }
-}
-
 function chooseRearCamera(cameras){
   if (!Array.isArray(cameras) || !cameras.length) return null;
 
@@ -493,7 +240,7 @@ function chooseRearCamera(cameras){
   );
 }
 
-function waitForVideoFrame(timeoutMs = 7000){
+function waitForVideoFrame(timeoutMs = 6000){
   return new Promise((resolve, reject) => {
     const started = Date.now();
 
@@ -512,9 +259,11 @@ function waitForVideoFrame(timeoutMs = 7000){
       }
 
       if (Date.now() - started >= timeoutMs) {
-        reject(new Error(
-          "Відеокадр не з'явився. Камеру звільнено; натисніть «Запустити камеру» повторно."
-        ));
+        reject(
+          new Error(
+            "Камера дозволена, але відеопотік не з'явився. Оновіть сторінку і запустіть камеру повторно."
+          )
+        );
         return;
       }
 
@@ -525,97 +274,80 @@ function waitForVideoFrame(timeoutMs = 7000){
   });
 }
 
-async function startQrEngine(){
-  const scanConfig = {
-    fps:10,
-    qrbox:(viewWidth, viewHeight) => {
-      const edge = Math.max(
-        180,
-        Math.min(280, Math.floor(Math.min(viewWidth, viewHeight) * 0.72))
-      );
-
-      return { width:edge, height:edge };
-    },
-    disableFlip:false
-  };
-
-  let instance = new Html5Qrcode("reader", { verbose:false });
+async function startScanner(){
+  $("btnStart").disabled = true;
+  initAudio();
 
   try {
-    await instance.start(
-      { facingMode:{ ideal:"environment" } },
-      scanConfig,
-      onScanSuccess,
-      () => {}
-    );
-
-    return instance;
-
-  } catch(firstError) {
-    try { await instance.clear(); } catch {}
-
-    stopVideoTracks();
-    await sleep(350);
+    if (qr) {
+      try {
+        await qr.stop();
+        await qr.clear();
+      } catch {}
+      qr = null;
+    }
 
     const cameras = await Html5Qrcode.getCameras();
     const rear = chooseRearCamera(cameras);
 
-    if (!rear?.id) throw firstError;
+    const cameraConfig = rear?.id
+      ? rear.id
+      : { facingMode:"environment" };
 
-    instance = new Html5Qrcode("reader", { verbose:false });
+    qr = new Html5Qrcode("reader", { verbose:false });
 
-    await instance.start(
-      rear.id,
-      scanConfig,
+    await qr.start(
+      cameraConfig,
+      {
+        fps:10,
+        qrbox:(viewWidth, viewHeight) => {
+          const edge = Math.max(
+            180,
+            Math.min(280, Math.floor(Math.min(viewWidth, viewHeight) * 0.72))
+          );
+          return { width:edge, height:edge };
+        },
+        disableFlip:false
+      },
       onScanSuccess,
       () => {}
     );
 
-    return instance;
-  }
-}
-
-async function startScanner(){
-  if (scannerStarting || scannerRunning) return;
-
-  scannerStarting = true;
-  $("btnStart").disabled = true;
-  $("btnStop").disabled = true;
-
-  initAudio();
-
-  try {
-    await releaseCamera();
-    await sleep(350);
-
-    scannerStarting = true;
-    $("btnStart").disabled = true;
-
-    qr = await startQrEngine();
-
     const video = await waitForVideoFrame();
 
     video.setAttribute("playsinline", "");
+    video.setAttribute("autoplay", "");
     video.muted = true;
 
-    try { await video.play(); } catch {}
-
-    scannerRunning = true;
-    scannerStarting = false;
+    try {
+      await video.play();
+    } catch {}
 
     $("btnStop").disabled = false;
 
+    const modeLine = RECOVERY_TEST_MODE ? "ТЕСТ • " : "";
+
     setStatus(
-      RECOVERY_MODE === "entry" ? "" : "warn",
+      "",
       "Камера працює",
-      RECOVERY_MODE === "entry"
-        ? `Режим входу • ${seanceText(RECOVERY_SCAN_SEANCE)}`
-        : "Режим підготовки • компенсація не буде погашена.",
+      RECOVERY_SCAN_SEANCE_ID
+        ? `${modeLine}Сканування на сеансі: ${RECOVERY_SCAN_SEANCE_ID}`
+        : `${modeLine}Скануйте QR або штрихкод компенсаційного квитка.`,
       ""
     );
 
   } catch(e){
-    await releaseCamera();
+    $("btnStart").disabled = false;
+    $("btnStop").disabled = true;
+
+    try {
+      if (qr) {
+        await qr.stop();
+        await qr.clear();
+      }
+    } catch {}
+
+    qr = null;
 
     setStatus(
       "bad",
@@ -627,76 +359,38 @@ async function startScanner(){
 }
 
 async function stopScanner(){
-  await releaseCamera({ showStatus:true });
-}
-
-function emergencyRelease(){
-  stopVideoTracks();
-  releaseCamera().catch(() => {});
-}
-
-window.addEventListener("load", async () => {
-  $("btnStart").disabled = true;
   $("btnStop").disabled = true;
 
+  try {
+    if (qr) {
+      await qr.stop();
+      await qr.clear();
+      qr = null;
+    }
+
+    $("btnStart").disabled = false;
+    setStatus("", "Камеру зупинено", "Можна запустити повторно.", "");
+
+  } catch(e){
+    $("btnStart").disabled = false;
+    setStatus(
+      "warn",
+      "Камеру зупинено з попередженням",
+      String(e?.message || e),
+      ""
+    );
+  }
+}
+
+window.addEventListener("load", () => {
   $("btnStart").addEventListener("click", startScanner);
   $("btnStop").addEventListener("click", stopScanner);
 
-  try {
-    await resolveMode();
-    setModeBox();
-
-    $("btnStart").disabled = false;
-
+  if (RECOVERY_SCAN_SEANCE_ID) {
     setStatus(
-      RECOVERY_MODE === "entry" ? "" : "warn",
-      RECOVERY_MODE === "entry"
-        ? "Сканер входу готовий"
-        : "Сканер підготовки готовий",
-      RECOVERY_MODE === "entry"
-        ? `Погашення буде зафіксовано на: ${seanceText(RECOVERY_SCAN_SEANCE)}`
-        : "Поточний сеанс не потрібен. Скануйте квиток для перевірки або активації через Cabinet.",
-      ""
-    );
-
-  } catch(e) {
-    /*
-      Даже ошибка загрузки seances не должна блокировать
-      подготовительное сканирование.
-    */
-    RECOVERY_MODE = "prepare";
-    RECOVERY_SCAN_SEANCE = null;
-    RECOVERY_SCAN_SEANCE_ID = "";
-
-    setModeBox();
-    $("btnStart").disabled = false;
-
-    setStatus(
-      "warn",
-      "Сканер підготовки готовий",
-      "Не вдалося визначити сеанс. Погашення вимкнено; доступна лише безпечна перевірка token.",
-      ""
-    );
-  }
-});
-
-window.addEventListener("pagehide", emergencyRelease);
-window.addEventListener("beforeunload", emergencyRelease);
-
-document.addEventListener("visibilitychange", () => {
-  if (document.hidden && (scannerRunning || scannerStarting)) {
-    emergencyRelease();
-  }
-});
-
-window.addEventListener("pageshow", event => {
-  if (event.persisted) {
-    emergencyRelease();
-
-    setStatus(
-      "warn",
-      "Камеру було звільнено",
-      "Після повернення на сторінку запустіть камеру повторно.",
+      RECOVERY_TEST_MODE ? "warn" : "",
+      RECOVERY_TEST_MODE ? "Тестовий сканер готовий" : "Сканер готовий",
+      `Погашення буде зафіксовано на сеансі: ${RECOVERY_SCAN_SEANCE_ID}`,
       ""
     );
   }
