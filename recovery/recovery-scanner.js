@@ -9,6 +9,7 @@ let lastToken = "";
 let lastScanAt = 0;
 
 const PARAMS = new URLSearchParams(location.search);
+
 const REQUESTED_SEANCE_ID =
   PARAMS.get("seance") ||
   PARAMS.get("seance_id") ||
@@ -20,6 +21,23 @@ const LAUNCH_MAX_AGE_MS = 10 * 60 * 1000;
 
 let RECOVERY_SCAN_SEANCE_ID = "";
 let RECOVERY_SCAN_SEANCE = null;
+
+/*
+  Два режима одного Recovery Scanner:
+
+  PREPARE
+  - открыт из Recovery Cabinet или напрямую;
+  - текущий сеанс не нужен;
+  - токен только проверяется / фиксируется в Audit;
+  - компенсация НЕ погашается.
+
+  ENTRY
+  - открыт из «Вхідного контролю»;
+  - имеет текущий seance_id;
+  - активированный токен погашается;
+  - used_seance_id получает текущий сеанс.
+*/
+let RECOVERY_MODE = "prepare";
 
 const $ = id => document.getElementById(id);
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -53,7 +71,6 @@ function playScanSound(type){
       osc.frequency.value = freq;
 
       const t = audioCtx.currentTime + start;
-
       gain.gain.setValueAtTime(0.001, t);
       gain.gain.exponentialRampToValueAtTime(volume, t + 0.02);
       gain.gain.exponentialRampToValueAtTime(0.001, t + duration);
@@ -93,6 +110,25 @@ function setStatus(kind, title, details, token){
   $("tokenText").textContent = token || "—";
 }
 
+function setModeBox(){
+  const box = $("modeBox");
+
+  box.classList.remove("prepare", "entry");
+
+  if (RECOVERY_MODE === "entry") {
+    box.classList.add("entry");
+    box.textContent =
+      `Режим входу: компенсація буде погашена на сеансі ` +
+      `${seanceText(RECOVERY_SCAN_SEANCE)}.`;
+    return;
+  }
+
+  box.classList.add("prepare");
+  box.textContent =
+    "Режим підготовки: сканування лише фіксує або перевіряє token. " +
+    "Компенсаційний прохід не погашається.";
+}
+
 function localDateKey(date = new Date()){
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, "0");
@@ -109,6 +145,7 @@ function seanceDateTime(s){
 
 function seanceText(s){
   if (!s) return "";
+
   return [
     s.show || "",
     s.date || "",
@@ -139,17 +176,27 @@ async function loadSeances(){
     .filter(s => s.archived !== true && s.active !== false);
 }
 
-async function resolveScanSeance(){
+async function resolveMode(){
+  /*
+    Нет seance_id:
+    это нормальный режим подготовки из Recovery Cabinet.
+  */
+  if (!REQUESTED_SEANCE_ID) {
+    RECOVERY_MODE = "prepare";
+    RECOVERY_SCAN_SEANCE = null;
+    RECOVERY_SCAN_SEANCE_ID = "";
+    return;
+  }
+
   const rows = await loadSeances();
-  const now = new Date();
 
   const requested = rows.find(
     s => String(s.id) === String(REQUESTED_SEANCE_ID)
   ) || null;
 
   /*
-    Тестовый сеанс принимается только по свежей ссылке из gate-control.
-    Старый адрес из истории браузера (например Дон Жуан) отвергается.
+    Тестовый вход принимается только по свежей ссылке из gate-control.
+    Старая ссылка из истории (например, Дон Жуан) не используется.
   */
   if (RECOVERY_TEST_MODE) {
     const freshLaunch =
@@ -158,16 +205,23 @@ async function resolveScanSeance(){
       Math.abs(Date.now() - LAUNCH_TS) <= LAUNCH_MAX_AGE_MS;
 
     if (requested && freshLaunch) {
+      RECOVERY_MODE = "entry";
       RECOVERY_SCAN_SEANCE = requested;
       RECOVERY_SCAN_SEANCE_ID = String(requested.id);
-      return requested;
+      return;
     }
 
-    throw new Error(
-      "Тестовий сеанс не передано або посилання застаріло. Поверніться у «Вхідний контроль», оберіть сеанс і відкрийте Recovery знову."
-    );
+    RECOVERY_MODE = "prepare";
+    RECOVERY_SCAN_SEANCE = null;
+    RECOVERY_SCAN_SEANCE_ID = "";
+    return;
   }
 
+  /*
+    Рабочий режим без test=1:
+    переданный сеанс принимается только в реальном рабочем окне.
+  */
+  const now = new Date();
   const today = localDateKey(now);
 
   const currentMatches = rows
@@ -180,36 +234,29 @@ async function resolveScanSeance(){
 
       return {
         seance:s,
-        diffMin,
-        abs:Math.abs(diffMin)
+        diffMin
       };
     })
-    .filter(x => x.diffMin <= 120 && x.diffMin >= -240)
-    .sort((a,b) => a.abs - b.abs);
+    .filter(x => x.diffMin <= 120 && x.diffMin >= -240);
+
+  const validRequested = currentMatches.find(
+    x => String(x.seance.id) === String(requested?.id || "")
+  );
+
+  if (validRequested) {
+    RECOVERY_MODE = "entry";
+    RECOVERY_SCAN_SEANCE = validRequested.seance;
+    RECOVERY_SCAN_SEANCE_ID = String(validRequested.seance.id);
+    return;
+  }
 
   /*
-    Переданный gate-control сеанс используется только если он действительно
-    находится в текущем рабочем окне.
+    Устаревший или неактуальный seance_id не блокирует камеру
+    и не превращается в фактическое погашение.
   */
-  if (requested) {
-    const validRequested = currentMatches.find(
-      x => String(x.seance.id) === String(requested.id)
-    );
-
-    if (validRequested) {
-      RECOVERY_SCAN_SEANCE = validRequested.seance;
-      RECOVERY_SCAN_SEANCE_ID = String(validRequested.seance.id);
-      return validRequested.seance;
-    }
-  }
-
-  if (currentMatches.length) {
-    RECOVERY_SCAN_SEANCE = currentMatches[0].seance;
-    RECOVERY_SCAN_SEANCE_ID = String(currentMatches[0].seance.id);
-    return currentMatches[0].seance;
-  }
-
-  throw new Error("Зараз немає поточного сеансу у робочому вікні входу.");
+  RECOVERY_MODE = "prepare";
+  RECOVERY_SCAN_SEANCE = null;
+  RECOVERY_SCAN_SEANCE_ID = "";
 }
 
 function scannerSecret(){
@@ -224,17 +271,6 @@ function scannerSecret(){
 }
 
 async function sendToken(token){
-  if (!RECOVERY_SCAN_SEANCE_ID) {
-    playScanSound("error");
-    setStatus(
-      "bad",
-      "Сеанс не визначено",
-      "Компенсаційний прохід не може бути погашено без поточного сеансу.",
-      token
-    );
-    return;
-  }
-
   const secret = scannerSecret();
   const scanned_by = $("gate").value.trim() || "recovery-gate";
 
@@ -249,6 +285,8 @@ async function sendToken(token){
     return;
   }
 
+  const lookupOnly = RECOVERY_MODE !== "entry";
+
   const res = await fetch(endpoint, {
     method:"POST",
     headers:{
@@ -258,7 +296,8 @@ async function sendToken(token){
     body:JSON.stringify({
       token,
       scanned_by,
-      scan_seance_id:RECOVERY_SCAN_SEANCE_ID
+      scan_seance_id:RECOVERY_SCAN_SEANCE_ID || null,
+      lookup_only:lookupOnly
     })
   });
 
@@ -271,7 +310,9 @@ async function sendToken(token){
 
   const usedLine = ticket.used_seance_id
     ? `Погашено на: ${ticket.used_seance_id}`
-    : `Погашено на: ${RECOVERY_SCAN_SEANCE_ID}`;
+    : RECOVERY_SCAN_SEANCE_ID
+      ? `Погашено на: ${RECOVERY_SCAN_SEANCE_ID}`
+      : "";
 
   const oldSeatLine = ticket.source_seat_label
     ? `Старе місце: ${ticket.source_seat_label}`
@@ -289,10 +330,41 @@ async function sendToken(token){
 
   if (res.status === 404) {
     playScanSound("error");
+
     setStatus(
       "bad",
-      "Квиток не знайдено",
-      "Цього квитка немає у compensation pool.",
+      RECOVERY_MODE === "prepare"
+        ? "Квиток не знайдено"
+        : "Квиток не активовано",
+      RECOVERY_MODE === "prepare"
+        ? "Token зафіксовано в Recovery Audit. Тепер його можна активувати в Cabinet."
+        : "Цього квитка немає у compensation pool.",
+      token
+    );
+    return;
+  }
+
+  if (
+    RECOVERY_MODE === "prepare" &&
+    res.ok &&
+    data.mode === "lookup"
+  ) {
+    const isUsed = ticket.compensation_used === true;
+
+    playScanSound(isUsed ? "used" : "success");
+
+    setStatus(
+      isUsed ? "warn" : "ok",
+      isUsed
+        ? "КОМПЕНСАЦІЮ ВЖЕ ВИКОРИСТАНО"
+        : "КВИТОК ВЖЕ АКТИВОВАНО",
+      [
+        "Режим підготовки: погашення не виконувалось.",
+        viewerLine,
+        sourceLine,
+        ticket.used_seance_id ? usedLine : "",
+        oldSeatLine
+      ].filter(Boolean).join(" • "),
       token
     );
     return;
@@ -371,11 +443,13 @@ function stopVideoTracks(){
   document.querySelectorAll("video").forEach(video => {
     try {
       const stream = video.srcObject;
+
       if (stream && typeof stream.getTracks === "function") {
         stream.getTracks().forEach(track => {
           try { track.stop(); } catch {}
         });
       }
+
       video.srcObject = null;
     } catch {}
   });
@@ -399,7 +473,7 @@ async function releaseCamera({ showStatus = false } = {}){
   const reader = $("reader");
   if (reader) reader.innerHTML = "";
 
-  $("btnStart").disabled = !RECOVERY_SCAN_SEANCE_ID;
+  $("btnStart").disabled = false;
   $("btnStop").disabled = true;
 
   if (showStatus) {
@@ -459,6 +533,7 @@ async function startQrEngine(){
         180,
         Math.min(280, Math.floor(Math.min(viewWidth, viewHeight) * 0.72))
       );
+
       return { width:edge, height:edge };
     },
     disableFlip:false
@@ -473,9 +548,12 @@ async function startQrEngine(){
       onScanSuccess,
       () => {}
     );
+
     return instance;
+
   } catch(firstError) {
     try { await instance.clear(); } catch {}
+
     stopVideoTracks();
     await sleep(350);
 
@@ -499,16 +577,6 @@ async function startQrEngine(){
 
 async function startScanner(){
   if (scannerStarting || scannerRunning) return;
-
-  if (!RECOVERY_SCAN_SEANCE_ID) {
-    setStatus(
-      "bad",
-      "Сеанс не визначено",
-      "Поверніться у «Вхідний контроль» і відкрийте Recovery повторно.",
-      ""
-    );
-    return;
-  }
 
   scannerStarting = true;
   $("btnStart").disabled = true;
@@ -538,9 +606,11 @@ async function startScanner(){
     $("btnStop").disabled = false;
 
     setStatus(
-      "",
+      RECOVERY_MODE === "entry" ? "" : "warn",
       "Камера працює",
-      `${RECOVERY_TEST_MODE ? "ТЕСТ • " : ""}${seanceText(RECOVERY_SCAN_SEANCE)}`,
+      RECOVERY_MODE === "entry"
+        ? `Режим входу • ${seanceText(RECOVERY_SCAN_SEANCE)}`
+        : "Режим підготовки • компенсація не буде погашена.",
       ""
     );
 
@@ -573,26 +643,38 @@ window.addEventListener("load", async () => {
   $("btnStop").addEventListener("click", stopScanner);
 
   try {
-    const s = await resolveScanSeance();
+    await resolveMode();
+    setModeBox();
 
     $("btnStart").disabled = false;
 
     setStatus(
-      RECOVERY_TEST_MODE ? "warn" : "",
-      RECOVERY_TEST_MODE ? "Тестовий сканер готовий" : "Сканер готовий",
-      `Погашення буде зафіксовано на: ${seanceText(s)}`,
+      RECOVERY_MODE === "entry" ? "" : "warn",
+      RECOVERY_MODE === "entry"
+        ? "Сканер входу готовий"
+        : "Сканер підготовки готовий",
+      RECOVERY_MODE === "entry"
+        ? `Погашення буде зафіксовано на: ${seanceText(RECOVERY_SCAN_SEANCE)}`
+        : "Поточний сеанс не потрібен. Скануйте квиток для перевірки або активації через Cabinet.",
       ""
     );
 
   } catch(e) {
+    /*
+      Даже ошибка загрузки seances не должна блокировать
+      подготовительное сканирование.
+    */
+    RECOVERY_MODE = "prepare";
     RECOVERY_SCAN_SEANCE = null;
     RECOVERY_SCAN_SEANCE_ID = "";
-    $("btnStart").disabled = true;
+
+    setModeBox();
+    $("btnStart").disabled = false;
 
     setStatus(
-      "bad",
-      "Сеанс не визначено",
-      String(e?.message || e),
+      "warn",
+      "Сканер підготовки готовий",
+      "Не вдалося визначити сеанс. Погашення вимкнено; доступна лише безпечна перевірка token.",
       ""
     );
   }
@@ -614,7 +696,7 @@ window.addEventListener("pageshow", event => {
     setStatus(
       "warn",
       "Камеру було звільнено",
-      "Після повернення на сторінку відкрийте Recovery з «Вхідного контролю» повторно.",
+      "Після повернення на сторінку запустіть камеру повторно.",
       ""
     );
   }
