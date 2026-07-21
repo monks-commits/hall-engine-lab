@@ -5,7 +5,8 @@
 <title>VA Recovery Scanner</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<script src="https://unpkg.com/html5-qrcode"></script>
+<!-- Фиксированная проверенная версия, как в обычном VA Scanner -->
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="./recovery-config.js"></script>
 
 <style>
@@ -39,11 +40,33 @@ p{
 }
 
 #reader{
+  position:relative;
   width:100%;
+  min-height:280px;
   margin:18px 0;
-  background:#fff;
+  background:#000;
   border-radius:18px;
   overflow:hidden;
+}
+
+/* Android/Html5Qrcode: не даём video остаться невидимым под белой подложкой */
+#reader video{
+  display:block !important;
+  width:100% !important;
+  height:auto !important;
+  min-height:280px !important;
+  object-fit:cover !important;
+  background:#000 !important;
+  opacity:1 !important;
+  visibility:visible !important;
+}
+
+#reader canvas{
+  max-width:100% !important;
+}
+
+#reader img{
+  display:none !important;
 }
 
 .status{
@@ -54,17 +77,9 @@ p{
   border:1px solid rgba(255,255,255,.12);
 }
 
-.status.ok{
-  background:#14532d;
-}
-
-.status.bad{
-  background:#7f1d1d;
-}
-
-.status.warn{
-  background:#78350f;
-}
+.status.ok{ background:#14532d; }
+.status.bad{ background:#7f1d1d; }
+.status.warn{ background:#78350f; }
 
 .status-title{
   font-size:26px;
@@ -96,14 +111,13 @@ button{
   font-weight:800;
 }
 
-.btn-start{
-  background:#22c55e;
+button:disabled{
+  opacity:.55;
+  cursor:default;
 }
 
-.btn-stop{
-  background:#ef4444;
-  color:#fff;
-}
+.btn-start{ background:#22c55e; color:#08111f; }
+.btn-stop{ background:#ef4444; color:#fff; }
 
 input{
   width:100%;
@@ -124,7 +138,6 @@ input{
 </head>
 
 <body>
-
 <div class="wrap">
 
   <h1>🟡 VA Recovery Scanner</h1>
