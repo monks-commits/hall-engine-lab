@@ -1,6 +1,9 @@
 "use strict";
 
 let qr = null;
+let cameraStarting = false;
+let cameraRunning = false;
+
 let lastToken = "";
 let lastScanAt = 0;
 let scanLocked = false;
@@ -12,9 +15,45 @@ const RECOVERY_SCAN_SEANCE_ID =
   RECOVERY_SCAN_PARAMS.get("seance_id") ||
   "";
 
-const RECOVERY_TEST_MODE = RECOVERY_SCAN_PARAMS.get("test") === "1";
+const RECOVERY_TEST_MODE =
+  RECOVERY_SCAN_PARAMS.get("test") === "1";
 
 const $ = (id) => document.getElementById(id);
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+const CAMERA_CHANNEL_NAME = "va-recovery-camera-v1";
+const CAMERA_STORAGE_KEY = "va_recovery_camera_request_v1";
+const PAGE_ID = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+let cameraChannel = null;
+
+try {
+  if ("BroadcastChannel" in window) {
+    cameraChannel = new BroadcastChannel(CAMERA_CHANNEL_NAME);
+
+    cameraChannel.addEventListener("message", (event) => {
+      const data = event.data || {};
+
+      if (
+        data.type === "release-camera" &&
+        data.pageId !== PAGE_ID
+      ) {
+        emergencyReleaseCamera();
+      }
+    });
+  }
+} catch(e) {
+  console.warn("BroadcastChannel init error", e);
+}
+
+window.addEventListener("storage", (event) => {
+  if (
+    event.key === CAMERA_STORAGE_KEY &&
+    event.newValue
+  ) {
+    emergencyReleaseCamera();
+  }
+});
 
 let audioCtx = null;
 
@@ -40,6 +79,7 @@ function playScanSound(type){
     const beep = (freq, start, duration, volume = 0.18) => {
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
+
       osc.type = "sine";
       osc.frequency.value = freq;
 
@@ -50,6 +90,7 @@ function playScanSound(type){
 
       osc.connect(gain);
       gain.connect(audioCtx.destination);
+
       osc.start(t);
       osc.stop(t + duration + 0.03);
     };
@@ -112,27 +153,36 @@ async function sendToken(token){
     method:"POST",
     headers:{
       "Content-Type":"application/json",
-      "x-scanner-secret": secret
+      "x-scanner-secret":secret
     },
-    body: JSON.stringify({
+    body:JSON.stringify({
       token,
       scanned_by,
-      scan_seance_id: RECOVERY_SCAN_SEANCE_ID
+      scan_seance_id:RECOVERY_SCAN_SEANCE_ID
     })
   });
 
   const data = await res.json().catch(() => ({}));
   const ticket = data.ticket || {};
 
-  const sourceLine = ticket.source_seance_id
-    ? `Компенсація від: ${ticket.source_seance_id}`
+  const sourceValue =
+    ticket.source_seance_label ||
+    ticket.source_seance_id ||
+    "";
+
+  const usedValue =
+    ticket.used_seance_label ||
+    ticket.used_seance_id ||
+    RECOVERY_SCAN_SEANCE_ID ||
+    "";
+
+  const sourceLine = sourceValue
+    ? `Компенсація від: ${sourceValue}`
     : "";
 
-  const usedLine = ticket.used_seance_id
-    ? `Погашено на: ${ticket.used_seance_id}`
-    : RECOVERY_SCAN_SEANCE_ID
-      ? `Погашено на: ${RECOVERY_SCAN_SEANCE_ID}`
-      : "";
+  const usedLine = usedValue
+    ? `Погашено на: ${usedValue}`
+    : "";
 
   const oldSeatLine = ticket.source_seat_label
     ? `Старе місце: ${ticket.source_seat_label}`
@@ -164,9 +214,7 @@ async function sendToken(token){
 
     setStatus(
       data.error === "duplicate_token" ? "bad" : "warn",
-      data.error === "duplicate_token"
-        ? "Дублікат токена"
-        : "Вже використано",
+      data.error === "duplicate_token" ? "Дублікат токена" : "Вже використано",
       data.error === "duplicate_token"
         ? "У recovery_tokens знайдено кілька однакових token."
         : [
@@ -183,7 +231,12 @@ async function sendToken(token){
 
   if (!res.ok || data.ok === false) {
     playScanSound("error");
-    setStatus("bad", "Помилка", data.error || `HTTP ${res.status}`, token);
+    setStatus(
+      "bad",
+      "Помилка",
+      data.message || data.error || `HTTP ${res.status}`,
+      token
+    );
     return;
   }
 
@@ -213,7 +266,10 @@ async function onScanSuccess(decodedText){
   const token = normalizeToken(decodedText);
 
   if (!token) return;
-  if (token === lastToken && now - lastScanAt < 8000) return;
+
+  if (token === lastToken && now - lastScanAt < 8000) {
+    return;
+  }
 
   scanLocked = true;
   lastToken = token;
@@ -228,19 +284,91 @@ async function onScanSuccess(decodedText){
   }
 }
 
-function chooseRearCamera(cameras){
-  if (!Array.isArray(cameras) || !cameras.length) return null;
+function stopVisibleVideoTracks(){
+  document.querySelectorAll("#reader video").forEach(video => {
+    try {
+      const stream = video.srcObject;
 
-  const rearPattern =
-    /(back|rear|environment|задн|основн|camera 0)/i;
+      if (stream && typeof stream.getTracks === "function") {
+        stream.getTracks().forEach(track => {
+          try { track.stop(); } catch {}
+        });
+      }
 
-  return (
-    cameras.find(c => rearPattern.test(String(c.label || ""))) ||
-    cameras[cameras.length - 1]
-  );
+      video.srcObject = null;
+    } catch(e) {
+      console.warn("video track cleanup error", e);
+    }
+  });
 }
 
-function waitForVideoFrame(timeoutMs = 6000){
+async function releaseCamera(options = {}){
+  const {
+    showStatus = false,
+    preserveButtons = false
+  } = options;
+
+  stopVisibleVideoTracks();
+
+  const instance = qr;
+  qr = null;
+
+  cameraStarting = false;
+  cameraRunning = false;
+  scanLocked = false;
+
+  if (instance) {
+    try { await instance.stop(); } catch {}
+    try { await instance.clear(); } catch {}
+  }
+
+  stopVisibleVideoTracks();
+
+  const reader = $("reader");
+  if (reader) reader.innerHTML = "";
+
+  if (!preserveButtons) {
+    $("btnStart").disabled = false;
+    $("btnStop").disabled = true;
+  }
+
+  if (showStatus) {
+    setStatus("", "Камеру зупинено", "Можна запустити повторно.", "");
+  }
+}
+
+function emergencyReleaseCamera(){
+  stopVisibleVideoTracks();
+
+  releaseCamera({
+    showStatus:false,
+    preserveButtons:false
+  }).catch(() => {});
+}
+
+async function askOtherRecoveryTabsToReleaseCamera(){
+  try {
+    cameraChannel?.postMessage({
+      type:"release-camera",
+      pageId:PAGE_ID,
+      at:Date.now()
+    });
+  } catch {}
+
+  try {
+    localStorage.setItem(
+      CAMERA_STORAGE_KEY,
+      JSON.stringify({
+        pageId:PAGE_ID,
+        at:Date.now()
+      })
+    );
+  } catch {}
+
+  await sleep(350);
+}
+
+function waitForVideoFrame(timeoutMs = 8000){
   return new Promise((resolve, reject) => {
     const started = Date.now();
 
@@ -261,7 +389,8 @@ function waitForVideoFrame(timeoutMs = 6000){
       if (Date.now() - started >= timeoutMs) {
         reject(
           new Error(
-            "Камера дозволена, але відеопотік не з'явився. Оновіть сторінку і запустіть камеру повторно."
+            "Камера відкрилася, але відеокадр не з'явився. " +
+            "Потік звільнено — натисніть «Запустити камеру» повторно."
           )
         );
         return;
@@ -275,36 +404,39 @@ function waitForVideoFrame(timeoutMs = 6000){
 }
 
 async function startScanner(){
+  if (cameraStarting || cameraRunning) return;
+
+  cameraStarting = true;
+
   $("btnStart").disabled = true;
+  $("btnStop").disabled = true;
+
   initAudio();
 
   try {
-    if (qr) {
-      try {
-        await qr.stop();
-        await qr.clear();
-      } catch {}
-      qr = null;
-    }
+    await askOtherRecoveryTabsToReleaseCamera();
+    await releaseCamera({
+      showStatus:false,
+      preserveButtons:true
+    });
 
-    const cameras = await Html5Qrcode.getCameras();
-    const rear = chooseRearCamera(cameras);
-
-    const cameraConfig = rear?.id
-      ? rear.id
-      : { facingMode:"environment" };
+    await sleep(250);
 
     qr = new Html5Qrcode("reader", { verbose:false });
 
     await qr.start(
-      cameraConfig,
+      { facingMode:"environment" },
       {
         fps:10,
         qrbox:(viewWidth, viewHeight) => {
           const edge = Math.max(
             180,
-            Math.min(280, Math.floor(Math.min(viewWidth, viewHeight) * 0.72))
+            Math.min(
+              280,
+              Math.floor(Math.min(viewWidth, viewHeight) * 0.72)
+            )
           );
+
           return { width:edge, height:edge };
         },
         disableFlip:false
@@ -319,35 +451,29 @@ async function startScanner(){
     video.setAttribute("autoplay", "");
     video.muted = true;
 
-    try {
-      await video.play();
-    } catch {}
+    try { await video.play(); } catch {}
 
+    cameraStarting = false;
+    cameraRunning = true;
+
+    $("btnStart").disabled = true;
     $("btnStop").disabled = false;
 
     const modeLine = RECOVERY_TEST_MODE ? "ТЕСТ • " : "";
 
     setStatus(
-      "",
+      RECOVERY_TEST_MODE ? "warn" : "",
       "Камера працює",
       RECOVERY_SCAN_SEANCE_ID
         ? `${modeLine}Сканування на сеансі: ${RECOVERY_SCAN_SEANCE_ID}`
         : `${modeLine}Скануйте QR або штрихкод компенсаційного квитка.`,
       ""
     );
-
-  } catch(e){
-    $("btnStart").disabled = false;
-    $("btnStop").disabled = true;
-
-    try {
-      if (qr) {
-        await qr.stop();
-        await qr.clear();
-      }
-    } catch {}
-
-    qr = null;
+  } catch(e) {
+    await releaseCamera({
+      showStatus:false,
+      preserveButtons:false
+    });
 
     setStatus(
       "bad",
@@ -359,27 +485,10 @@ async function startScanner(){
 }
 
 async function stopScanner(){
-  $("btnStop").disabled = true;
-
-  try {
-    if (qr) {
-      await qr.stop();
-      await qr.clear();
-      qr = null;
-    }
-
-    $("btnStart").disabled = false;
-    setStatus("", "Камеру зупинено", "Можна запустити повторно.", "");
-
-  } catch(e){
-    $("btnStart").disabled = false;
-    setStatus(
-      "warn",
-      "Камеру зупинено з попередженням",
-      String(e?.message || e),
-      ""
-    );
-  }
+  await releaseCamera({
+    showStatus:true,
+    preserveButtons:false
+  });
 }
 
 window.addEventListener("load", () => {
@@ -391,6 +500,31 @@ window.addEventListener("load", () => {
       RECOVERY_TEST_MODE ? "warn" : "",
       RECOVERY_TEST_MODE ? "Тестовий сканер готовий" : "Сканер готовий",
       `Погашення буде зафіксовано на сеансі: ${RECOVERY_SCAN_SEANCE_ID}`,
+      ""
+    );
+  }
+});
+
+window.addEventListener("pagehide", emergencyReleaseCamera);
+window.addEventListener("beforeunload", emergencyReleaseCamera);
+
+document.addEventListener("visibilitychange", () => {
+  if (
+    document.hidden &&
+    (cameraRunning || cameraStarting)
+  ) {
+    emergencyReleaseCamera();
+  }
+});
+
+window.addEventListener("pageshow", (event) => {
+  if (event.persisted) {
+    emergencyReleaseCamera();
+
+    setStatus(
+      "warn",
+      "Камеру було звільнено",
+      "Після повернення на сторінку запустіть камеру повторно.",
       ""
     );
   }
