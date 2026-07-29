@@ -1,6 +1,78 @@
 <!DOCTYPE html><html lang="uk"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>VA Hall Studio ULTRA Trace</title><style>
 :root{--bg:#0a0d12;--panel:#151922;--line:#313849;--text:#f8fafc;--muted:#9ca3af;--violet:#7c3aed;--blue:#2563eb;--green:#16a34a;--orange:#f97316;--red:#dc2626;--gold:#f59e0b}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}.app{display:grid;grid-template-columns:350px 1fr 360px;height:100vh;overflow:hidden}aside{background:var(--panel);padding:14px;overflow:auto}.left{border-right:1px solid var(--line)}.right{border-left:1px solid var(--line)}h1{font-size:21px;margin:0 0 6px}h2{font-size:14px;margin:18px 0 10px;padding-top:12px;border-top:1px solid var(--line)}.note,.small{color:var(--muted);font-size:12px;line-height:1.45}.field{margin-bottom:10px}.field label{display:block;margin-bottom:5px;font-size:12px;font-weight:800;color:#cbd5e1}input,select,textarea{width:100%;padding:9px;border:1px solid var(--line);border-radius:8px;background:#0d1118;color:var(--text);font-size:13px}input[type=color]{height:42px;padding:3px;cursor:pointer}textarea{min-height:230px;font-family:Consolas,monospace;font-size:12px}.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}.btn{width:100%;padding:10px;margin-bottom:8px;border:0;border-radius:10px;background:#303849;color:#fff;font-weight:900;cursor:pointer}.btn:hover{opacity:.92}.blue{background:var(--blue)}.green{background:var(--green)}.orange{background:var(--orange)}.red{background:var(--red)}.purple{background:var(--violet)}.gold{background:var(--gold);color:#111827}.work{position:relative;overflow:auto;background:#080a0f}.work.preview .topbar{opacity:.25}.work.preview .grid,.work.preview .handle,.work.preview .transform-box,.work.preview .select-box,.work.preview .seat-number{display:none!important}.topbar{position:sticky;top:0;z-index:100;padding:10px 14px;background:#151922;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;font-size:13px;color:#d1d5db}#zoomHost{transform-origin:top left;width:max-content;height:max-content;margin:34px auto;position:relative}#canvas{position:relative;background:#f8fafc;box-shadow:0 20px 60px rgba(0,0,0,.55);overflow:hidden;user-select:none;cursor:crosshair}.grid{position:absolute;inset:0;display:none;pointer-events:none;background-image:linear-gradient(to right,rgba(124,58,237,.16) 1px,transparent 1px),linear-gradient(to bottom,rgba(124,58,237,.16) 1px,transparent 1px);z-index:9998}.select-box{position:absolute;border:2px dashed var(--violet);background:rgba(124,58,237,.16);z-index:9999;pointer-events:none}.transform-box{position:absolute;border:2px solid rgba(124,58,237,.85);z-index:9996;pointer-events:none;box-shadow:0 0 0 2px rgba(255,255,255,.75)}.handle{position:absolute;width:12px;height:12px;background:#fff;border:2px solid #7c3aed;border-radius:50%;z-index:9999;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.35)}.handle-rotate{width:14px;height:14px;background:#f59e0b;border-color:#fff;cursor:grab}.obj{position:absolute;box-sizing:border-box;cursor:pointer;user-select:none;transform-origin:center center}.obj.locked{opacity:.65;pointer-events:none}.obj.selected{outline:3px solid rgba(124,58,237,.72);outline-offset:4px}.obj.row-hover{box-shadow:0 0 0 3px rgba(245,158,11,.75),0 0 22px rgba(245,158,11,.85)!important;filter:brightness(1.22)}.obj.zone-hover{box-shadow:0 0 0 3px rgba(34,197,94,.55),0 0 20px rgba(34,197,94,.65)!important;filter:brightness(1.15)}.obj-seat{border-radius:50%;background:#dc2626;border:2px solid #fff;box-shadow:0 2px 10px rgba(0,0,0,.35)}.obj-chair{background:#b91c1c;border:2px solid #fff;border-radius:8px 8px 5px 5px;box-shadow:inset 0 -7px 0 rgba(0,0,0,.24),0 3px 9px rgba(0,0,0,.28)}.obj-table{border-radius:50%;background:#8b5cf6;border:3px solid #fff;display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff}.obj-box{border:2px solid #6b7280;border-radius:14px;background:rgba(255,255,255,.82);display:flex;align-items:center;justify-content:center;color:#374151;font-weight:900}.obj-door{border:3px solid #6b7280;border-bottom:none;border-radius:14px 14px 0 0;background:rgba(255,255,255,.88);display:flex;align-items:center;justify-content:center;color:#374151;font-weight:800}.obj-wall{background:#6b7280;border-radius:999px}.obj-arc{border-top:5px solid #6b7280;border-radius:50% 50% 0 0}.obj-zone{border:2px dashed #7c3aed;border-radius:18px;background:rgba(124,58,237,.1);display:flex;align-items:center;justify-content:center;color:#4c1d95;font-weight:900}.obj-stage{background:#04a9e8;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;letter-spacing:.08em}.obj-bar{background:#111827;color:#fff;border:3px solid #374151;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:900}.obj-screen{background:#111827;color:#dbeafe;border:2px solid #60a5fa;display:flex;align-items:center;justify-content:center;font-weight:900}.obj-text{color:#111827;font-weight:900;white-space:nowrap}.obj-label{color:#374151;font-weight:800;white-space:nowrap;background:rgba(255,255,255,.78);padding:4px 8px;border-radius:8px}.obj-media{background:#111827;color:#fff;border:2px solid #7c3aed;display:flex;align-items:center;justify-content:center;overflow:hidden}.obj-media img,.obj-media video{width:100%;height:100%;display:block;pointer-events:none}.seat-number{position:absolute;transform:translate(-50%,-50%);background:rgba(255,255,255,.92);color:#111827;border:1px solid #d1d5db;border-radius:5px;padding:1px 4px;font-weight:900;pointer-events:none;z-index:9997}.layer-item{display:grid;grid-template-columns:28px 28px 1fr 28px;gap:6px;align-items:center;background:#0d1118;border:1px solid var(--line);border-radius:10px;padding:6px;margin-bottom:6px}.layer-item.active{border-color:var(--violet);box-shadow:0 0 0 2px rgba(124,58,237,.2)}.layer-btn{border:0;border-radius:7px;background:#263044;color:#fff;height:26px;cursor:pointer}.counter,.log{font-size:12px;line-height:1.45;background:#0d1118;border:1px solid var(--line);border-radius:10px;padding:10px;color:#d1d5db;white-space:pre-wrap}
 .textfix-box{border:1px solid #3b4458;background:#101722;border-radius:12px;padding:10px;margin:10px 0 14px}.textfix-box h2{border-top:0;margin-top:0;padding-top:0}.textfix-mini{font-size:12px;color:#cbd5e1;margin:0 0 8px}.textfix-btn{padding:9px 10px;border:0;border-radius:9px;background:#2563eb;color:#fff;font-weight:900;cursor:pointer}.textfix-btn.gray{background:#303849}.textfix-btn.gold{background:#f59e0b;color:#111827}.obj-text,.obj-label{text-shadow:var(--text-stroke-shadow, none)}
+
+.key-audit-summary{
+  margin-bottom:8px;
+}
+.key-audit-ok{
+  border-color:rgba(34,197,94,.65)!important;
+  color:#bbf7d0!important;
+}
+.key-audit-bad{
+  border-color:rgba(239,68,68,.75)!important;
+  color:#fecaca!important;
+}
+.key-audit-details{
+  margin:8px 0 14px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:#0d1118;
+  overflow:hidden;
+}
+.key-audit-details summary{
+  padding:9px 10px;
+  cursor:pointer;
+  font-size:12px;
+  font-weight:900;
+  color:#e5e7eb;
+}
+.key-audit-list{
+  max-height:320px;
+  overflow:auto;
+  padding:0 8px 8px;
+}
+.key-audit-item{
+  width:100%;
+  margin:0 0 6px;
+  padding:8px 9px;
+  border:1px solid #3b4458;
+  border-radius:9px;
+  background:#151922;
+  color:#fff;
+  text-align:left;
+  cursor:pointer;
+}
+.key-audit-item:hover,
+.key-audit-item.active{
+  border-color:#ef4444;
+  box-shadow:0 0 0 2px rgba(239,68,68,.18);
+}
+.key-audit-key{
+  display:block;
+  font-weight:900;
+  color:#fca5a5;
+  margin-bottom:4px;
+}
+.key-audit-meta{
+  display:block;
+  color:#cbd5e1;
+  font-size:11px;
+  line-height:1.4;
+}
+.obj.key-duplicate{
+  box-shadow:
+    0 0 0 4px rgba(239,68,68,.9),
+    0 0 28px rgba(239,68,68,.95)!important;
+  filter:brightness(1.35);
+}
+.obj.key-invalid{
+  box-shadow:
+    0 0 0 4px rgba(245,158,11,.95),
+    0 0 28px rgba(245,158,11,.95)!important;
+  filter:brightness(1.35);
+}
+
 </style></head><body><div class="app"><aside class="left"><h1>VA Hall Studio ULTRA</h1><div class="note">Trace Brush: ведёте мышью по ряду — кресла ставятся автоматически.</div>
 <h2>1. Canvas / Camera</h2><div class="row2"><div class="field"><label>Canvas W</label><input id="canvasW" type="number" value="1200"></div><div class="field"><label>Canvas H</label><input id="canvasH" type="number" value="900"></div></div><button class="btn blue" id="applyCanvasBtn">ПРИМЕНИТЬ ХОЛСТ</button> <div class="field">
   <label>Canvas Margin</label>
@@ -33,11 +105,27 @@
 <aside class="right"><h2>Selection</h2><button class="btn" id="selectAllBtn">ВЫДЕЛИТЬ ВСЁ</button><button class="btn" id="clearSelectionBtn">СНЯТЬ ВЫДЕЛЕНИЕ</button><button class="btn red" id="deleteBtn">УДАЛИТЬ</button><button class="btn orange" id="undoBtn">ОТМЕНИТЬ</button><button class="btn red" id="clearBtn">ОЧИСТИТЬ ВСЁ</button>
 <h2>Inspector</h2><div class="small" id="inspectInfo">Выделите объект</div><div class="row2"><div class="field"><label>X</label><input id="insX" type="number"></div><div class="field"><label>Y</label><input id="insY" type="number"></div></div><div class="row2"><div class="field"><label>W</label><input id="insW" type="number"></div><div class="field"><label>H</label><input id="insH" type="number"></div></div><div class="row3"><div class="field"><label>Rotate</label><input id="insRotate" type="number"></div><div class="field"><label>Z</label><input id="insZ" type="number"></div><div class="field"><label>Size</label><input id="insSize" type="number"></div></div><div class="field"><label>Text</label><input id="insText"></div><div class="row2"><div class="field"><label>Fill</label><input id="insFill" type="color" value="#8b5cf6"></div><div class="field"><label>Border</label><input id="insBorder" type="color" value="#ffffff"></div></div><div class="row2"><div class="field"><label>Text Color</label><input id="insTextColor" type="color" value="#111827"></div><div class="field"><label>Opacity</label><input id="insOpacity" type="range" min="0" max="1" step="0.05" value="1"></div></div><div class="field"><label>Glow</label><input id="insGlow" type="range" min="0" max="40" step="1" value="0"></div><div class="field"><label>Media File</label><input id="insMediaFile" type="file" accept="image/*,video/*"></div><div class="field"><label>Media Fit</label><select id="insMediaFit"><option value="cover">Cover</option><option value="contain">Contain</option><option value="fill">Fill</option></select></div><div class="row3"><div class="field"><label>Label X</label><input id="insLabelX" type="number"></div><div class="field"><label>Label Y</label><input id="insLabelY" type="number"></div><div class="field"><label>Label Size</label><input id="insLabelSize" type="number"></div></div><div class="field"><label>Номера selected</label><select id="insShowLabel"><option value="inherit">Как глобально</option><option value="1">Показать</option><option value="0">Скрыть</option></select></div>
 <div class="textfix-box" id="textFixBox"><h2>Текст / цифры</h2><div class="textfix-mini">Выделите текст, плашку, сцену или зону. Автоматические номера мест не являются отдельными объектами.</div><div class="field"><label>Содержимое</label><input id="tfText" value=""></div><div class="row2"><div class="field"><label>Шрифт</label><input id="tfFont" value="Arial"></div><div class="field"><label>Размер</label><input id="tfSize" type="number" value="22"></div></div><div class="row2"><div class="field"><label>Цвет текста</label><input id="tfColor" type="color" value="#ffffff"></div><div class="field"><label>Жирность</label><select id="tfWeight"><option value="400">Обычный</option><option value="700">Жирный</option><option value="900">Очень жирный</option></select></div></div><div class="row2"><div class="field"><label>Контур</label><input id="tfStrokeColor" type="color" value="#000000"></div><div class="field"><label>Толщина контура</label><input id="tfStrokeWidth" type="number" value="0"></div></div><div class="field"><label>Свечение текста</label><input id="tfGlow" type="range" min="0" max="40" step="1" value="0"></div><div class="row2"><button class="textfix-btn" id="tfApplyBtn">ПРИМЕНИТЬ К ВЫДЕЛЕННОМУ</button><button class="textfix-btn gold" id="tfWhiteBtn">БЕЛЫЙ + ЧЁРНЫЙ КОНТУР + СВЕТ</button></div></div><h2>Transform</h2><button class="btn blue" id="alignYBtn">ВЫРОВНЯТЬ ПО ГОРИЗОНТАЛИ</button><button class="btn blue" id="alignXBtn">ВЫРОВНЯТЬ ПО ВЕРТИКАЛИ</button><button class="btn purple" id="distXBtn">РАСПРЕДЕЛИТЬ ПО ГОРИЗОНТАЛИ</button><button class="btn purple" id="distYBtn">РАСПРЕДЕЛИТЬ ПО ВЕРТИКАЛИ</button><button class="btn purple" id="perspectiveBtn">ПЕРСПЕКТИВА SELECTED</button><div class="row2"><div class="field"><label>Arc Depth +/-</label><input id="arcAlignDepth" type="number" value="40"></div><div class="field"><label>Arc Sort</label><select id="arcAlignSort"><option value="auto">Auto</option><option value="x-asc">X →</option><option value="x-desc">X ←</option><option value="y-asc">Y ↓</option><option value="y-desc">Y ↑</option></select></div></div><button class="btn gold" id="alignArcBtn">ВЫРОВНЯТЬ SELECTED ПО ДУГЕ</button><div class="small">Выделите места одного ряда. Крайние места станут якорями, остальные равномерно лягут по дуге. Если дуга выгнулась не туда — поменяйте знак Arc Depth.</div><div class="row2"><div class="field"><label>Крок повороту °</label><input id="rotateSelectedAngle" type="number" min="0" max="180" step="1" value="3"></div><div class="field"><label>Rows Arc Depth</label><input id="rowsArcDepth" type="number" value="20"></div></div><div class="row2"><button class="btn gold" id="rotateSelectedLeftBtn">↺ ПРОТИ ГОДИННИКОВОЇ</button><button class="btn gold" id="rotateSelectedRightBtn">ЗА ГОДИННИКОВОЮ ↻</button></div><div class="small">Поворот виконується навколо центра виділення. Однаковий крок вправо і вліво повертає ділянку назад без прокручування ще на 350°.</div><button class="btn gold" id="alignSelectedRowsLineBtn">ВЫРОВНЯТЬ SELECTED ПО РЯДАМ</button><div class="row2"><button class="btn gold" id="alignSelectedRowsUpBtn">ДУГА РЯДОВ ВВЕРХ</button><button class="btn gold" id="alignSelectedRowsDownBtn">ДУГА РЯДОВ ВНИЗ</button></div><div class="small">Можно выделять сектор с несколькими рядами. Инструмент сам группирует места по Zone+Row и правит каждый ряд отдельно.</div><h2>Быстрое выделение</h2><div class="row2"><button class="btn blue" id="selectCurrentRowBtn">ВЫДЕЛИТЬ РЯД</button><button class="btn blue" id="addCurrentRowBtn">ДОБАВИТЬ РЯД</button></div><button class="btn blue" id="selectCurrentZoneBtn">ВЫДЕЛИТЬ ЗОНУ</button><div class="small">Использует поля Zone и Row слева. Для Оперы удобно: ставим Zone=Амфитеатр, Row=17 и жмём кнопку.</div><h2>Copy / Mirror</h2><button class="btn orange" id="copyBtn">КОПИРОВАТЬ</button><button class="btn orange" id="pasteBtn">ВСТАВИТЬ</button><div class="row2"><div class="field"><label>dx</label><input id="dupOffsetX" type="number" value="40"></div><div class="field"><label>dy</label><input id="dupOffsetY" type="number" value="40"></div></div><button class="btn purple" id="duplicateBtn">ДУБЛИРОВАТЬ</button><button class="btn blue" id="mirrorXBtn">ЗЕРКАЛО X</button><button class="btn blue" id="mirrorYBtn">ЗЕРКАЛО Y</button>
+<h2>Проверка ключей мест</h2>
+<div class="counter key-audit-summary" id="keyAuditSummary">Проверка…</div>
+<div class="row2">
+  <button class="btn gold" id="keyAuditBtn">ПРОВЕРИТЬ КЛЮЧИ</button>
+  <button class="btn blue" id="selectFirstDuplicateBtn">ВЫДЕЛИТЬ ПЕРВЫЙ</button>
+</div>
+<button class="btn" id="copyKeyAuditBtn">СКОПИРОВАТЬ ОТЧЁТ</button>
+<details class="key-audit-details" id="keyAuditDetails">
+  <summary id="keyAuditDetailsTitle">Список конфликтов</summary>
+  <div class="key-audit-list" id="keyAuditList"></div>
+</details>
+<div class="small">
+  Красным подсвечиваются места с одинаковым техническим ключом.
+  Нажмите строку в списке — Hall Studio выделит все конфликтующие места.
+  Stable JSON не экспортируется, пока конфликты не исправлены.
+</div>
 <h2>Export / Import</h2><button class="btn green" id="exportBtn">ЭКСПОРТ JSON</button><button class="btn blue" id="stableExportBtn">ЭКСПОРТ STABLE JSON</button><button class="btn green" id="downloadBtn">СКАЧАТЬ JSON</button><button class="btn blue" id="stableDownloadBtn">СКАЧАТЬ STABLE JSON</button><button class="btn orange" id="saveBrowserBtn">СОХРАНИТЬ В БРАУЗЕРЕ</button><button class="btn orange" id="restoreBrowserBtn">ВОССТАНОВИТЬ</button><button class="btn" id="importBtn">ИМПОРТ JSON</button><div class="field"><label>JSON</label><textarea id="jsonOutput"></textarea></div><h2>Status</h2><div class="counter" id="counter"></div><h2>Log</h2><div class="log" id="log"></div></aside></div>
 <script>
 'use strict';const $=id=>document.getElementById(id),canvas=$('canvas'),grid=$('grid'),zoomHost=$('zoomHost'),imageLoader=$('imageLoader'),jsonOutput=$('jsonOutput'),counter=$('counter'),logBox=$('log'),zoomLabel=$('zoomLabel'),activeLayerEl=$('activeLayer'),layerListEl=$('layerList');
 const defaultLayers=[{id:'background',name:'Background',visible:true,locked:true,opacity:1,z:0},{id:'architecture',name:'Architecture',visible:true,locked:false,opacity:1,z:10},{id:'seats',name:'Seats / Tables',visible:true,locked:false,opacity:1,z:30},{id:'text',name:'Text / Labels',visible:true,locked:false,opacity:1,z:90},{id:'light',name:'Light / FX',visible:true,locked:false,opacity:1,z:110},{id:'media',name:'Media',visible:true,locked:false,opacity:1,z:120}];
-let scene={version:2,format:'va-hall-ultra-scene',meta:{title:'VA Hall Scene'},canvas:{width:1280,height:900,background:null},camera:{zoom:1},layers:structuredClone(defaultLayers),objects:[],media:[],mood:{},agents:{},interactions:{},exports:{}};let selected=new Set(),history=[],clipboard=[],idn=1,bgDataUrl='',bgNaturalW=0,bgNaturalH=0,gridShown=false,drag=null,selectBox=null,selectStart=null,transformDrag=null,pan={active:false,space:false,startX:0,startY:0,scrollLeft:0,scrollTop:0},previewMode=false,curveTool={mode:null,start:null,end:null},traceMode=false,traceDrag=false,traceLast=null,traceBaseY=null,traceCreated=0,detectedSeats=[],hoverLock=null;
+let scene={version:2,format:'va-hall-ultra-scene',meta:{title:'VA Hall Scene'},canvas:{width:1280,height:900,background:null},camera:{zoom:1},layers:structuredClone(defaultLayers),objects:[],media:[],mood:{},agents:{},interactions:{},exports:{}};let selected=new Set(),history=[],clipboard=[],idn=1,bgDataUrl='',bgNaturalW=0,bgNaturalH=0,gridShown=false,drag=null,selectBox=null,selectStart=null,transformDrag=null,pan={active:false,space:false,startX:0,startY:0,scrollLeft:0,scrollTop:0},previewMode=false,curveTool={mode:null,start:null,end:null},traceMode=false,traceDrag=false,traceLast=null,traceBaseY=null,traceCreated=0,detectedSeats=[],hoverLock=null,keyAuditActiveKey='';
 const registry={seat:{layer:'seats'},chair:{layer:'seats'},table:{layer:'seats'},box:{layer:'architecture'},zone:{layer:'architecture'},door:{layer:'architecture'},wall:{layer:'architecture'},arc:{layer:'architecture'},stage:{layer:'architecture'},bar:{layer:'architecture'},screen:{layer:'architecture'},text:{layer:'text'},label:{layer:'text'},media:{layer:'media'}};
 function uid(p){return p+'_'+Date.now()+'_'+(idn++)}function log(m){logBox.textContent=m||''}function val(id){return String(($(id)||{}).value||'').trim()}function num(id,f=0){const v=parseFloat(val(id));return Number.isFinite(v)?v:f}function cw(){return parseInt(canvas.style.width,10)||scene.canvas.width||1280}function ch(){return parseInt(canvas.style.height,10)||scene.canvas.height||900}function zoomValue(){return Math.max(25,Math.min(300,num('zoom',100)))/100}function snap(v){if(val('snap')!=='1')return Math.round(v);const g=Math.max(1,num('gridSize',20));return Math.round(v/g)*g}function point(e){const r=canvas.getBoundingClientRect(),z=zoomValue();return{x:snap((e.clientX-r.left)/z),y:snap((e.clientY-r.top)/z)}}function layerById(id){return scene.layers.find(l=>l.id===id)}function activeLayer(){return val('activeLayer')||'seats'}function objectLayer(o){return layerById(o.layerId)||layerById(registry[o.type]?.layer)||scene.layers[0]}function isLocked(o){return !!objectLayer(o)?.locked}function isVisible(o){return objectLayer(o)?.visible!==false}function selectedObjects(){return scene.objects.filter(o=>selected.has(o.id))}function objectById(id){return scene.objects.find(o=>o.id===id)}function save(){history.push(JSON.stringify(scene));if(history.length>100)history.shift()}
 function applyCanvas(){scene.canvas.width=Math.max(100,num('canvasW',1280));scene.canvas.height=Math.max(100,num('canvasH',900));canvas.style.width=scene.canvas.width+'px';canvas.style.height=scene.canvas.height+'px';applyBg();render();log('CANVAS OK')} function getObjectBounds(o){
@@ -199,7 +287,366 @@ function safeColor(v,f){v=String(v||'').trim();return /^#[0-9a-fA-F]{6}$/.test(v
   if(o.opacity!==undefined)el.style.opacity=o.opacity;
   if(o.glow&&Number(o.glow)>0)el.style.boxShadow=`0 0 ${Number(o.glow)}px rgba(124,58,237,.9)`
 }
-function render(){canvas.querySelectorAll('.obj,.select-box,.seat-number,.transform-box,.handle,.trace-ghost,.detect-candidate').forEach(el=>el.remove());refreshLayers();scene.objects.slice().sort((a,b)=>((objectLayer(a)?.z||0)+(a.z||0))-((objectLayer(b)?.z||0)+(b.z||0))).forEach(o=>{if(!isVisible(o))return;const el=document.createElement('div'),layer=objectLayer(o);el.className='obj obj-'+o.type;el.dataset.id=o.id;el.style.left=o.x+'px';el.style.top=o.y+'px';el.style.width=(o.w||0)+'px';el.style.height=(o.h||0)+'px';el.style.transform=`translate(-50%,-50%) rotate(${o.rotate||0}deg)`;el.style.zIndex=(layer?.z||0)+(o.z||0);if(isLocked(o))el.classList.add('locked');if(selected.has(o.id))el.classList.add('selected');if(['box','door','zone','stage','bar','screen','table','media'].includes(o.type))el.textContent=o.text||o.type;if(
+
+function escapeKeyAuditHtml(value){
+  return String(value ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+function seatKeyAuditAddress(o){
+  const prefix=String(o?.prefix ?? "").trim();
+  const row=String(o?.row ?? "").trim();
+  const seatNumber=Number(o?.seat);
+
+  const valid=
+    Boolean(prefix) &&
+    Boolean(row) &&
+    Number.isFinite(seatNumber) &&
+    seatNumber > 0;
+
+  return {
+    valid,
+    key:valid ? `${prefix}${row}-M${seatNumber}` : "",
+    prefix,
+    row,
+    seat:Number.isFinite(seatNumber) ? seatNumber : null
+  };
+}
+
+function buildSeatKeyAudit(){
+  const groups=new Map();
+  const invalid=[];
+
+  const seats=scene.objects.filter(
+    o=>o && (o.type==="seat" || o.type==="chair")
+  );
+
+  seats.forEach((o,index)=>{
+    const address=seatKeyAuditAddress(o);
+
+    if(!address.valid){
+      invalid.push({
+        object:o,
+        sceneIndex:index,
+        address
+      });
+      return;
+    }
+
+    if(!groups.has(address.key)){
+      groups.set(address.key,[]);
+    }
+
+    groups.get(address.key).push({
+      object:o,
+      sceneIndex:index,
+      address
+    });
+  });
+
+  const duplicates=Array.from(groups.entries())
+    .filter(([,items])=>items.length>1)
+    .sort((a,b)=>a[0].localeCompare(b[0],"uk",{numeric:true}));
+
+  const duplicateIds=new Set();
+  let collisionSeats=0;
+
+  duplicates.forEach(([,items])=>{
+    collisionSeats+=items.length-1;
+    items.forEach(item=>duplicateIds.add(item.object.id));
+  });
+
+  return {
+    totalSeats:seats.length,
+    uniqueKeys:groups.size,
+    duplicates,
+    duplicateIds,
+    invalid,
+    invalidIds:new Set(invalid.map(item=>item.object.id)),
+    collisionSeats
+  };
+}
+
+function keyAuditObjectLine(item){
+  const o=item.object || {};
+  return [
+    `id=${o.id || "—"}`,
+    `zone=${o.zone || "—"}`,
+    `prefix=${o.prefix || "—"}`,
+    `row=${o.row ?? "—"}`,
+    `seat=${o.seat ?? "—"}`,
+    `x=${Math.round(Number(o.x || 0))}`,
+    `y=${Math.round(Number(o.y || 0))}`
+  ].join(" • ");
+}
+
+function renderKeyAudit(audit=buildSeatKeyAudit()){
+  const summary=$("keyAuditSummary");
+  const list=$("keyAuditList");
+  const title=$("keyAuditDetailsTitle");
+
+  if(summary){
+    summary.classList.remove("key-audit-ok","key-audit-bad");
+
+    if(!audit.duplicates.length && !audit.invalid.length){
+      summary.classList.add("key-audit-ok");
+      summary.innerHTML=
+        `✅ Мест: <b>${audit.totalSeats}</b><br>`+
+        `Уникальных ключей: <b>${audit.uniqueKeys}</b><br>`+
+        `Конфликтов: <b>0</b>`;
+    }else{
+      summary.classList.add("key-audit-bad");
+      summary.innerHTML=
+        `⚠️ Мест: <b>${audit.totalSeats}</b><br>`+
+        `Уникальных ключей: <b>${audit.uniqueKeys}</b><br>`+
+        `Повторяющихся ключей: <b>${audit.duplicates.length}</b><br>`+
+        `Лишних мест в коллизиях: <b>${audit.collisionSeats}</b>`+
+        (audit.invalid.length
+          ? `<br>Мест с неполным адресом: <b>${audit.invalid.length}</b>`
+          : "");
+    }
+  }
+
+  if(title){
+    title.textContent=
+      audit.duplicates.length || audit.invalid.length
+        ? `Список: ${audit.duplicates.length} повторов, ${audit.invalid.length} без адреса`
+        : "Повторяющихся ключей нет";
+  }
+
+  if(!list) return audit;
+
+  const duplicateHtml=audit.duplicates.map(([key,items])=>{
+    const zones=[...new Set(items.map(
+      item=>String(item.object?.zone || "без зоны")
+    ))].join(", ");
+
+    const details=items
+      .map((item,index)=>
+        `${index+1}) ${keyAuditObjectLine(item)}`
+      )
+      .join("\n");
+
+    return `
+      <button
+        type="button"
+        class="key-audit-item ${keyAuditActiveKey===key ? "active" : ""}"
+        data-key-audit-key="${escapeKeyAuditHtml(key)}"
+        title="${escapeKeyAuditHtml(details)}"
+      >
+        <span class="key-audit-key">
+          ${escapeKeyAuditHtml(key)} × ${items.length}
+        </span>
+        <span class="key-audit-meta">
+          ${escapeKeyAuditHtml(zones)}
+        </span>
+      </button>
+    `;
+  }).join("");
+
+  const invalidHtml=audit.invalid.map((item,index)=>`
+    <button
+      type="button"
+      class="key-audit-item"
+      data-key-audit-invalid="${escapeKeyAuditHtml(item.object.id)}"
+    >
+      <span class="key-audit-key">
+        Неполный адрес места ${index+1}
+      </span>
+      <span class="key-audit-meta">
+        ${escapeKeyAuditHtml(keyAuditObjectLine(item))}
+      </span>
+    </button>
+  `).join("");
+
+  list.innerHTML=
+    duplicateHtml ||
+    invalidHtml ||
+    `<div class="small" style="padding:8px 2px;">
+      ✅ Повторяющихся ключей нет.
+    </div>`;
+
+  return audit;
+}
+
+function selectSeatKeyConflict(key){
+  const audit=buildSeatKeyAudit();
+  const group=audit.duplicates.find(([groupKey])=>groupKey===key);
+
+  if(!group){
+    log("KEY AUDIT: конфликт уже отсутствует.");
+    renderKeyAudit(audit);
+    return;
+  }
+
+  keyAuditActiveKey=key;
+  selected.clear();
+
+  group[1].forEach(item=>{
+    selected.add(item.object.id);
+  });
+
+  render();
+
+  requestAnimationFrame(()=>{
+    const firstId=group[1][0]?.object?.id;
+    const el=firstId
+      ? canvas.querySelector(`.obj[data-id="${firstId}"]`)
+      : null;
+
+    el?.scrollIntoView({
+      block:"center",
+      inline:"center",
+      behavior:"smooth"
+    });
+  });
+
+  log(
+    `KEY CONFLICT: ${key} × ${group[1].length}\n`+
+    group[1]
+      .map((item,index)=>`${index+1}) ${keyAuditObjectLine(item)}`)
+      .join("\n")
+  );
+}
+
+function selectInvalidSeatAddress(id){
+  const o=objectById(id);
+  if(!o) return;
+
+  keyAuditActiveKey="";
+  selected.clear();
+  selected.add(o.id);
+  render();
+
+  requestAnimationFrame(()=>{
+    canvas
+      .querySelector(`.obj[data-id="${o.id}"]`)
+      ?.scrollIntoView({
+        block:"center",
+        inline:"center",
+        behavior:"smooth"
+      });
+  });
+
+  log(`INVALID SEAT ADDRESS\n${keyAuditObjectLine({object:o})}`);
+}
+
+function selectFirstSeatKeyConflict(){
+  const audit=buildSeatKeyAudit();
+
+  if(audit.duplicates.length){
+    selectSeatKeyConflict(audit.duplicates[0][0]);
+    return;
+  }
+
+  if(audit.invalid.length){
+    selectInvalidSeatAddress(audit.invalid[0].object.id);
+    return;
+  }
+
+  log("KEY AUDIT OK: повторяющихся ключей нет.");
+}
+
+function seatKeyAuditText(){
+  const audit=buildSeatKeyAudit();
+  const rows=[
+    "VA HALL STUDIO — ПРОВЕРКА КЛЮЧЕЙ",
+    `Физических мест: ${audit.totalSeats}`,
+    `Уникальных ключей: ${audit.uniqueKeys}`,
+    `Повторяющихся ключей: ${audit.duplicates.length}`,
+    `Лишних мест в коллизиях: ${audit.collisionSeats}`,
+    `Мест с неполным адресом: ${audit.invalid.length}`,
+    ""
+  ];
+
+  audit.duplicates.forEach(([key,items],groupIndex)=>{
+    rows.push(`${groupIndex+1}. ${key} × ${items.length}`);
+
+    items.forEach((item,index)=>{
+      rows.push(`   ${index+1}) ${keyAuditObjectLine(item)}`);
+    });
+
+    rows.push("");
+  });
+
+  audit.invalid.forEach((item,index)=>{
+    rows.push(
+      `INVALID ${index+1}) ${keyAuditObjectLine(item)}`
+    );
+  });
+
+  if(!audit.duplicates.length && !audit.invalid.length){
+    rows.push("✅ Повторяющихся ключей нет.");
+  }
+
+  return rows.join("\n");
+}
+
+async function copySeatKeyAudit(){
+  const report=seatKeyAuditText();
+
+  try{
+    await navigator.clipboard.writeText(report);
+    log("KEY AUDIT: отчёт скопирован.");
+  }catch(e){
+    const ta=document.createElement("textarea");
+    ta.value=report;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    ta.remove();
+    log("KEY AUDIT: отчёт скопирован.");
+  }
+}
+
+function checkSeatKeys(){
+  const audit=buildSeatKeyAudit();
+  renderKeyAudit(audit);
+
+  if(audit.duplicates.length || audit.invalid.length){
+    $("keyAuditDetails")?.setAttribute("open","");
+    log(
+      `KEY AUDIT: повторов ${audit.duplicates.length}, `+
+      `коллизий мест ${audit.collisionSeats}, `+
+      `без адреса ${audit.invalid.length}.`
+    );
+  }else{
+    log(
+      `KEY AUDIT OK: ${audit.totalSeats} мест, `+
+      `${audit.uniqueKeys} уникальных ключей.`
+    );
+  }
+}
+
+function allowStableExport(){
+  const audit=buildSeatKeyAudit();
+
+  if(!audit.duplicates.length && !audit.invalid.length){
+    return true;
+  }
+
+  renderKeyAudit(audit);
+  $("keyAuditDetails")?.setAttribute("open","");
+  selectFirstSeatKeyConflict();
+
+  alert(
+    "Stable JSON не экспортирован.\n\n"+
+    `Повторяющихся ключей: ${audit.duplicates.length}\n`+
+    `Лишних мест в коллизиях: ${audit.collisionSeats}\n`+
+    `Мест с неполным адресом: ${audit.invalid.length}\n\n`+
+    "Исправьте технические адреса мест в Hall Studio."
+  );
+
+  return false;
+}
+
+function render(){const keyAudit=buildSeatKeyAudit();canvas.querySelectorAll('.obj,.select-box,.seat-number,.transform-box,.handle,.trace-ghost,.detect-candidate').forEach(el=>el.remove());refreshLayers();scene.objects.slice().sort((a,b)=>((objectLayer(a)?.z||0)+(a.z||0))-((objectLayer(b)?.z||0)+(b.z||0))).forEach(o=>{if(!isVisible(o))return;const el=document.createElement('div'),layer=objectLayer(o);el.className='obj obj-'+o.type;el.dataset.id=o.id;el.style.left=o.x+'px';el.style.top=o.y+'px';el.style.width=(o.w||0)+'px';el.style.height=(o.h||0)+'px';el.style.transform=`translate(-50%,-50%) rotate(${o.rotate||0}deg)`;el.style.zIndex=(layer?.z||0)+(o.z||0);if(isLocked(o))el.classList.add('locked');if(selected.has(o.id))el.classList.add('selected');
+if(keyAudit.duplicateIds.has(o.id))el.classList.add('key-duplicate');
+if(keyAudit.invalidIds.has(o.id))el.classList.add('key-invalid');if(['box','door','zone','stage','bar','screen','table','media'].includes(o.type))el.textContent=o.text||o.type;if(
     o.type === 'stage' ||
     o.type === 'zone' ||
     o.type === 'bar' ||
@@ -221,7 +668,15 @@ if(o.type==='media'&&o.mediaData){el.textContent='';const isVideo=String(o.media
   el.style.height = 'auto';
   el.style.minWidth = '20px';
   el.style.minHeight = '20px';
-}if(o.type==='arc')el.style.borderTop=(o.border||5)+'px solid #6b7280';applyObjectStyle(o,el);canvas.appendChild(el);if((o.type==='seat'||o.type==='chair')&&(String(o.showLabel??val('showSeatLabels'))==='1')){const lab=document.createElement('div');lab.className='seat-number';lab.textContent=(o.row||'')+'/'+(o.seat||'');lab.style.left=(Number(o.x||0)+Number(o.labelOffsetX??num('labelOffsetX',0)))+'px';lab.style.top=(Number(o.y||0)+Number(o.labelOffsetY??num('labelOffsetY',-20)))+'px';lab.style.fontSize=(Number(o.labelSize??num('labelSize',10)))+'px';canvas.appendChild(lab)}});counter.innerHTML='Objects: '+scene.objects.length+'<br>Selected: '+selected.size+'<br>Layers: '+scene.layers.length+'<br>Canvas: '+cw()+'x'+ch();renderHandles();updateInspector();refreshTextFix();try{localStorage.setItem('va_hall_ultra_autosave',JSON.stringify(scene))}catch(e){}}
+}if(o.type==='arc')el.style.borderTop=(o.border||5)+'px solid #6b7280';applyObjectStyle(o,el);canvas.appendChild(el);if((o.type==='seat'||o.type==='chair')&&(String(o.showLabel??val('showSeatLabels'))==='1')){const lab=document.createElement('div');lab.className='seat-number';lab.textContent=(o.row||'')+'/'+(o.seat||'');lab.style.left=(Number(o.x||0)+Number(o.labelOffsetX??num('labelOffsetX',0)))+'px';lab.style.top=(Number(o.y||0)+Number(o.labelOffsetY??num('labelOffsetY',-20)))+'px';lab.style.fontSize=(Number(o.labelSize??num('labelSize',10)))+'px';canvas.appendChild(lab)}});counter.innerHTML='Objects: '+scene.objects.length+
+'<br>Seats: '+keyAudit.totalSeats+
+'<br>Unique keys: '+keyAudit.uniqueKeys+
+'<br>Key collisions: '+keyAudit.collisionSeats+
+'<br>Selected: '+selected.size+
+'<br>Layers: '+scene.layers.length+
+'<br>Canvas: '+cw()+'x'+ch();
+renderKeyAudit(keyAudit);
+renderHandles();updateInspector();refreshTextFix();try{localStorage.setItem('va_hall_ultra_autosave',JSON.stringify(scene))}catch(e){}}
 function renderHandles(){const list=selectedObjects();if(list.length!==1)return;const o=list[0];if(isLocked(o))return;const w=Math.max(8,Number(o.w||0)),h=Math.max(8,Number(o.h||0));if((o.type==='text'||o.type==='label')&&(!o.w||!o.h))return;const left=Number(o.x||0)-w/2,top=Number(o.y||0)-h/2,box=document.createElement('div');box.className='transform-box';Object.assign(box.style,{left:left+'px',top:top+'px',width:w+'px',height:h+'px'});canvas.appendChild(box);[['nw',left,top],['ne',left+w,top],['sw',left,top+h],['se',left+w,top+h]].forEach(([name,x,y])=>{const hnd=document.createElement('div');hnd.className='handle handle-'+name;hnd.dataset.handle=name;hnd.dataset.id=o.id;hnd.style.left=(x-6)+'px';hnd.style.top=(y-6)+'px';canvas.appendChild(hnd)});const rot=document.createElement('div');rot.className='handle handle-rotate';rot.dataset.handle='rotate';rot.dataset.id=o.id;rot.style.left=(Number(o.x||0)-7)+'px';rot.style.top=(top-34)+'px';canvas.appendChild(rot)}
 
 function clearHoverVisual(){
@@ -929,25 +1384,51 @@ function loadScene(data){
   render();
 }
 
+
+$("keyAuditBtn").onclick=checkSeatKeys;
+$("selectFirstDuplicateBtn").onclick=selectFirstSeatKeyConflict;
+$("copyKeyAuditBtn").onclick=copySeatKeyAudit;
+
+$("keyAuditList").addEventListener("click",event=>{
+  const button=event.target.closest(".key-audit-item");
+  if(!button) return;
+
+  const key=button.dataset.keyAuditKey;
+  const invalidId=button.dataset.keyAuditInvalid;
+
+  if(key){
+    selectSeatKeyConflict(key);
+    return;
+  }
+
+  if(invalidId){
+    selectInvalidSeatAddress(invalidId);
+  }
+});
+
 $('exportBtn').onclick = () => {
+  if(!allowStableExport()) return;
   const data = exportStableScene();
   jsonOutput.value = JSON.stringify(data, null, 2);
   log('STABLE JSON ГОТОВ: ' + data.seats.length + ' мест, decor: ' + data.decor.length);
 };
 
 $('stableExportBtn').onclick = () => {
+  if(!allowStableExport()) return;
   const data = exportStableScene();
   jsonOutput.value = JSON.stringify(data, null, 2);
   log('STABLE JSON ГОТОВ: ' + data.seats.length + ' мест, decor: ' + data.decor.length);
 };
 
 $('downloadBtn').onclick = () => {
+  if(!allowStableExport()) return;
   const data = exportStableScene();
   downloadJsonFile(data, 'va-hall-stable.json');
   log('STABLE JSON СКАЧАН: ' + data.seats.length + ' мест, decor: ' + data.decor.length);
 };
 
 $('stableDownloadBtn').onclick = () => {
+  if(!allowStableExport()) return;
   const data = exportStableScene();
   downloadJsonFile(data, 'va-hall-stable.json');
   log('STABLE JSON СКАЧАН: ' + data.seats.length + ' мест, decor: ' + data.decor.length);
