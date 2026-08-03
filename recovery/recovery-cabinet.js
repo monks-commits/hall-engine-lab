@@ -1,5 +1,3 @@
-"use strict";
-
 let CURRENT_RECOVERY_EVENT_ID = "";
 
 const $ = (id) => document.getElementById(id);
@@ -9,12 +7,110 @@ function show(id, text){
   if (el) el.textContent = text || "";
 }
 
+function removeInvisibleTokenChars(value){
+  return String(value || "")
+    .replace(/[\u200B-\u200D\uFEFF]/g, "");
+}
+
+function decodeTokenOnce(value){
+  const raw = removeInvisibleTokenChars(value).trim();
+
+  if (!/%[0-9A-Fa-f]{2}/.test(raw)) return raw;
+
+  try {
+    return decodeURIComponent(raw);
+  } catch {
+    return raw;
+  }
+}
+
+function parseVaQrToken(value){
+  const raw = decodeTokenOnce(value);
+  const compact = /^order\s*:/i.test(raw)
+    ? raw.replace(/\s+/g, "")
+    : raw.trim();
+
+  const fields = {};
+
+  for (const part of compact.split("|")) {
+    const i = part.indexOf(":");
+    if (i < 1) continue;
+
+    const key = part.slice(0, i).trim().toLowerCase();
+    const itemValue = part.slice(i + 1).trim();
+
+    if (key) fields[key] = itemValue;
+  }
+
+  const order_id = String(fields.order || "").trim();
+  const seance_id = String(fields.seance || "").trim();
+  const show_slug = String(fields.show || "").trim();
+  const seat_label = String(fields.seat || "").trim();
+
+  return {
+    raw,
+    compact,
+    order_id,
+    seance_id,
+    show_slug,
+    seat_label,
+    structured:Boolean(order_id && seat_label)
+  };
+}
+
+function canonicalToken(value){
+  const parsed = parseVaQrToken(value);
+
+  if (!parsed.structured) {
+    return parsed.compact;
+  }
+
+  const middle = parsed.seance_id
+    ? `seance:${parsed.seance_id}`
+    : parsed.show_slug
+      ? `show:${parsed.show_slug}`
+      : "";
+
+  return [
+    `order:${parsed.order_id}`,
+    middle,
+    `seat:${parsed.seat_label}`
+  ].filter(Boolean).join("|");
+}
+
 function normalizeToken(value){
-  return String(value || "").trim();
+  return canonicalToken(value);
 }
 
 function normalizeText(value){
   return String(value || "").trim();
+}
+
+function sameSeat(a, b){
+  return String(a || "")
+    .replace(/\s+/g, "")
+    .trim()
+    .toUpperCase() ===
+    String(b || "")
+      .replace(/\s+/g, "")
+      .trim()
+      .toUpperCase();
+}
+
+function equivalentVaToken(a, b){
+  const aa = parseVaQrToken(a);
+  const bb = parseVaQrToken(b);
+
+  if (normalizeToken(a) === normalizeToken(b)) return true;
+
+  if (aa.structured && bb.structured) {
+    return (
+      aa.order_id.toLowerCase() === bb.order_id.toLowerCase() &&
+      sameSeat(aa.seat_label, bb.seat_label)
+    );
+  }
+
+  return false;
 }
 
 function parseCsv(text){
@@ -64,11 +160,52 @@ async function supaInsert(table, body){
   return await res.json();
 }
 
+async function supaUpdate(table, query, body){
+  const res = await fetch(
+    `${RECOVERY_SUPABASE_URL}/rest/v1/${table}${query}`,
+    {
+      method:"PATCH",
+      headers:{
+        apikey:RECOVERY_SUPABASE_KEY,
+        Authorization:"Bearer " + RECOVERY_SUPABASE_KEY,
+        "Content-Type":"application/json",
+        Prefer:"return=representation"
+      },
+      body:JSON.stringify(body)
+    }
+  );
+
+  if (!res.ok) throw new Error(await res.text());
+  return await res.json();
+}
+
 async function findTicketByQrPayload(token){
+  const canonical = normalizeToken(token);
+
+  const exactRows = await supaFetch(
+    "tickets",
+    `?qr_payload=eq.${encodeURIComponent(canonical)}` +
+    `&select=id,order_id,seance_id,show_slug,seat_label,price,buyer_name,buyer_email,qr_payload` +
+    `&limit=2`
+  );
+
+  if (Array.isArray(exactRows) && exactRows.length) {
+    return exactRows[0];
+  }
+
+  const parsed = parseVaQrToken(canonical);
+
+  if (!parsed.structured) return null;
+
+  /*
+    Кассовый QR может содержать старое show:test, но order_id
+    и seat_label всё равно однозначно определяют физический билет.
+  */
   const rows = await supaFetch(
     "tickets",
-    `?qr_payload=eq.${encodeURIComponent(token)}` +
-    `&select=id,order_id,show_slug,seat_label,price,buyer_name,buyer_email,qr_payload` +
+    `?order_id=eq.${encodeURIComponent(parsed.order_id)}` +
+    `&seat_label=eq.${encodeURIComponent(parsed.seat_label)}` +
+    `&select=id,order_id,seance_id,show_slug,seat_label,price,buyer_name,buyer_email,qr_payload` +
     `&limit=2`
   );
 
@@ -77,16 +214,60 @@ async function findTicketByQrPayload(token){
 }
 
 async function findExistingRecoveryToken(token){
-  const rows = await supaFetch(
+  const canonical = normalizeToken(token);
+
+  const exactRows = await supaFetch(
     "recovery_tokens",
     `?recovery_event_id=eq.${encodeURIComponent(CURRENT_RECOVERY_EVENT_ID)}` +
-    `&token=eq.${encodeURIComponent(token)}` +
+    `&token=eq.${encodeURIComponent(canonical)}` +
     `&select=*` +
     `&limit=2`
   );
 
-  if (!Array.isArray(rows) || rows.length === 0) return null;
-  return rows[0];
+  if (Array.isArray(exactRows) && exactRows.length) {
+    return exactRows[0];
+  }
+
+  const parsed = parseVaQrToken(canonical);
+
+  if (!parsed.structured) return null;
+
+  /*
+    Ищем старую запись этой Recovery-події по order_id.
+    Затем сравниваем order_id + seat_label уже в JavaScript.
+  */
+  const tail = parsed.order_id.slice(-8) || parsed.order_id;
+
+  const candidates = await supaFetch(
+    "recovery_tokens",
+    `?recovery_event_id=eq.${encodeURIComponent(CURRENT_RECOVERY_EVENT_ID)}` +
+    `&token=ilike.${encodeURIComponent(`*${tail}*`)}` +
+    `&select=*` +
+    `&limit=100`
+  );
+
+  const equivalent = (Array.isArray(candidates) ? candidates : [])
+    .find(row => equivalentVaToken(row?.token, canonical));
+
+  if (!equivalent) return null;
+
+  /*
+    Старую строку с переносами/скрытыми символами сразу ремонтируем,
+    чтобы дальнейшие сканы проходили обычным точным поиском.
+  */
+  if (String(equivalent.token || "") !== canonical) {
+    const repaired = await supaUpdate(
+      "recovery_tokens",
+      `?id=eq.${encodeURIComponent(equivalent.id)}`,
+      { token:canonical }
+    );
+
+    if (Array.isArray(repaired) && repaired.length) {
+      return repaired[0];
+    }
+  }
+
+  return equivalent;
 }
 
 async function activateRecoveryToken(rawToken, fallback = {}){
@@ -107,9 +288,16 @@ async function activateRecoveryToken(rawToken, fallback = {}){
 
   const ticket = await findTicketByQrPayload(token);
 
+  /*
+    Если билет найден в tickets, источником истины становится
+    сохранённый tickets.qr_payload. Для внешнего/несинхронизированного
+    билета сохраняем каноническую строку, введённую оператором.
+  */
+  const storedToken = normalizeToken(ticket?.qr_payload || token);
+
   const payload = {
     recovery_event_id: CURRENT_RECOVERY_EVENT_ID,
-    token,
+    token:storedToken,
     seat_label:
       normalizeText(ticket?.seat_label) ||
       normalizeText(fallback.seat_label) ||
@@ -239,11 +427,14 @@ async function quickActivateRecovery(){
     const result = await activateRecoveryToken(token);
     const row = result.row || {};
 
+    const parsed = parseVaQrToken(row.token || token);
+
     $("quickResult").innerHTML = `
 ${result.status === "exists" ? "↻ Recovery вже було активовано" : "✅ Recovery активовано"}<br><br>
 Token: ${row.token || token}<br>
 Джерело: ${result.source}<br>
-Місце: ${row.seat_label || "—"}<br>
+Order: ${parsed.order_id || "—"}<br>
+Місце: ${row.seat_label || parsed.seat_label || "—"}<br>
 Глядач: ${row.owner_name || "—"}<br>
 Email: ${row.owner_email || "—"}
     `;
