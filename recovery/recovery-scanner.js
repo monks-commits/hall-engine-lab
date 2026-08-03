@@ -18,6 +18,7 @@ const SEANCES = new Map();
 
 const CAMERA_CHANNEL_NAME = "va-recovery-camera-v1";
 const CAMERA_STORAGE_KEY = "va_recovery_camera_request_v1";
+const SELECTED_MODE_STORAGE_KEY = "va_recovery_selected_mode_v1";
 const PAGE_ID = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 let cameraChannel = null;
 
@@ -102,6 +103,28 @@ function selectedSeanceLabel(){
   return row ? seanceLabel(row) : id;
 }
 
+function storedModeValue(){
+  try {
+    return String(
+      localStorage.getItem(SELECTED_MODE_STORAGE_KEY) || ""
+    ).trim();
+  } catch {
+    return "";
+  }
+}
+
+function rememberSelectedMode(){
+  const value = selectedModeValue();
+
+  try {
+    if (value) {
+      localStorage.setItem(SELECTED_MODE_STORAGE_KEY, value);
+    } else {
+      localStorage.removeItem(SELECTED_MODE_STORAGE_KEY);
+    }
+  } catch {}
+}
+
 function refreshModeUi(){
   const value = selectedModeValue();
   $("btnStart").disabled = !value || cameraStarting || cameraRunning;
@@ -145,12 +168,35 @@ async function loadSeances(){
       SEANCES.set(id, row);
       select.add(new Option(seanceLabel(row), id));
     });
+    const rememberedValue = storedModeValue();
+
     if (URL_SEANCE_ID) {
-      if (!SEANCES.has(URL_SEANCE_ID)) select.add(new Option(`Сеанс із посилання: ${URL_SEANCE_ID}`, URL_SEANCE_ID));
+      if (!SEANCES.has(URL_SEANCE_ID)) {
+        select.add(
+          new Option(
+            `Сеанс із посилання: ${URL_SEANCE_ID}`,
+            URL_SEANCE_ID
+          )
+        );
+      }
+
       select.value = URL_SEANCE_ID;
+      rememberSelectedMode();
+    } else if (
+      rememberedValue === CHECK_ONLY_VALUE ||
+      SEANCES.has(rememberedValue)
+    ) {
+      select.value = rememberedValue;
     } else {
       select.value = "";
+
+      if (rememberedValue) {
+        try {
+          localStorage.removeItem(SELECTED_MODE_STORAGE_KEY);
+        } catch {}
+      }
     }
+
     select.disabled = false;
     refreshModeUi();
   } catch(e) {
@@ -208,13 +254,38 @@ async function sendToken(token){
 function normalizeToken(text){ return String(text || "").trim(); }
 async function onScanSuccess(decodedText){
   if (scanLocked) return;
+
   const now = Date.now();
   const token = normalizeToken(decodedText);
+
   if (!token) return;
-  if (token === lastToken && now - lastScanAt < 8000) return;
-  scanLocked = true; lastToken = token; lastScanAt = now;
-  try { await sendToken(token); }
-  finally { setTimeout(() => { scanLocked = false; }, 8000); }
+
+  /*
+    Один и тот же QR не принимаем повторно 8 секунд,
+    но другой билет можно сканировать почти сразу.
+  */
+  if (
+    token === lastToken &&
+    now - lastScanAt < 8000
+  ) {
+    return;
+  }
+
+  scanLocked = true;
+  lastToken = token;
+  lastScanAt = now;
+
+  try {
+    await sendToken(token);
+  } finally {
+    /*
+      Камера не останавливается. Через короткую паузу
+      сканер готов к следующему посетителю.
+    */
+    setTimeout(() => {
+      scanLocked = false;
+    }, 900);
+  }
 }
 
 function stopVisibleVideoTracks(){
@@ -300,7 +371,11 @@ async function stopScanner(){ await releaseCamera({showStatus:true,preserveButto
 window.addEventListener("load", async () => {
   $("btnStart").addEventListener("click", startScanner);
   $("btnStop").addEventListener("click", stopScanner);
-  $("targetSeance").addEventListener("change", refreshModeUi);
+  $("targetSeance").addEventListener("change", () => {
+    rememberSelectedMode();
+    refreshModeUi();
+  });
+
   await loadSeances();
 });
 
