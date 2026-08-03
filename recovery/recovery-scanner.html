@@ -19,6 +19,7 @@ input,select{width:100%;box-sizing:border-box;margin-top:10px;border:1px solid r
 select:disabled,input:disabled{opacity:.62}
 .mode-box{margin-top:18px;padding:16px;border:1px solid rgba(255,255,255,.12);border-radius:18px;background:rgba(6,26,58,.32)}
 .mode-title{font-weight:800;margin-bottom:4px}.mode-hint{margin-top:8px;color:#b8c4d6;font-size:14px;line-height:1.4}
+.session-note{margin-top:12px;padding:12px 14px;border-radius:14px;background:rgba(34,197,94,.10);border:1px solid rgba(34,197,94,.32);color:#d1fae5;font-size:14px;line-height:1.45}
 #reader{position:relative;width:100%;min-height:280px;margin:18px 0;background:#000;border-radius:18px;overflow:hidden}
 #reader:empty{min-height:0;margin:0}
 #reader video{display:block!important;width:100%!important;height:auto!important;min-height:280px!important;object-fit:cover!important;background:#000!important;opacity:1!important;visibility:visible!important}
@@ -47,6 +48,10 @@ button{border:none;border-radius:14px;padding:12px 16px;font:inherit;cursor:poin
         <option value="">Завантаження сеансів...</option>
       </select>
       <div id="modeHint" class="mode-hint">Дочекайтеся завантаження та оберіть режим роботи.</div>
+      <div class="session-note">
+        Сеанс достатньо обрати один раз. Вибір запам’ятовується на цьому телефоні,
+        а після запуску камера залишається активною для наступних квитків.
+      </div>
     </div>
     <div class="controls">
       <button class="btn-start" id="btnStart" disabled>Запустити камеру</button>
@@ -60,6 +65,6 @@ button{border:none;border-radius:14px;padding:12px 16px;font:inherit;cursor:poin
     </div>
   </div>
 </div>
-<script src="./recovery-scanner.js?v=seance-choice-01"></script>
+<script src="./recovery-scanner.js?v=continuous-session-02"></script>
 </body>
 </html>
