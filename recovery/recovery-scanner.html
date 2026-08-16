@@ -41,7 +41,8 @@ button{border:none;border-radius:14px;padding:12px 16px;font:inherit;cursor:poin
     <label for="gate">Контролер / вхід</label>
     <input id="gate" value="recovery-gate-1">
     <label for="secret">Scanner secret</label>
-    <input id="secret" type="text" placeholder="SCANNER_SECRET">
+    <input id="secret" type="password" placeholder="SCANNER_SECRET" autocomplete="off">
+    <button type="button" id="btnClearSecret" style="margin-top:8px;background:#334155;color:#fff">Очистити secret</button>
     <div class="mode-box">
       <div class="mode-title">Режим / сеанс погашення</div>
       <select id="targetSeance" disabled>
@@ -65,6 +66,6 @@ button{border:none;border-radius:14px;padding:12px 16px;font:inherit;cursor:poin
     </div>
   </div>
 </div>
-<script src="./recovery-scanner.js?v=continuous-session-02"></script>
+<script src="./recovery-scanner.js?v=security-fix-01"></script>
 </body>
 </html>
