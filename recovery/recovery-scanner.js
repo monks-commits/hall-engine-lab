@@ -19,6 +19,7 @@ const SEANCES = new Map();
 const CAMERA_CHANNEL_NAME = "va-recovery-camera-v1";
 const CAMERA_STORAGE_KEY = "va_recovery_camera_request_v1";
 const SELECTED_MODE_STORAGE_KEY = "va_recovery_selected_mode_v1";
+const RECOVERY_SECRET_STORAGE_KEY = "va_recovery_scanner_secret_v1";
 const PAGE_ID = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 let cameraChannel = null;
 
@@ -76,8 +77,28 @@ function setStatus(kind,title,details,token){
 }
 
 function scannerSecret(){
-  if (typeof RECOVERY_SCANNER_SECRET !== "undefined" && RECOVERY_SCANNER_SECRET) return RECOVERY_SCANNER_SECRET;
-  return $("secret").value.trim();
+  return String($("secret")?.value || "").trim();
+}
+
+function loadStoredSecret(){
+  try {
+    const saved = String(localStorage.getItem(RECOVERY_SECRET_STORAGE_KEY) || "").trim();
+    if (saved && $("secret")) $("secret").value = saved;
+  } catch {}
+}
+
+function rememberScannerSecret(){
+  const secret = scannerSecret();
+  try {
+    if (secret) localStorage.setItem(RECOVERY_SECRET_STORAGE_KEY, secret);
+    else localStorage.removeItem(RECOVERY_SECRET_STORAGE_KEY);
+  } catch {}
+}
+
+function clearScannerSecret(){
+  try { localStorage.removeItem(RECOVERY_SECRET_STORAGE_KEY); } catch {}
+  if ($("secret")) $("secret").value = "";
+  setStatus("warn","Scanner secret очищено","Введіть актуальний secret перед запуском камери.","");
 }
 
 function localDateLabel(value){
@@ -214,6 +235,12 @@ async function sendToken(token){
   const endpoint = typeof RECOVERY_SCAN_ENDPOINT !== "undefined" ? RECOVERY_SCAN_ENDPOINT : "";
   const scanSeanceId = selectedSeanceId();
   if (!endpoint) { playScanSound("error"); setStatus("bad","Помилка","RECOVERY_SCAN_ENDPOINT не задано.",token); return; }
+  if (!secret) {
+    playScanSound("error");
+    setStatus("warn","Потрібен Scanner secret","Введіть актуальний secret і повторіть сканування.",token);
+    return;
+  }
+  rememberScannerSecret();
 
   const res = await fetch(endpoint, {
     method:"POST",
@@ -337,6 +364,12 @@ function waitForVideoFrame(timeoutMs = 8000){
 
 async function startScanner(){
   if (cameraStarting || cameraRunning) return;
+  if (!scannerSecret()) {
+    setStatus("warn","Потрібен Scanner secret","Введіть актуальний secret. Він буде збережений тільки на цьому пристрої.","");
+    $("secret")?.focus();
+    return;
+  }
+  rememberScannerSecret();
   if (!selectedModeValue()) { setStatus("warn","Оберіть режим","Спочатку оберіть сеанс погашення або режим перевірки.",""); return; }
   cameraStarting = true;
   $("btnStart").disabled = true; $("btnStop").disabled = true; $("targetSeance").disabled = true;
@@ -369,8 +402,12 @@ async function startScanner(){
 async function stopScanner(){ await releaseCamera({showStatus:true,preserveButtons:false}); }
 
 window.addEventListener("load", async () => {
+  loadStoredSecret();
+
   $("btnStart").addEventListener("click", startScanner);
   $("btnStop").addEventListener("click", stopScanner);
+  $("btnClearSecret")?.addEventListener("click", clearScannerSecret);
+  $("secret")?.addEventListener("change", rememberScannerSecret);
   $("targetSeance").addEventListener("change", () => {
     rememberSelectedMode();
     refreshModeUi();
