@@ -185,12 +185,30 @@ async function findTicketByQrPayload(token){
   const exactRows = await supaFetch(
     "tickets",
     `?qr_payload=eq.${encodeURIComponent(canonical)}` +
-    `&select=id,order_id,seance_id,show_slug,seat_label,price,buyer_name,buyer_email,qr_payload` +
+    `&select=id,order_id,seance_id,show_slug,seat_label,price,buyer_name,buyer_email,qr_payload,ticket_number` +
     `&limit=2`
   );
 
   if (Array.isArray(exactRows) && exactRows.length) {
     return exactRows[0];
+  }
+
+  /*
+    TK-... is the human-readable VA ticket identifier.
+    For new tickets it equals qr_payload; this explicit fallback also finds
+    older tickets where the printed number and stored QR differ.
+  */
+  if (/^TK-[A-Z0-9]+-\d+$/i.test(canonical)) {
+    const byNumber = await supaFetch(
+      "tickets",
+      `?ticket_number=ilike.${encodeURIComponent(canonical)}` +
+      `&select=id,order_id,seance_id,show_slug,seat_label,price,buyer_name,buyer_email,qr_payload,ticket_number` +
+      `&limit=2`
+    );
+
+    if (Array.isArray(byNumber) && byNumber.length) {
+      return byNumber[0];
+    }
   }
 
   const parsed = parseVaQrToken(canonical);
@@ -205,7 +223,7 @@ async function findTicketByQrPayload(token){
     "tickets",
     `?order_id=eq.${encodeURIComponent(parsed.order_id)}` +
     `&seat_label=eq.${encodeURIComponent(parsed.seat_label)}` +
-    `&select=id,order_id,seance_id,show_slug,seat_label,price,buyer_name,buyer_email,qr_payload` +
+    `&select=id,order_id,seance_id,show_slug,seat_label,price,buyer_name,buyer_email,qr_payload,ticket_number` +
     `&limit=2`
   );
 
@@ -295,6 +313,22 @@ async function activateRecoveryToken(rawToken, fallback = {}){
   */
   const storedToken = normalizeToken(ticket?.qr_payload || token);
 
+  /*
+    If a TK number resolves to an older structured QR, do not create a second
+    Recovery right for the same physical ticket.
+  */
+  if (storedToken && storedToken !== token) {
+    const existingByStoredToken = await findExistingRecoveryToken(storedToken);
+
+    if (existingByStoredToken) {
+      return {
+        status:"exists",
+        row:existingByStoredToken,
+        source:"recovery_tokens"
+      };
+    }
+  }
+
   const payload = {
     recovery_event_id: CURRENT_RECOVERY_EVENT_ID,
     token:storedToken,
@@ -319,7 +353,11 @@ async function activateRecoveryToken(rawToken, fallback = {}){
   return {
     status:"inserted",
     row:inserted[0],
-    source:ticket ? "tickets.qr_payload" : "external"
+    source:ticket
+      ? (ticket.ticket_number && normalizeToken(ticket.ticket_number) === token
+          ? "tickets.ticket_number"
+          : "tickets.qr_payload")
+      : "external"
   };
 }
 
