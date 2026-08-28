@@ -1,5 +1,5 @@
 <!DOCTYPE html><html lang="uk"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>VA Hall Studio ULTRA Trace</title><style>
-:root{--bg:#0a0d12;--panel:#151922;--line:#313849;--text:#f8fafc;--muted:#9ca3af;--violet:#7c3aed;--blue:#2563eb;--green:#16a34a;--orange:#f97316;--red:#dc2626;--gold:#f59e0b}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}.app{display:grid;grid-template-columns:350px 1fr 360px;height:100vh;overflow:hidden}aside{background:var(--panel);padding:14px;overflow:auto}.left{border-right:1px solid var(--line)}.right{border-left:1px solid var(--line)}h1{font-size:21px;margin:0 0 6px}h2{font-size:14px;margin:18px 0 10px;padding-top:12px;border-top:1px solid var(--line)}.note,.small{color:var(--muted);font-size:12px;line-height:1.45}.field{margin-bottom:10px}.field label{display:block;margin-bottom:5px;font-size:12px;font-weight:800;color:#cbd5e1}input,select,textarea{width:100%;padding:9px;border:1px solid var(--line);border-radius:8px;background:#0d1118;color:var(--text);font-size:13px}input[type=color]{height:42px;padding:3px;cursor:pointer}textarea{min-height:230px;font-family:Consolas,monospace;font-size:12px}.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}.btn{width:100%;padding:10px;margin-bottom:8px;border:0;border-radius:10px;background:#303849;color:#fff;font-weight:900;cursor:pointer}.btn:hover{opacity:.92}.blue{background:var(--blue)}.green{background:var(--green)}.orange{background:var(--orange)}.red{background:var(--red)}.purple{background:var(--violet)}.gold{background:var(--gold);color:#111827}.work{position:relative;overflow:auto;background:#080a0f}.work.preview .topbar{opacity:.25}.work.preview .grid,.work.preview .handle,.work.preview .transform-box,.work.preview .select-box,.work.preview .seat-number{display:none!important}.topbar{position:sticky;top:0;z-index:100;padding:10px 14px;background:#151922;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;font-size:13px;color:#d1d5db}#zoomHost{transform-origin:top left;width:max-content;height:max-content;margin:34px auto;position:relative}#canvas{position:relative;background:#f8fafc;box-shadow:0 20px 60px rgba(0,0,0,.55);overflow:hidden;user-select:none;cursor:crosshair}.grid{position:absolute;inset:0;display:none;pointer-events:none;background-image:linear-gradient(to right,rgba(124,58,237,.16) 1px,transparent 1px),linear-gradient(to bottom,rgba(124,58,237,.16) 1px,transparent 1px);z-index:9998}.select-box{position:absolute;border:2px dashed var(--violet);background:rgba(124,58,237,.16);z-index:9999;pointer-events:none}.transform-box{position:absolute;border:2px solid rgba(124,58,237,.85);z-index:9996;pointer-events:none;box-shadow:0 0 0 2px rgba(255,255,255,.75)}.handle{position:absolute;width:12px;height:12px;background:#fff;border:2px solid #7c3aed;border-radius:50%;z-index:9999;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.35)}.handle-rotate{width:14px;height:14px;background:#f59e0b;border-color:#fff;cursor:grab}.obj{position:absolute;box-sizing:border-box;cursor:pointer;user-select:none;transform-origin:center center}.obj.locked{opacity:.65;pointer-events:none}.obj.selected{outline:3px solid rgba(124,58,237,.72);outline-offset:4px}.obj.row-hover{box-shadow:0 0 0 3px rgba(245,158,11,.75),0 0 22px rgba(245,158,11,.85)!important;filter:brightness(1.22)}.obj.zone-hover{box-shadow:0 0 0 3px rgba(34,197,94,.55),0 0 20px rgba(34,197,94,.65)!important;filter:brightness(1.15)}.obj-seat{border-radius:50%;background:#dc2626;border:2px solid #fff;box-shadow:0 2px 10px rgba(0,0,0,.35)}.obj-chair{background:#b91c1c;border:2px solid #fff;border-radius:8px 8px 5px 5px;box-shadow:inset 0 -7px 0 rgba(0,0,0,.24),0 3px 9px rgba(0,0,0,.28)}.obj-table{border-radius:50%;background:#8b5cf6;border:3px solid #fff;display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff}.obj-box{border:2px solid #6b7280;border-radius:14px;background:rgba(255,255,255,.82);display:flex;align-items:center;justify-content:center;color:#374151;font-weight:900}.obj-door{border:3px solid #6b7280;border-bottom:none;border-radius:14px 14px 0 0;background:rgba(255,255,255,.88);display:flex;align-items:center;justify-content:center;color:#374151;font-weight:800}.obj-wall{background:#6b7280;border-radius:999px}.obj-arc{border-top:5px solid #6b7280;border-radius:50% 50% 0 0}.obj-zone{border:2px dashed #7c3aed;border-radius:18px;background:rgba(124,58,237,.1);display:flex;align-items:center;justify-content:center;color:#4c1d95;font-weight:900}.obj-stage{background:#04a9e8;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;letter-spacing:.08em}.obj-bar{background:#111827;color:#fff;border:3px solid #374151;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:900}.obj-screen{background:#111827;color:#dbeafe;border:2px solid #60a5fa;display:flex;align-items:center;justify-content:center;font-weight:900}.obj-text{color:#111827;font-weight:900;white-space:nowrap}.obj-label{color:#374151;font-weight:800;white-space:nowrap;background:rgba(255,255,255,.78);padding:4px 8px;border-radius:8px}.obj-media{background:#111827;color:#fff;border:2px solid #7c3aed;display:flex;align-items:center;justify-content:center;overflow:hidden}.obj-media img,.obj-media video{width:100%;height:100%;display:block;pointer-events:none}.seat-number{position:absolute;transform:translate(-50%,-50%);background:rgba(255,255,255,.92);color:#111827;border:1px solid #d1d5db;border-radius:5px;padding:1px 4px;font-weight:900;pointer-events:none;z-index:9997}.layer-item{display:grid;grid-template-columns:28px 28px 1fr 28px;gap:6px;align-items:center;background:#0d1118;border:1px solid var(--line);border-radius:10px;padding:6px;margin-bottom:6px}.layer-item.active{border-color:var(--violet);box-shadow:0 0 0 2px rgba(124,58,237,.2)}.layer-btn{border:0;border-radius:7px;background:#263044;color:#fff;height:26px;cursor:pointer}.counter,.log{font-size:12px;line-height:1.45;background:#0d1118;border:1px solid var(--line);border-radius:10px;padding:10px;color:#d1d5db;white-space:pre-wrap}
+:root{--bg:#0a0d12;--panel:#151922;--line:#313849;--text:#f8fafc;--muted:#9ca3af;--violet:#7c3aed;--blue:#2563eb;--green:#16a34a;--orange:#f97316;--red:#dc2626;--gold:#f59e0b}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}.app{display:grid;grid-template-columns:350px 1fr 360px;height:100vh;overflow:hidden}aside{background:var(--panel);padding:14px;overflow:auto}.left{border-right:1px solid var(--line)}.right{border-left:1px solid var(--line)}h1{font-size:21px;margin:0 0 6px}h2{font-size:14px;margin:18px 0 10px;padding-top:12px;border-top:1px solid var(--line)}.note,.small{color:var(--muted);font-size:12px;line-height:1.45}.field{margin-bottom:10px}.field label{display:block;margin-bottom:5px;font-size:12px;font-weight:800;color:#cbd5e1}input,select,textarea{width:100%;padding:9px;border:1px solid var(--line);border-radius:8px;background:#0d1118;color:var(--text);font-size:13px}input[type=color]{height:42px;padding:3px;cursor:pointer}textarea{min-height:230px;font-family:Consolas,monospace;font-size:12px}.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}.btn{width:100%;padding:10px;margin-bottom:8px;border:0;border-radius:10px;background:#303849;color:#fff;font-weight:900;cursor:pointer}.btn:hover{opacity:.92}.blue{background:var(--blue)}.green{background:var(--green)}.orange{background:var(--orange)}.red{background:var(--red)}.purple{background:var(--violet)}.gold{background:var(--gold);color:#111827}.work{position:relative;overflow:auto;background:#080a0f}.work.preview .topbar{opacity:.25}.work.preview .grid,.work.preview .handle,.work.preview .transform-box,.work.preview .select-box,.work.preview .seat-number{display:none!important}.topbar{position:sticky;top:0;z-index:100;padding:10px 14px;background:#151922;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;font-size:13px;color:#d1d5db}#zoomHost{transform-origin:top left;width:max-content;height:max-content;margin:34px auto;position:relative}#canvas{position:relative;background:#f8fafc;box-shadow:0 20px 60px rgba(0,0,0,.55);overflow:hidden;user-select:none;cursor:crosshair}.grid{position:absolute;inset:0;display:none;pointer-events:none;background-image:linear-gradient(to right,rgba(124,58,237,.16) 1px,transparent 1px),linear-gradient(to bottom,rgba(124,58,237,.16) 1px,transparent 1px);z-index:9998}.select-box{position:absolute;border:2px dashed var(--violet);background:rgba(124,58,237,.16);z-index:9999;pointer-events:none}.transform-box{position:absolute;border:2px solid rgba(124,58,237,.85);z-index:9996;pointer-events:none;box-shadow:0 0 0 2px rgba(255,255,255,.75)}.handle{position:absolute;width:12px;height:12px;background:#fff;border:2px solid #7c3aed;border-radius:50%;z-index:9999;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.35)}.handle-rotate{width:14px;height:14px;background:#f59e0b;border-color:#fff;cursor:grab}.obj{position:absolute;box-sizing:border-box;cursor:pointer;user-select:none;transform-origin:center center}.obj.locked{opacity:.65;pointer-events:none}.obj.selected{outline:3px solid rgba(124,58,237,.72);outline-offset:4px}.obj.number-start-anchor{outline:4px solid #f59e0b!important;outline-offset:5px!important;box-shadow:0 0 0 3px rgba(255,255,255,.9),0 0 24px rgba(245,158,11,.95)!important}.obj.row-hover{box-shadow:0 0 0 3px rgba(245,158,11,.75),0 0 22px rgba(245,158,11,.85)!important;filter:brightness(1.22)}.obj.zone-hover{box-shadow:0 0 0 3px rgba(34,197,94,.55),0 0 20px rgba(34,197,94,.65)!important;filter:brightness(1.15)}.obj-seat{border-radius:50%;background:#dc2626;border:2px solid #fff;box-shadow:0 2px 10px rgba(0,0,0,.35)}.obj-chair{background:#b91c1c;border:2px solid #fff;border-radius:8px 8px 5px 5px;box-shadow:inset 0 -7px 0 rgba(0,0,0,.24),0 3px 9px rgba(0,0,0,.28)}.obj-table{border-radius:50%;background:#8b5cf6;border:3px solid #fff;display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff}.obj-box{border:2px solid #6b7280;border-radius:14px;background:rgba(255,255,255,.82);display:flex;align-items:center;justify-content:center;color:#374151;font-weight:900}.obj-door{border:3px solid #6b7280;border-bottom:none;border-radius:14px 14px 0 0;background:rgba(255,255,255,.88);display:flex;align-items:center;justify-content:center;color:#374151;font-weight:800}.obj-wall{background:#6b7280;border-radius:999px}.obj-arc{border-top:5px solid #6b7280;border-radius:50% 50% 0 0}.obj-zone{border:2px dashed #7c3aed;border-radius:18px;background:rgba(124,58,237,.1);display:flex;align-items:center;justify-content:center;color:#4c1d95;font-weight:900}.obj-stage{background:#04a9e8;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;letter-spacing:.08em}.obj-bar{background:#111827;color:#fff;border:3px solid #374151;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:900}.obj-screen{background:#111827;color:#dbeafe;border:2px solid #60a5fa;display:flex;align-items:center;justify-content:center;font-weight:900}.obj-text{color:#111827;font-weight:900;white-space:nowrap}.obj-label{color:#374151;font-weight:800;white-space:nowrap;background:rgba(255,255,255,.78);padding:4px 8px;border-radius:8px}.obj-media{background:#111827;color:#fff;border:2px solid #7c3aed;display:flex;align-items:center;justify-content:center;overflow:hidden}.obj-media img,.obj-media video{width:100%;height:100%;display:block;pointer-events:none}.seat-number{position:absolute;transform:translate(-50%,-50%);background:rgba(255,255,255,.92);color:#111827;border:1px solid #d1d5db;border-radius:5px;padding:1px 4px;font-weight:900;pointer-events:none;z-index:9997}.layer-item{display:grid;grid-template-columns:28px 28px 1fr 28px;gap:6px;align-items:center;background:#0d1118;border:1px solid var(--line);border-radius:10px;padding:6px;margin-bottom:6px}.layer-item.active{border-color:var(--violet);box-shadow:0 0 0 2px rgba(124,58,237,.2)}.layer-btn{border:0;border-radius:7px;background:#263044;color:#fff;height:26px;cursor:pointer}.counter,.log{font-size:12px;line-height:1.45;background:#0d1118;border:1px solid var(--line);border-radius:10px;padding:10px;color:#d1d5db;white-space:pre-wrap}
 .textfix-box{border:1px solid #3b4458;background:#101722;border-radius:12px;padding:10px;margin:10px 0 14px}.textfix-box h2{border-top:0;margin-top:0;padding-top:0}.textfix-mini{font-size:12px;color:#cbd5e1;margin:0 0 8px}.textfix-btn{padding:9px 10px;border:0;border-radius:9px;background:#2563eb;color:#fff;font-weight:900;cursor:pointer}.textfix-btn.gray{background:#303849}.textfix-btn.gold{background:#f59e0b;color:#111827}.obj-text,.obj-label{text-shadow:var(--text-stroke-shadow, none)}
 
 .key-audit-summary{
@@ -73,6 +73,22 @@
   filter:brightness(1.35);
 }
 
+
+.selection-brush-ring{
+  position:absolute;
+  width:60px;
+  height:60px;
+  border:2px solid #16a34a;
+  border-radius:50%;
+  background:rgba(22,163,74,.10);
+  box-shadow:0 0 0 1px rgba(255,255,255,.8),0 0 18px rgba(22,163,74,.45);
+  transform:translate(-50%,-50%);
+  pointer-events:none;
+  z-index:10050;
+  display:none;
+}
+.work.selection-brush-active #canvas{cursor:crosshair}
+
 </style></head><body><div class="app"><aside class="left"><h1>VA Hall Studio ULTRA</h1><div class="note">Trace Brush: ведёте мышью по ряду — кресла ставятся автоматически.</div>
 <h2>1. Canvas / Camera</h2><div class="row2"><div class="field"><label>Canvas W</label><input id="canvasW" type="number" value="1200"></div><div class="field"><label>Canvas H</label><input id="canvasH" type="number" value="900"></div></div><button class="btn blue" id="applyCanvasBtn">ПРИМЕНИТЬ ХОЛСТ</button> <div class="field">
   <label>Canvas Margin</label>
@@ -83,7 +99,7 @@
 <button class="btn gold" id="centerContentBtn">🎯 CENTER CONTENT</button>  <div class="field"><label>Background Image</label><input type="file" id="imageLoader" accept="image/*"></div><div class="field"><label>Background Mode</label><select id="bgMode"><option value="contain">Вписать</option><option value="stretch">Растянуть</option><option value="original">Оригинал</option></select></div><button class="btn" id="applyBgBtn">ПРИМЕНИТЬ ФОН</button><button class="btn red" id="clearBgBtn">УБРАТЬ ФОН</button>
 <h2>2. Active Layer</h2><div class="field"><label>Layer</label><select id="activeLayer"></select></div><div class="row2"><button class="btn purple" id="addLayerBtn">+ LAYER</button><button class="btn red" id="deleteLayerBtn">− LAYER</button></div><div id="layerList"></div>
 <h2>3. Object Type</h2><div class="field"><label>Клик ставит</label><select id="mode"><option value="chair">Кресло</option><option value="seat">Место-точка</option><option value="table">Стол</option><option value="box">Ложа / Блок</option><option value="zone">Зона</option><option value="door">Дверь</option><option value="wall">Стена</option><option value="arc">Дуга</option><option value="stage">Сцена</option><option value="bar">Бар</option><option value="screen">Экран</option><option value="media">Media Placeholder</option><option value="text">Текст</option><option value="label">Label</option></select></div>
-<h2>4. Seat Data</h2><div class="field"><label>Zone</label><input id="zone" value="Партер"></div><div class="row3"><div class="field"><label>Prefix</label><input id="prefix" value="P"></div><div class="field"><label>Row</label><input id="row" type="text" value="1"></div><div class="field"><label>Seat</label><input id="seat" type="number" value="1"></div></div><div class="field"><label>Нумерация</label><select id="numberDirection"><option value="left-right">Слева → направо</option><option value="right-left">Справа → налево</option><option value="top-bottom">Сверху → вниз</option><option value="bottom-top">Снизу → вверх</option></select></div><button class="btn green" id="autoNumberBtn">АВТО НУМЕРАЦИЯ</button>
+<h2>4. Seat Data</h2><div class="field"><label>Zone</label><input id="zone" value="Партер"></div><div class="row3"><div class="field"><label>Prefix</label><input id="prefix" value="P"></div><div class="field"><label>Row</label><input id="row" type="text" value="1"></div><div class="field"><label>Seat</label><input id="seat" type="number" value="1"></div></div><div class="field"><label>Нумерация</label><select id="numberDirection"><option value="left-right">Слева → направо</option><option value="right-left">Справа → налево</option><option value="top-bottom">Сверху → вниз</option><option value="bottom-top">Снизу → вверх</option><option value="clockwise">По часовой стрелке ↻</option><option value="counter-clockwise">Против часовой стрелки ↺</option></select></div><div class="field"><label>Старт круга</label><select id="circleStart"><option value="top">Сверху</option><option value="right">Справа</option><option value="bottom">Снизу</option><option value="left">Слева</option></select></div><div class="row2"><button class="btn purple" id="numberStartPickBtn">ВЫБРАТЬ МЕСТО №1</button><button class="btn" id="numberStartClearBtn">СБРОСИТЬ №1</button></div><div class="small" id="numberStartInfo">Место №1: по положению «Старт круга».</div><button class="btn green" id="autoNumberBtn">АВТО НУМЕРАЦИЯ</button>
 <h2>5. Label Control</h2><div class="row3"><div class="field"><label>Label X</label><input id="labelOffsetX" type="number" value="0"></div><div class="field"><label>Label Y</label><input id="labelOffsetY" type="number" value="-20"></div><div class="field"><label>Size</label><input id="labelSize" type="number" value="10"></div></div><div class="field"><label>Show Labels</label><select id="showSeatLabels"><option value="1">Да</option><option value="0">Нет</option></select></div>
 <h2>6. Hover Highlight</h2>
 <div class="field"><label>Hover Mode</label><select id="hoverMode"><option value="row">Row</option><option value="zone">Zone</option><option value="off">Off</option></select></div>
@@ -104,7 +120,7 @@
 <main class="work"><div class="topbar"><b>ULTRA Scene Canvas</b><span>Trace = ведите мышью. Клик = объект. SPACE+drag = pan.</span></div><div id="zoomHost"><div id="canvas"><div class="grid" id="grid"></div></div></div></main>
 <aside class="right"><h2>Selection</h2><button class="btn" id="selectAllBtn">ВЫДЕЛИТЬ ВСЁ</button><button class="btn" id="clearSelectionBtn">СНЯТЬ ВЫДЕЛЕНИЕ</button><button class="btn red" id="deleteBtn">УДАЛИТЬ</button><button class="btn orange" id="undoBtn">ОТМЕНИТЬ</button><button class="btn red" id="clearBtn">ОЧИСТИТЬ ВСЁ</button>
 <h2>Inspector</h2><div class="small" id="inspectInfo">Выделите объект</div><div class="row2"><div class="field"><label>X</label><input id="insX" type="number"></div><div class="field"><label>Y</label><input id="insY" type="number"></div></div><div class="row2"><div class="field"><label>W</label><input id="insW" type="number"></div><div class="field"><label>H</label><input id="insH" type="number"></div></div><div class="row3"><div class="field"><label>Rotate</label><input id="insRotate" type="number"></div><div class="field"><label>Z</label><input id="insZ" type="number"></div><div class="field"><label>Size</label><input id="insSize" type="number"></div></div><div class="field"><label>Text</label><input id="insText"></div><div class="row2"><div class="field"><label>Fill</label><input id="insFill" type="color" value="#8b5cf6"></div><div class="field"><label>Border</label><input id="insBorder" type="color" value="#ffffff"></div></div><div class="row2"><div class="field"><label>Text Color</label><input id="insTextColor" type="color" value="#111827"></div><div class="field"><label>Opacity</label><input id="insOpacity" type="range" min="0" max="1" step="0.05" value="1"></div></div><div class="field"><label>Glow</label><input id="insGlow" type="range" min="0" max="40" step="1" value="0"></div><div class="field"><label>Media File</label><input id="insMediaFile" type="file" accept="image/*,video/*"></div><div class="field"><label>Media Fit</label><select id="insMediaFit"><option value="cover">Cover</option><option value="contain">Contain</option><option value="fill">Fill</option></select></div><div class="row3"><div class="field"><label>Label X</label><input id="insLabelX" type="number"></div><div class="field"><label>Label Y</label><input id="insLabelY" type="number"></div><div class="field"><label>Label Size</label><input id="insLabelSize" type="number"></div></div><div class="field"><label>Номера selected</label><select id="insShowLabel"><option value="inherit">Как глобально</option><option value="1">Показать</option><option value="0">Скрыть</option></select></div>
-<div class="textfix-box" id="textFixBox"><h2>Текст / цифры</h2><div class="textfix-mini">Выделите текст, плашку, сцену или зону. Автоматические номера мест не являются отдельными объектами.</div><div class="field"><label>Содержимое</label><input id="tfText" value=""></div><div class="row2"><div class="field"><label>Шрифт</label><input id="tfFont" value="Arial"></div><div class="field"><label>Размер</label><input id="tfSize" type="number" value="22"></div></div><div class="row2"><div class="field"><label>Цвет текста</label><input id="tfColor" type="color" value="#ffffff"></div><div class="field"><label>Жирность</label><select id="tfWeight"><option value="400">Обычный</option><option value="700">Жирный</option><option value="900">Очень жирный</option></select></div></div><div class="row2"><div class="field"><label>Контур</label><input id="tfStrokeColor" type="color" value="#000000"></div><div class="field"><label>Толщина контура</label><input id="tfStrokeWidth" type="number" value="0"></div></div><div class="field"><label>Свечение текста</label><input id="tfGlow" type="range" min="0" max="40" step="1" value="0"></div><div class="row2"><button class="textfix-btn" id="tfApplyBtn">ПРИМЕНИТЬ К ВЫДЕЛЕННОМУ</button><button class="textfix-btn gold" id="tfWhiteBtn">БЕЛЫЙ + ТОНКИЙ КОНТУР + СВЕТ</button></div></div><h2>Transform</h2><button class="btn blue" id="alignYBtn">ВЫРОВНЯТЬ ПО ГОРИЗОНТАЛИ</button><button class="btn blue" id="alignXBtn">ВЫРОВНЯТЬ ПО ВЕРТИКАЛИ</button><button class="btn purple" id="distXBtn">РАСПРЕДЕЛИТЬ ПО ГОРИЗОНТАЛИ</button><button class="btn purple" id="distYBtn">РАСПРЕДЕЛИТЬ ПО ВЕРТИКАЛИ</button><button class="btn purple" id="perspectiveBtn">ПЕРСПЕКТИВА SELECTED</button><div class="row2"><div class="field"><label>Arc Depth +/-</label><input id="arcAlignDepth" type="number" value="40"></div><div class="field"><label>Arc Sort</label><select id="arcAlignSort"><option value="auto">Auto</option><option value="x-asc">X →</option><option value="x-desc">X ←</option><option value="y-asc">Y ↓</option><option value="y-desc">Y ↑</option></select></div></div><button class="btn gold" id="alignArcBtn">ВЫРОВНЯТЬ SELECTED ПО ДУГЕ</button><div class="small">Выделите места одного ряда. Крайние места станут якорями, остальные равномерно лягут по дуге. Если дуга выгнулась не туда — поменяйте знак Arc Depth.</div><div class="row2"><div class="field"><label>Крок повороту °</label><input id="rotateSelectedAngle" type="number" min="0" max="180" step="1" value="3"></div><div class="field"><label>Rows Arc Depth</label><input id="rowsArcDepth" type="number" value="20"></div></div><div class="row2"><button class="btn gold" id="rotateSelectedLeftBtn">↺ ПРОТИ ГОДИННИКОВОЇ</button><button class="btn gold" id="rotateSelectedRightBtn">ЗА ГОДИННИКОВОЮ ↻</button></div><div class="small">Поворот виконується навколо центра виділення. Однаковий крок вправо і вліво повертає ділянку назад без прокручування ще на 350°.</div><button class="btn gold" id="alignSelectedRowsLineBtn">ВЫРОВНЯТЬ SELECTED ПО РЯДАМ</button><div class="row2"><button class="btn gold" id="alignSelectedRowsUpBtn">ДУГА РЯДОВ ВВЕРХ</button><button class="btn gold" id="alignSelectedRowsDownBtn">ДУГА РЯДОВ ВНИЗ</button></div><div class="small">Можно выделять сектор с несколькими рядами. Инструмент сам группирует места по Zone+Row и правит каждый ряд отдельно.</div><h2>Быстрое выделение</h2><div class="row2"><button class="btn blue" id="selectCurrentRowBtn">ВЫДЕЛИТЬ РЯД</button><button class="btn blue" id="addCurrentRowBtn">ДОБАВИТЬ РЯД</button></div><button class="btn blue" id="selectCurrentZoneBtn">ВЫДЕЛИТЬ ЗОНУ</button><div class="small">Использует поля Zone и Row слева. Для Оперы удобно: ставим Zone=Амфитеатр, Row=17 и жмём кнопку.</div><h2>Copy / Mirror</h2><button class="btn orange" id="copyBtn">КОПИРОВАТЬ</button><button class="btn orange" id="pasteBtn">ВСТАВИТЬ</button><div class="row2"><div class="field"><label>dx</label><input id="dupOffsetX" type="number" value="40"></div><div class="field"><label>dy</label><input id="dupOffsetY" type="number" value="40"></div></div><button class="btn purple" id="duplicateBtn">ДУБЛИРОВАТЬ</button><button class="btn blue" id="mirrorXBtn">ЗЕРКАЛО X</button><button class="btn blue" id="mirrorYBtn">ЗЕРКАЛО Y</button>
+<div class="textfix-box" id="textFixBox"><h2>Текст / цифры</h2><div class="textfix-mini">Выделите текст, плашку, сцену или зону. Автоматические номера мест не являются отдельными объектами.</div><div class="field"><label>Содержимое</label><input id="tfText" value=""></div><div class="row2"><div class="field"><label>Шрифт</label><input id="tfFont" value="Arial"></div><div class="field"><label>Размер</label><input id="tfSize" type="number" value="22"></div></div><div class="row2"><div class="field"><label>Цвет текста</label><input id="tfColor" type="color" value="#ffffff"></div><div class="field"><label>Жирность</label><select id="tfWeight"><option value="400">Обычный</option><option value="700">Жирный</option><option value="900">Очень жирный</option></select></div></div><div class="row2"><div class="field"><label>Контур</label><input id="tfStrokeColor" type="color" value="#000000"></div><div class="field"><label>Толщина контура</label><input id="tfStrokeWidth" type="number" value="0"></div></div><div class="field"><label>Свечение текста</label><input id="tfGlow" type="range" min="0" max="40" step="1" value="0"></div><div class="row2"><button class="textfix-btn" id="tfApplyBtn">ПРИМЕНИТЬ К ВЫДЕЛЕННОМУ</button><button class="textfix-btn gold" id="tfWhiteBtn">БЕЛЫЙ + ТОНКИЙ КОНТУР + СВЕТ</button></div></div><h2>Transform</h2><button class="btn blue" id="alignYBtn">ВЫРОВНЯТЬ ПО ГОРИЗОНТАЛИ</button><button class="btn blue" id="alignXBtn">ВЫРОВНЯТЬ ПО ВЕРТИКАЛИ</button><button class="btn purple" id="distXBtn">РАСПРЕДЕЛИТЬ ПО ГОРИЗОНТАЛИ</button><button class="btn purple" id="distYBtn">РАСПРЕДЕЛИТЬ ПО ВЕРТИКАЛИ</button><button class="btn purple" id="perspectiveBtn">ПЕРСПЕКТИВА SELECTED</button><div class="row2"><div class="field"><label>Arc Depth +/-</label><input id="arcAlignDepth" type="number" value="40"></div><div class="field"><label>Arc Sort</label><select id="arcAlignSort"><option value="auto">Auto</option><option value="x-asc">X →</option><option value="x-desc">X ←</option><option value="y-asc">Y ↓</option><option value="y-desc">Y ↑</option></select></div></div><button class="btn gold" id="alignArcBtn">ВЫРОВНЯТЬ SELECTED ПО ДУГЕ</button><div class="small">Выделите места одного ряда. Крайние места станут якорями, остальные равномерно лягут по дуге. Если дуга выгнулась не туда — поменяйте знак Arc Depth.</div><div class="row2"><div class="field"><label>Крок повороту °</label><input id="rotateSelectedAngle" type="number" min="0" max="180" step="1" value="3"></div><div class="field"><label>Rows Arc Depth</label><input id="rowsArcDepth" type="number" value="20"></div></div><div class="row2"><button class="btn gold" id="rotateSelectedLeftBtn">↺ ПРОТИ ГОДИННИКОВОЇ</button><button class="btn gold" id="rotateSelectedRightBtn">ЗА ГОДИННИКОВОЮ ↻</button></div><div class="small">Поворот виконується навколо центра виділення. Однаковий крок вправо і вліво повертає ділянку назад без прокручування ще на 350°.</div><button class="btn gold" id="alignSelectedRowsLineBtn">ВЫРОВНЯТЬ SELECTED ПО РЯДАМ</button><div class="row2"><button class="btn gold" id="alignSelectedRowsUpBtn">ДУГА РЯДОВ ВВЕРХ</button><button class="btn gold" id="alignSelectedRowsDownBtn">ДУГА РЯДОВ ВНИЗ</button></div><div class="small">Можно выделять сектор с несколькими рядами. Инструмент сам группирует места по Zone+Row и правит каждый ряд отдельно.</div><h2>Быстрое выделение</h2><div class="row2"><button class="btn blue" id="selectCurrentRowBtn">ВЫДЕЛИТЬ РЯД</button><button class="btn blue" id="addCurrentRowBtn">ДОБАВИТЬ РЯД</button></div><button class="btn blue" id="selectCurrentZoneBtn">ВЫДЕЛИТЬ ЗОНУ</button><div class="small">Использует поля Zone и Row слева. Для Оперы удобно: ставим Zone=Амфитеатр, Row=17 и жмём кнопку.</div><h2>Выделение по дуге / кругу</h2><div class="field"><label>Радиус кисти</label><input id="selectBrushRadius" type="number" min="2" max="80" value="12"></div><button class="btn gold" id="selectBrushBtn">КИСТЬ ВЫДЕЛЕНИЯ: OFF</button><div class="small">Включите кисть и одним движением проведите по нужному ряду — форма может быть любой, вплоть до полного круга. Новый штрих начинает новое выделение. Shift добавляет к нему, Alt/Ctrl убирает лишние места. Кисть меняет только выделение, геометрию не двигает.</div><h2>Copy / Mirror</h2><button class="btn orange" id="copyBtn">КОПИРОВАТЬ</button><button class="btn orange" id="pasteBtn">ВСТАВИТЬ</button><div class="row2"><div class="field"><label>dx</label><input id="dupOffsetX" type="number" value="40"></div><div class="field"><label>dy</label><input id="dupOffsetY" type="number" value="40"></div></div><button class="btn purple" id="duplicateBtn">ДУБЛИРОВАТЬ</button><button class="btn blue" id="mirrorXBtn">ЗЕРКАЛО X</button><button class="btn blue" id="mirrorYBtn">ЗЕРКАЛО Y</button>
 <h2>Проверка ключей мест</h2>
 <div class="counter key-audit-summary" id="keyAuditSummary">Проверка…</div>
 <div class="row2">
@@ -125,7 +141,7 @@
 <script>
 'use strict';const $=id=>document.getElementById(id),canvas=$('canvas'),grid=$('grid'),zoomHost=$('zoomHost'),imageLoader=$('imageLoader'),jsonOutput=$('jsonOutput'),counter=$('counter'),logBox=$('log'),zoomLabel=$('zoomLabel'),activeLayerEl=$('activeLayer'),layerListEl=$('layerList');
 const defaultLayers=[{id:'background',name:'Background',visible:true,locked:true,opacity:1,z:0},{id:'architecture',name:'Architecture',visible:true,locked:false,opacity:1,z:10},{id:'seats',name:'Seats / Tables',visible:true,locked:false,opacity:1,z:30},{id:'text',name:'Text / Labels',visible:true,locked:false,opacity:1,z:90},{id:'light',name:'Light / FX',visible:true,locked:false,opacity:1,z:110},{id:'media',name:'Media',visible:true,locked:false,opacity:1,z:120}];
-let scene={version:2,format:'va-hall-ultra-scene',meta:{title:'VA Hall Scene'},canvas:{width:1280,height:900,background:null},camera:{zoom:1},layers:structuredClone(defaultLayers),objects:[],media:[],mood:{},agents:{},interactions:{},exports:{}};let selected=new Set(),history=[],clipboard=[],idn=1,bgDataUrl='',bgNaturalW=0,bgNaturalH=0,gridShown=false,drag=null,selectBox=null,selectStart=null,transformDrag=null,pan={active:false,space:false,startX:0,startY:0,scrollLeft:0,scrollTop:0},previewMode=false,curveTool={mode:null,start:null,end:null},traceMode=false,traceDrag=false,traceLast=null,traceBaseY=null,traceCreated=0,detectedSeats=[],hoverLock=null,keyAuditActiveKey='';
+let scene={version:2,format:'va-hall-ultra-scene',meta:{title:'VA Hall Scene'},canvas:{width:1280,height:900,background:null},camera:{zoom:1},layers:structuredClone(defaultLayers),objects:[],media:[],mood:{},agents:{},interactions:{},exports:{}};let selected=new Set(),history=[],clipboard=[],idn=1,bgDataUrl='',bgNaturalW=0,bgNaturalH=0,gridShown=false,drag=null,selectBox=null,selectStart=null,transformDrag=null,pan={active:false,space:false,startX:0,startY:0,scrollLeft:0,scrollTop:0},previewMode=false,curveTool={mode:null,start:null,end:null},traceMode=false,traceDrag=false,traceLast=null,traceBaseY=null,traceCreated=0,detectedSeats=[],hoverLock=null,keyAuditActiveKey='',selectionBrushMode=false,selectionBrushDrag=false,selectionBrushPointerId=null,numberStartPickMode=false,numberStartSeatId='';
 const registry={seat:{layer:'seats'},chair:{layer:'seats'},table:{layer:'seats'},box:{layer:'architecture'},zone:{layer:'architecture'},door:{layer:'architecture'},wall:{layer:'architecture'},arc:{layer:'architecture'},stage:{layer:'architecture'},bar:{layer:'architecture'},screen:{layer:'architecture'},text:{layer:'text'},label:{layer:'text'},media:{layer:'media'}};
 function uid(p){return p+'_'+Date.now()+'_'+(idn++)}function log(m){logBox.textContent=m||''}function val(id){return String(($(id)||{}).value||'').trim()}function num(id,f=0){const v=parseFloat(val(id));return Number.isFinite(v)?v:f}function cw(){return parseInt(canvas.style.width,10)||scene.canvas.width||1280}function ch(){return parseInt(canvas.style.height,10)||scene.canvas.height||900}function zoomValue(){return Math.max(25,Math.min(300,num('zoom',100)))/100}function snap(v){if(val('snap')!=='1')return Math.round(v);const g=Math.max(1,num('gridSize',20));return Math.round(v/g)*g}function point(e){const r=canvas.getBoundingClientRect(),z=zoomValue();return{x:snap((e.clientX-r.left)/z),y:snap((e.clientY-r.top)/z)}}function layerById(id){return scene.layers.find(l=>l.id===id)}function activeLayer(){return val('activeLayer')||'seats'}function objectLayer(o){return layerById(o.layerId)||layerById(registry[o.type]?.layer)||scene.layers[0]}function isLocked(o){return !!objectLayer(o)?.locked}function isVisible(o){return objectLayer(o)?.visible!==false}function selectedObjects(){return scene.objects.filter(o=>selected.has(o.id))}function objectById(id){return scene.objects.find(o=>o.id===id)}function save(){history.push(JSON.stringify(scene));if(history.length>100)history.shift()}
 function applyCanvas(){scene.canvas.width=Math.max(100,num('canvasW',1280));scene.canvas.height=Math.max(100,num('canvasH',900));canvas.style.width=scene.canvas.width+'px';canvas.style.height=scene.canvas.height+'px';applyBg();render();log('CANVAS OK')} function getObjectBounds(o){
@@ -644,7 +660,7 @@ function allowStableExport(){
   return false;
 }
 
-function render(){const keyAudit=buildSeatKeyAudit();canvas.querySelectorAll('.obj,.select-box,.seat-number,.transform-box,.handle,.trace-ghost,.detect-candidate').forEach(el=>el.remove());refreshLayers();scene.objects.slice().sort((a,b)=>((objectLayer(a)?.z||0)+(a.z||0))-((objectLayer(b)?.z||0)+(b.z||0))).forEach(o=>{if(!isVisible(o))return;const el=document.createElement('div'),layer=objectLayer(o);el.className='obj obj-'+o.type;el.dataset.id=o.id;el.style.left=o.x+'px';el.style.top=o.y+'px';el.style.width=(o.w||0)+'px';el.style.height=(o.h||0)+'px';el.style.transform=`translate(-50%,-50%) rotate(${o.rotate||0}deg)`;el.style.zIndex=(layer?.z||0)+(o.z||0);if(isLocked(o))el.classList.add('locked');if(selected.has(o.id))el.classList.add('selected');
+function render(){const keyAudit=buildSeatKeyAudit();canvas.querySelectorAll('.obj,.select-box,.seat-number,.transform-box,.handle,.trace-ghost,.detect-candidate').forEach(el=>el.remove());refreshLayers();scene.objects.slice().sort((a,b)=>((objectLayer(a)?.z||0)+(a.z||0))-((objectLayer(b)?.z||0)+(b.z||0))).forEach(o=>{if(!isVisible(o))return;const el=document.createElement('div'),layer=objectLayer(o);el.className='obj obj-'+o.type;el.dataset.id=o.id;el.style.left=o.x+'px';el.style.top=o.y+'px';el.style.width=(o.w||0)+'px';el.style.height=(o.h||0)+'px';el.style.transform=`translate(-50%,-50%) rotate(${o.rotate||0}deg)`;el.style.zIndex=(layer?.z||0)+(o.z||0);if(isLocked(o))el.classList.add('locked');if(selected.has(o.id))el.classList.add('selected');if(numberStartSeatId&&o.id===numberStartSeatId)el.classList.add('number-start-anchor');
 if(keyAudit.duplicateIds.has(o.id))el.classList.add('key-duplicate');
 if(keyAudit.invalidIds.has(o.id))el.classList.add('key-invalid');if(['box','door','zone','stage','bar','screen','table','media'].includes(o.type))el.textContent=o.text||o.type;if(
     o.type === 'stage' ||
@@ -765,13 +781,290 @@ function finishTrace(){
   traceCreated=0;
   render();
 }
-canvas.addEventListener('pointerdown',e=>{if(pan.space)return;const ht=handleTarget(e),p=point(e);if(ht){const o=objectById(ht.id);if(!o||isLocked(o))return;save();selected.clear();selected.add(o.id);transformDrag={type:ht.handle,start:p,orig:JSON.parse(JSON.stringify(o)),center:{x:o.x,y:o.y}};return}const id=targetId(e);if(id){const obj=objectById(id);if(obj&&isLocked(obj))return;if(!selected.has(id)){if(!e.shiftKey)selected.clear();selected.add(id);render()}drag={start:p,orig:selectedObjects().map(o=>({id:o.id,x:o.x,y:o.y}))};return}if(traceMode){save();traceDrag=true;traceLast=null;traceBaseY=(val('traceAssist')==='snap-row'?p.y:null);traceCreated=0;selected.clear();addTracePoint(p);return}selectStart=p;selectBox=document.createElement('div');selectBox.className='select-box';Object.assign(selectBox.style,{left:p.x+'px',top:p.y+'px',width:'0px',height:'0px'});canvas.appendChild(selectBox)});
-canvas.addEventListener('pointermove',e=>{const p=point(e);if(traceMode&&traceDrag){addTracePoint(p);return}if(transformDrag){const o=objectById(transformDrag.orig.id);if(!o)return;const dx=p.x-transformDrag.start.x,dy=p.y-transformDrag.start.y;if(transformDrag.type==='rotate'){o.rotate=Math.round(Math.atan2(p.y-transformDrag.center.y,p.x-transformDrag.center.x)*180/Math.PI+90)}else{let w=Number(transformDrag.orig.w||20),h=Number(transformDrag.orig.h||20),x=Number(transformDrag.orig.x||0),y=Number(transformDrag.orig.y||0);if(transformDrag.type.includes('e')){w=Math.max(6,w+dx);x=Number(transformDrag.orig.x||0)+dx/2}if(transformDrag.type.includes('s')){h=Math.max(6,h+dy);y=Number(transformDrag.orig.y||0)+dy/2}if(transformDrag.type.includes('w')){w=Math.max(6,w-dx);x=Number(transformDrag.orig.x||0)+dx/2}if(transformDrag.type.includes('n')){h=Math.max(6,h-dy);y=Number(transformDrag.orig.y||0)+dy/2}o.w=Math.round(w);o.h=Math.round(h);o.x=Math.round(x);o.y=Math.round(y)}render();return}if(drag){const dx=p.x-drag.start.x,dy=p.y-drag.start.y;drag.orig.forEach(a=>{const o=objectById(a.id);if(o&&!isLocked(o)){o.x=snap(a.x+dx);o.y=snap(a.y+dy)}});render();return}if(selectBox&&selectStart){const l=Math.min(selectStart.x,p.x),t=Math.min(selectStart.y,p.y),w=Math.abs(p.x-selectStart.x),h=Math.abs(p.y-selectStart.y);Object.assign(selectBox.style,{left:l+'px',top:t+'px',width:w+'px',height:h+'px'})}});
-canvas.addEventListener('pointerup',e=>{if(traceDrag){finishTrace();return}if(transformDrag){transformDrag=null;render();return}if(drag){save();drag=null;render();return}if(selectBox&&selectStart){const w=parseFloat(selectBox.style.width)||0,h=parseFloat(selectBox.style.height)||0;if(w<5&&h<5){const p=point(e);if(curveTool.mode==='start'){curveTool.start=p;curveTool.mode=null;updateCurveInfo();selectBox.remove();selectBox=null;selectStart=null;render();return}if(curveTool.mode==='end'){curveTool.end=p;curveTool.mode=null;updateCurveInfo();selectBox.remove();selectBox=null;selectStart=null;render();return}save();const o=makeObject(val('mode'),p.x,p.y);scene.objects.push(o);selected.clear();selected.add(o.id);log('ADDED: '+o.type)}else{const l=parseFloat(selectBox.style.left),t=parseFloat(selectBox.style.top),r=l+w,b=t+h;if(!e.shiftKey)selected.clear();scene.objects.forEach(o=>{if(!isVisible(o)||isLocked(o))return;if(o.x>=l&&o.x<=r&&o.y>=t&&o.y<=b)selected.add(o.id)});log('SELECTED: '+selected.size)}selectBox.remove();selectBox=null;selectStart=null;render()}});
-canvas.addEventListener('mouseleave',()=>{if(traceDrag)finishTrace()});
+
+function updateSelectionBrushButton(){
+  const btn=$('selectBrushBtn');
+  if(!btn)return;
+  btn.textContent='КИСТЬ ВЫДЕЛЕНИЯ: '+(selectionBrushMode?'ON':'OFF');
+  btn.className=selectionBrushMode?'btn green':'btn gold';
+  document.querySelector('.work')?.classList.toggle('selection-brush-active',selectionBrushMode);
+  if(!selectionBrushMode){
+    const ring=canvas.querySelector('.selection-brush-ring');
+    if(ring)ring.style.display='none';
+  }
+}
+function ensureSelectionBrushRing(){
+  let ring=canvas.querySelector('.selection-brush-ring');
+  if(!ring){
+    ring=document.createElement('div');
+    ring.className='selection-brush-ring';
+    canvas.appendChild(ring);
+  }
+  return ring;
+}
+function showSelectionBrushRing(p){
+  if(!selectionBrushMode)return;
+  const radius=Math.max(2,num('selectBrushRadius',12));
+  const ring=ensureSelectionBrushRing();
+  ring.style.width=(radius*2)+'px';
+  ring.style.height=(radius*2)+'px';
+  ring.style.left=p.x+'px';
+  ring.style.top=p.y+'px';
+  ring.style.display='block';
+}
+function applySelectionBrush(p,remove=false){
+  const radius=Math.max(2,num('selectBrushRadius',12));
+  let changed=false;
+  scene.objects.forEach(o=>{
+    if(!['seat','chair'].includes(o.type)||!isVisible(o)||isLocked(o))return;
+    const hitRadius=Math.max(Number(o.w||0),Number(o.h||0))/2;
+    if(Math.hypot(Number(o.x||0)-p.x,Number(o.y||0)-p.y)<=radius+hitRadius){
+      if(remove){
+        if(selected.delete(o.id))changed=true;
+      }else if(!selected.has(o.id)){
+        selected.add(o.id);
+        changed=true;
+      }
+    }
+  });
+  if(changed){
+    render();
+    showSelectionBrushRing(p);
+    log('КИСТЬ: выделено мест '+selectedSeatObjects().length+(remove?' / режим удаления':''));
+  }
+}
+function stopSelectionBrush(e){
+  if(!selectionBrushDrag)return;
+  selectionBrushDrag=false;
+  if(selectionBrushPointerId!==null){
+    try{canvas.releasePointerCapture(selectionBrushPointerId)}catch(_){}
+  }
+  selectionBrushPointerId=null;
+}
+function setSelectionBrushMode(on){
+  selectionBrushMode=!!on;
+  selectionBrushDrag=false;
+  selectionBrushPointerId=null;
+  if(selectionBrushMode){
+    numberStartPickMode=false;
+    updateNumberStartPickUi();
+    if(traceMode){
+      traceMode=false;
+      document.querySelector('.work')?.classList.remove('trace-active');
+      if($('traceBtn')){
+        $('traceBtn').textContent='MAGIC TRACE: OFF';
+        $('traceBtn').className='btn gold';
+      }
+    }
+    log('КИСТЬ ВЫДЕЛЕНИЯ ON: ведите по дуге или кругу. Alt/Ctrl — убрать место.');
+  }else{
+    log('КИСТЬ ВЫДЕЛЕНИЯ OFF');
+  }
+  updateSelectionBrushButton();
+}
+function updateNumberStartPickUi(){
+  const btn=$('numberStartPickBtn');
+  const info=$('numberStartInfo');
+  if(btn){
+    btn.textContent=numberStartPickMode?'КЛИКНИТЕ МЕСТО №1…':'ВЫБРАТЬ МЕСТО №1';
+    btn.className=numberStartPickMode?'btn green':'btn purple';
+  }
+  if(info){
+    const anchor=numberStartSeatId?objectById(numberStartSeatId):null;
+    info.textContent=anchor
+      ? 'Место №1: выбрано кресло на схеме.'
+      : 'Место №1: по положению «Старт круга».';
+  }
+}
+function setNumberStartPickMode(on){
+  numberStartPickMode=!!on;
+  if(numberStartPickMode&&selectionBrushMode)setSelectionBrushMode(false);
+  updateNumberStartPickUi();
+  log(numberStartPickMode
+    ? 'МЕСТО №1: кликните нужное кресло внутри уже выделенного ряда.'
+    : 'Выбор места №1 отменён.');
+}
+function pickNumberStartSeatFromEvent(e){
+  const id=targetId(e);
+  const o=id?objectById(id):null;
+  if(!o||!['seat','chair'].includes(o.type)){
+    log('МЕСТО №1: кликните кресло.');
+    return false;
+  }
+  if(!selected.has(o.id)){
+    log('МЕСТО №1: это кресло не входит в текущее выделение.');
+    return false;
+  }
+  numberStartSeatId=o.id;
+  numberStartPickMode=false;
+  updateNumberStartPickUi();
+  render();
+  log('МЕСТО №1 ВЫБРАНО. Теперь задайте направление по/против часовой стрелки и нажмите АВТО НУМЕРАЦИЯ.');
+  return true;
+}
+
+canvas.addEventListener('pointerdown',e=>{
+  if(pan.space)return;
+  const p=point(e);
+
+  if(numberStartPickMode){
+    e.preventDefault();
+    pickNumberStartSeatFromEvent(e);
+    return;
+  }
+
+  if(selectionBrushMode){
+    e.preventDefault();
+    const remove=e.altKey||e.ctrlKey;
+    if(!remove&&!e.shiftKey){
+      selected.clear();
+      numberStartSeatId='';
+      updateNumberStartPickUi();
+      render();
+    }
+    selectionBrushDrag=true;
+    selectionBrushPointerId=e.pointerId;
+    try{canvas.setPointerCapture(e.pointerId)}catch(_){}
+    showSelectionBrushRing(p);
+    applySelectionBrush(p,remove);
+    return;
+  }
+
+  const ht=handleTarget(e);
+  if(ht){
+    const o=objectById(ht.id);
+    if(!o||isLocked(o))return;
+    save();
+    selected.clear();
+    selected.add(o.id);
+    transformDrag={type:ht.handle,start:p,orig:JSON.parse(JSON.stringify(o)),center:{x:o.x,y:o.y}};
+    return;
+  }
+  const id=targetId(e);
+  if(id){
+    const obj=objectById(id);
+    if(obj&&isLocked(obj))return;
+    if(!selected.has(id)){
+      if(!e.shiftKey)selected.clear();
+      selected.add(id);
+      render();
+    }
+    drag={start:p,orig:selectedObjects().map(o=>({id:o.id,x:o.x,y:o.y}))};
+    return;
+  }
+  if(traceMode){
+    save();
+    traceDrag=true;
+    traceLast=null;
+    traceBaseY=(val('traceAssist')==='snap-row'?p.y:null);
+    traceCreated=0;
+    selected.clear();
+    addTracePoint(p);
+    return;
+  }
+  selectStart=p;
+  selectBox=document.createElement('div');
+  selectBox.className='select-box';
+  Object.assign(selectBox.style,{left:p.x+'px',top:p.y+'px',width:'0px',height:'0px'});
+  canvas.appendChild(selectBox);
+});
+
+canvas.addEventListener('pointermove',e=>{
+  const p=point(e);
+  if(selectionBrushMode){
+    showSelectionBrushRing(p);
+    if(selectionBrushDrag)applySelectionBrush(p,e.altKey||e.ctrlKey);
+    return;
+  }
+  if(traceMode&&traceDrag){
+    addTracePoint(p);
+    return;
+  }
+  if(transformDrag){
+    const o=objectById(transformDrag.orig.id);
+    if(!o)return;
+    const dx=p.x-transformDrag.start.x,dy=p.y-transformDrag.start.y;
+    if(transformDrag.type==='rotate'){
+      o.rotate=Math.round(Math.atan2(p.y-transformDrag.center.y,p.x-transformDrag.center.x)*180/Math.PI+90);
+    }else{
+      let w=Number(transformDrag.orig.w||20),h=Number(transformDrag.orig.h||20),x=Number(transformDrag.orig.x||0),y=Number(transformDrag.orig.y||0);
+      if(transformDrag.type.includes('e')){w=Math.max(6,w+dx);x=Number(transformDrag.orig.x||0)+dx/2}
+      if(transformDrag.type.includes('s')){h=Math.max(6,h+dy);y=Number(transformDrag.orig.y||0)+dy/2}
+      if(transformDrag.type.includes('w')){w=Math.max(6,w-dx);x=Number(transformDrag.orig.x||0)+dx/2}
+      if(transformDrag.type.includes('n')){h=Math.max(6,h-dy);y=Number(transformDrag.orig.y||0)+dy/2}
+      o.w=Math.round(w);o.h=Math.round(h);o.x=Math.round(x);o.y=Math.round(y);
+    }
+    render();
+    return;
+  }
+  if(drag){
+    const dx=p.x-drag.start.x,dy=p.y-drag.start.y;
+    drag.orig.forEach(a=>{
+      const o=objectById(a.id);
+      if(o&&!isLocked(o)){
+        o.x=snap(a.x+dx);
+        o.y=snap(a.y+dy);
+      }
+    });
+    render();
+    return;
+  }
+  if(selectBox&&selectStart){
+    const l=Math.min(selectStart.x,p.x),t=Math.min(selectStart.y,p.y),w=Math.abs(p.x-selectStart.x),h=Math.abs(p.y-selectStart.y);
+    Object.assign(selectBox.style,{left:l+'px',top:t+'px',width:w+'px',height:h+'px'});
+  }
+});
+
+canvas.addEventListener('pointerup',e=>{
+  if(selectionBrushDrag){
+    stopSelectionBrush(e);
+    showSelectionBrushRing(point(e));
+    return;
+  }
+  if(traceDrag){finishTrace();return}
+  if(transformDrag){transformDrag=null;render();return}
+  if(drag){save();drag=null;render();return}
+  if(selectBox&&selectStart){
+    const w=parseFloat(selectBox.style.width)||0,h=parseFloat(selectBox.style.height)||0;
+    if(w<5&&h<5){
+      const p=point(e);
+      if(curveTool.mode==='start'){
+        curveTool.start=p;curveTool.mode=null;updateCurveInfo();selectBox.remove();selectBox=null;selectStart=null;render();return;
+      }
+      if(curveTool.mode==='end'){
+        curveTool.end=p;curveTool.mode=null;updateCurveInfo();selectBox.remove();selectBox=null;selectStart=null;render();return;
+      }
+      save();
+      const o=makeObject(val('mode'),p.x,p.y);
+      scene.objects.push(o);
+      selected.clear();
+      selected.add(o.id);
+      log('ADDED: '+o.type);
+    }else{
+      const l=parseFloat(selectBox.style.left),t=parseFloat(selectBox.style.top),r=l+w,b=t+h;
+      if(!e.shiftKey)selected.clear();
+      scene.objects.forEach(o=>{
+        if(!isVisible(o)||isLocked(o))return;
+        if(o.x>=l&&o.x<=r&&o.y>=t&&o.y<=b)selected.add(o.id);
+      });
+      log('SELECTED: '+selected.size);
+    }
+    selectBox.remove();
+    selectBox=null;
+    selectStart=null;
+    render();
+  }
+});
+canvas.addEventListener('pointercancel',e=>stopSelectionBrush(e));
+canvas.addEventListener('mouseleave',()=>{
+  if(traceDrag)finishTrace();
+  if(selectionBrushDrag)stopSelectionBrush();
+  const ring=canvas.querySelector('.selection-brush-ring');
+  if(ring)ring.style.display='none';
+});
 
 canvas.addEventListener('pointerover',e=>{
-  if(hoverLock)return;
+  if(selectionBrushMode||numberStartPickMode||hoverLock)return;
   const o=objectFromEvent(e);
   if(o)applyHoverByObject(o,false);
 });
@@ -782,13 +1075,14 @@ canvas.addEventListener('pointerout',e=>{
   clearHoverVisual();
 });
 canvas.addEventListener('click',e=>{
+  if(selectionBrushMode||numberStartPickMode)return;
   if(val('hoverTapLock')!=='1')return;
   const o=objectFromEvent(e);
   if(!o||!['seat','chair'].includes(o.type))return;
   hoverLock=null;
   applyHoverByObject(o,true);
 });
-canvas.addEventListener('dblclick',e=>{const id=targetId(e);if(!id)return;const o=objectById(id);if(o&&isLocked(o))return;save();scene.objects=scene.objects.filter(x=>x.id!==id);selected.delete(id);render()});
+canvas.addEventListener('dblclick',e=>{if(selectionBrushMode||numberStartPickMode)return;const id=targetId(e);if(!id)return;const o=objectById(id);if(o&&isLocked(o))return;save();scene.objects=scene.objects.filter(x=>x.id!==id);selected.delete(id);render()});
 imageLoader.addEventListener('change',e=>{const f=e.target.files&&e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=ev=>{bgDataUrl=ev.target.result;const im=new Image();im.onload=()=>{bgNaturalW=im.naturalWidth;bgNaturalH=im.naturalHeight;applyBg();render();log('BACKGROUND LOADED')};im.src=bgDataUrl};rd.readAsDataURL(f)});
 function updateInspector(){const list=selectedObjects(),ids=['insX','insY','insW','insH','insRotate','insZ','insSize','insText','insFill','insBorder','insTextColor','insOpacity','insGlow','insMediaFile','insMediaFit','insLabelX','insLabelY','insLabelSize','insShowLabel'];ids.forEach(id=>{const el=$(id);if(el)el.disabled=list.length!==1});if(list.length!==1){$('inspectInfo').textContent=list.length?'Выделено объектов: '+list.length:'Выделите объект';return}const o=list[0];$('inspectInfo').textContent=o.type+' / '+o.id;$('insX').value=Math.round(o.x||0);$('insY').value=Math.round(o.y||0);$('insW').value=Math.round(o.w||0);$('insH').value=Math.round(o.h||0);$('insRotate').value=Math.round(o.rotate||0);$('insZ').value=Math.round(o.z||0);$('insSize').value=Math.round(o.size||0);$('insText').value=o.text||'';$('insLabelX').value=Math.round(o.labelOffsetX??0);$('insLabelY').value=Math.round(o.labelOffsetY??-20);$('insLabelSize').value=Math.round(o.labelSize??10);$('insShowLabel').value=(o.showLabel===undefined||o.showLabel===null)?'inherit':String(o.showLabel);$('insFill').value=safeColor(o.fill,'#8b5cf6');$('insBorder').value=safeColor(o.borderColor,'#ffffff');$('insTextColor').value=safeColor(
   o.textColor,
@@ -866,7 +1160,17 @@ if($('tfApplyBtn'))$('tfApplyBtn').onclick=()=>applyTextFix(false);
 if($('tfWhiteBtn'))$('tfWhiteBtn').onclick=()=>applyTextFix(true);
 
 $('applyCanvasBtn').onclick=applyCanvas; $('normalizeCanvasBtn').onclick = normalizeCanvas;
-$('centerContentBtn').onclick = centerContent;  $('applyBgBtn').onclick=()=>{applyBg();render()};$('clearBgBtn').onclick=()=>{bgDataUrl='';bgNaturalW=0;bgNaturalH=0;canvas.style.backgroundImage='';imageLoader.value='';scene.canvas.background=null;render();log('BACKGROUND CLEARED')};$('zoom').oninput=applyZoom;$('gridBtn').onclick=()=>{gridShown=!gridShown;grid.style.display=gridShown?'block':'none';grid.style.backgroundSize=num('gridSize',20)+'px '+num('gridSize',20)+'px'};$('clearHoverBtn').onclick=()=>{hoverLock=null;clearHoverVisual();log('HOVER CLEARED')};$('traceBtn').onclick=()=>{traceMode=!traceMode;document.querySelector('.work').classList.toggle('trace-active',traceMode);$('traceBtn').textContent='MAGIC TRACE: '+(traceMode?'ON':'OFF');$('traceBtn').className=traceMode?'btn green':'btn gold';log(traceMode?'MAGIC TRACE ON: ведите мышью по ряду.':'MAGIC TRACE OFF')};$('previewBtn').onclick=()=>{previewMode=!previewMode;document.querySelector('.work').classList.toggle('preview',previewMode);$('previewBtn').textContent='PREVIEW MODE: '+(previewMode?'ON':'OFF');$('previewBtn').className=previewMode?'btn green':'btn gold'};
+$('centerContentBtn').onclick = centerContent;  $('applyBgBtn').onclick=()=>{applyBg();render()};$('clearBgBtn').onclick=()=>{bgDataUrl='';bgNaturalW=0;bgNaturalH=0;canvas.style.backgroundImage='';imageLoader.value='';scene.canvas.background=null;render();log('BACKGROUND CLEARED')};$('zoom').oninput=applyZoom;$('gridBtn').onclick=()=>{gridShown=!gridShown;grid.style.display=gridShown?'block':'none';grid.style.backgroundSize=num('gridSize',20)+'px '+num('gridSize',20)+'px'};$('clearHoverBtn').onclick=()=>{hoverLock=null;clearHoverVisual();log('HOVER CLEARED')};$('traceBtn').onclick=()=>{traceMode=!traceMode;if(traceMode&&selectionBrushMode)setSelectionBrushMode(false);document.querySelector('.work').classList.toggle('trace-active',traceMode);$('traceBtn').textContent='MAGIC TRACE: '+(traceMode?'ON':'OFF');$('traceBtn').className=traceMode?'btn green':'btn gold';log(traceMode?'MAGIC TRACE ON: ведите мышью по ряду.':'MAGIC TRACE OFF')};$('previewBtn').onclick=()=>{previewMode=!previewMode;document.querySelector('.work').classList.toggle('preview',previewMode);$('previewBtn').textContent='PREVIEW MODE: '+(previewMode?'ON':'OFF');$('previewBtn').className=previewMode?'btn green':'btn gold'};
+
+if($('selectBrushBtn'))$('selectBrushBtn').onclick=()=>setSelectionBrushMode(!selectionBrushMode);
+if($('numberStartPickBtn'))$('numberStartPickBtn').onclick=()=>setNumberStartPickMode(!numberStartPickMode);
+if($('numberStartClearBtn'))$('numberStartClearBtn').onclick=()=>{
+  numberStartSeatId='';
+  numberStartPickMode=false;
+  updateNumberStartPickUi();
+  log('МЕСТО №1 СБРОШЕНО: старт берётся из поля «Старт круга».');
+};
+
 window.addEventListener('keydown',e=>{if(e.code==='Space'){pan.space=true;e.preventDefault()}});window.addEventListener('keyup',e=>{if(e.code==='Space'){pan.space=false;pan.active=false}});document.querySelector('.work').addEventListener('pointerdown',e=>{if(!pan.space)return;pan.active=true;pan.startX=e.clientX;pan.startY=e.clientY;pan.scrollLeft=document.querySelector('.work').scrollLeft;pan.scrollTop=document.querySelector('.work').scrollTop;e.preventDefault()});window.addEventListener('pointermove',e=>{if(!pan.active)return;const work=document.querySelector('.work');work.scrollLeft=pan.scrollLeft-(e.clientX-pan.startX);work.scrollTop=pan.scrollTop-(e.clientY-pan.startY)});window.addEventListener('pointerup',()=>pan.active=false);document.querySelector('.work').addEventListener('wheel',e=>{if(!e.ctrlKey&&!e.altKey&&!e.shiftKey){e.preventDefault();const work=document.querySelector('.work'),oldZoom=zoomValue(),rect=work.getBoundingClientRect(),beforeX=(e.clientX-rect.left+work.scrollLeft)/oldZoom,beforeY=(e.clientY-rect.top+work.scrollTop)/oldZoom;$('zoom').value=Number($('zoom').value)+(e.deltaY<0?10:-10);applyZoom();const newZoom=zoomValue();work.scrollLeft=beforeX*newZoom-(e.clientX-rect.left);work.scrollTop=beforeY*newZoom-(e.clientY-rect.top)}},{passive:false});
 activeLayerEl.onchange=refreshLayers;layerListEl.onclick=e=>{const item=e.target.closest('.layer-item');if(!item)return;const l=layerById(item.dataset.layer);if(!l)return;const act=e.target.dataset.act;if(act==='vis'&&!l.locked)l.visible=!l.visible;if(act==='lock'&&l.id!=='background')l.locked=!l.locked;if(act==='set')activeLayerEl.value=l.id;render()};$('addLayerBtn').onclick=()=>{const name=prompt('Layer name','Custom Layer');if(!name)return;scene.layers.push({id:'layer_'+Date.now(),name,visible:true,locked:false,opacity:1,z:60});render()};$('deleteLayerBtn').onclick=()=>{const id=activeLayer();if(['background','architecture','seats','text','light','media'].includes(id))return log('BASE LAYER: не удаляем');scene.objects=scene.objects.filter(o=>o.layerId!==id);scene.layers=scene.layers.filter(l=>l.id!==id);activeLayerEl.value='seats';render()};
 $('undoBtn').onclick=()=>{const p=history.pop();if(!p)return;scene=JSON.parse(p);selected.clear();render()};$('deleteBtn').onclick=()=>{save();scene.objects=scene.objects.filter(o=>!selected.has(o.id)||isLocked(o));selected.clear();render()};$('clearBtn').onclick=()=>{save();scene.objects=[];selected.clear();render()};$('selectAllBtn').onclick=()=>{selected=new Set(scene.objects.filter(o=>isVisible(o)&&!isLocked(o)).map(o=>o.id));render()};$('clearSelectionBtn').onclick=()=>{selected.clear();render()};function align(axis){const list=selectedObjects().filter(o=>!isLocked(o));if(list.length<2)return;save();const avg=Math.round(list.reduce((s,o)=>s+o[axis],0)/list.length);list.forEach(o=>o[axis]=avg);render()}$('alignYBtn').onclick=()=>align('y');$('alignXBtn').onclick=()=>align('x');function distribute(axis){const list=selectedObjects().filter(o=>!isLocked(o)).sort((a,b)=>a[axis]-b[axis]);if(list.length<3)return;save();const first=list[0][axis],last=list[list.length-1][axis],step=(last-first)/(list.length-1);list.forEach((o,i)=>o[axis]=Math.round(first+step*i));render()}
@@ -907,7 +1211,95 @@ function alignSelectedToArc(){
   render();
   log('ARC ALIGN OK: '+sorted.length+' мест, depth='+depth+'. Если выгнуло не туда — поставьте depth с обратным знаком.');
 }
-$('distXBtn').onclick=()=>distribute('x');$('distYBtn').onclick=()=>distribute('y');$('alignArcBtn').onclick=alignSelectedToArc;$('autoNumberBtn').onclick=()=>{const list=selectedObjects().filter(o=>['seat','chair'].includes(o.type)&&!isLocked(o));if(!list.length)return;save();const dir=val('numberDirection');list.sort((a,b)=>dir==='left-right'?a.x-b.x||a.y-b.y:dir==='right-left'?b.x-a.x||a.y-b.y:dir==='top-bottom'?a.y-b.y||a.x-b.x:b.y-a.y||a.x-b.x);const row=val('row')||'1',start=num('seat',1);list.forEach((o,i)=>{o.zone=val('zone');o.prefix=val('prefix');o.row=row;o.seat=start+i;o.labelOffsetX=num('labelOffsetX',0);o.labelOffsetY=num('labelOffsetY',-20);o.labelSize=num('labelSize',10)});$('seat').value=start+list.length;render()};
+
+function normalizeAngle(a){
+  const full=Math.PI*2;
+  a%=full;
+  if(a<0)a+=full;
+  return a;
+}
+function clockwiseAngleFromTop(o,cx,cy){
+  return normalizeAngle(Math.atan2(Number(o.x||0)-cx, -(Number(o.y||0)-cy)));
+}
+function fixedCircleStartAngle(){
+  const start=val('circleStart')||'top';
+  if(start==='right')return Math.PI/2;
+  if(start==='bottom')return Math.PI;
+  if(start==='left')return Math.PI*1.5;
+  return 0;
+}
+function sortSeatsCircular(list,direction){
+  if(list.length<2)return list.slice();
+  const cx=list.reduce((s,o)=>s+Number(o.x||0),0)/list.length;
+  const cy=list.reduce((s,o)=>s+Number(o.y||0),0)/list.length;
+  const anchor=list.find(o=>o.id===numberStartSeatId);
+  const startAngle=anchor
+    ? clockwiseAngleFromTop(anchor,cx,cy)
+    : fixedCircleStartAngle();
+
+  return list.slice().sort((a,b)=>{
+    const aa=clockwiseAngleFromTop(a,cx,cy);
+    const ab=clockwiseAngleFromTop(b,cx,cy);
+    const da=direction==='counter-clockwise'
+      ? normalizeAngle(startAngle-aa)
+      : normalizeAngle(aa-startAngle);
+    const db=direction==='counter-clockwise'
+      ? normalizeAngle(startAngle-ab)
+      : normalizeAngle(ab-startAngle);
+    return da-db || Math.hypot(Number(a.x||0)-cx,Number(a.y||0)-cy)-Math.hypot(Number(b.x||0)-cx,Number(b.y||0)-cy);
+  });
+}
+function autoNumberSelected(){
+  let list=selectedObjects().filter(o=>['seat','chair'].includes(o.type)&&!isLocked(o));
+  if(!list.length)return log('АВТО НУМЕРАЦИЯ: сначала выделите места.');
+
+  save();
+  const dir=val('numberDirection');
+
+  if(dir==='clockwise'||dir==='counter-clockwise'){
+    list=sortSeatsCircular(list,dir);
+  }else{
+    list.sort((a,b)=>
+      dir==='left-right'
+        ? Number(a.x||0)-Number(b.x||0)||Number(a.y||0)-Number(b.y||0)
+        : dir==='right-left'
+          ? Number(b.x||0)-Number(a.x||0)||Number(a.y||0)-Number(b.y||0)
+          : dir==='top-bottom'
+            ? Number(a.y||0)-Number(b.y||0)||Number(a.x||0)-Number(b.x||0)
+            : Number(b.y||0)-Number(a.y||0)||Number(a.x||0)-Number(b.x||0)
+    );
+  }
+
+  const row=val('row')||'1';
+  const start=num('seat',1);
+
+  list.forEach((o,i)=>{
+    o.zone=val('zone');
+    o.prefix=val('prefix');
+    o.row=row;
+    o.seat=start+i;
+    o.labelOffsetX=num('labelOffsetX',0);
+    o.labelOffsetY=num('labelOffsetY',-20);
+    o.labelSize=num('labelSize',10);
+  });
+
+  $('seat').value=start+list.length;
+  const usedAnchor=!!list.find(o=>o.id===numberStartSeatId);
+  render();
+  log(
+    'АВТО НУМЕРАЦИЯ OK: ряд '+row+
+    ' / мест '+list.length+
+    ' / направление '+dir+
+    ((dir==='clockwise'||dir==='counter-clockwise')
+      ? (usedAnchor?' / старт: выбранное место №1':' / старт: '+(val('circleStart')||'top'))
+      : '')
+  );
+}
+$('distXBtn').onclick=()=>distribute('x');
+$('distYBtn').onclick=()=>distribute('y');
+$('alignArcBtn').onclick=alignSelectedToArc;
+$('autoNumberBtn').onclick=autoNumberSelected;
+
 $('copyBtn').onclick=()=>{clipboard=selectedObjects().filter(o=>!isLocked(o)).map(o=>JSON.parse(JSON.stringify(o)))};$('pasteBtn').onclick=()=>{if(!clipboard.length)return;save();selected.clear();clipboard.forEach(o=>{const c=JSON.parse(JSON.stringify(o));c.id=uid(c.type);c.x+=40;c.y+=40;scene.objects.push(c);selected.add(c.id)});render()};$('duplicateBtn').onclick=()=>{const dx=num('dupOffsetX',40),dy=num('dupOffsetY',40),list=selectedObjects().filter(o=>!isLocked(o));if(!list.length)return;save();selected.clear();list.forEach(o=>{const c=JSON.parse(JSON.stringify(o));c.id=uid(c.type);c.x+=dx;c.y+=dy;scene.objects.push(c);selected.add(c.id)});render()};$('mirrorXBtn').onclick=()=>{const list=selectedObjects().filter(o=>!isLocked(o));if(!list.length)return;save();const cx=(Math.min(...list.map(o=>o.x))+Math.max(...list.map(o=>o.x)))/2;selected.clear();list.forEach(o=>{const c=JSON.parse(JSON.stringify(o));c.id=uid(c.type);c.x=Math.round(cx-(o.x-cx));scene.objects.push(c);selected.add(c.id)});render()};$('mirrorYBtn').onclick=()=>{const list=selectedObjects().filter(o=>!isLocked(o));if(!list.length)return;save();const cy=(Math.min(...list.map(o=>o.y))+Math.max(...list.map(o=>o.y)))/2;selected.clear();list.forEach(o=>{const c=JSON.parse(JSON.stringify(o));c.id=uid(c.type);c.y=Math.round(cy-(o.y-cy));scene.objects.push(c);selected.add(c.id)});render()};$('perspectiveBtn').onclick=()=>{const list=selectedObjects().filter(o=>['seat','chair','table','box'].includes(o.type)&&!isLocked(o));if(list.length<3)return;save();const cx=list.reduce((s,o)=>s+o.x,0)/list.length,minY=Math.min(...list.map(o=>o.y)),maxY=Math.max(...list.map(o=>o.y)),depth=Math.max(1,maxY-minY);list.forEach(o=>{const t=(o.y-minY)/depth,shrink=.72+t*.28;o.x=Math.round(cx+(o.x-cx)*shrink)});render()};
 
 function getSeatObjects(list){
@@ -1482,6 +1874,8 @@ $('importBtn').onclick = () => {
 };
 
 bindOperaTools();
+updateSelectionBrushButton();
+updateNumberStartPickUi();
 applyCanvas();
 applyZoom();
 refreshLayers();
