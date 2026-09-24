@@ -18,25 +18,21 @@ body{
   background:#061a3a;
   color:#fff;
 }
-
 .wrap{
   max-width:920px;
   margin:0 auto;
   padding:32px 24px;
 }
-
 .hero h1{
   margin:0 0 10px;
   font-size:42px;
 }
-
 .hero p{
   margin:0 0 24px;
   color:#b8c4d6;
   font-size:18px;
   line-height:1.45;
 }
-
 .card{
   background:#1d2d47;
   border-radius:24px;
@@ -44,22 +40,18 @@ body{
   box-shadow:0 18px 40px rgba(0,0,0,.22);
   margin-bottom:20px;
 }
-
 .row{
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:14px;
 }
-
 label{
   display:block;
   margin:12px 0 6px;
   color:#b8c4d6;
   font-size:14px;
 }
-
-input,textarea{
-  width:100%;
+input,textarea,select{
   box-sizing:border-box;
   border:1px solid rgba(255,255,255,.14);
   background:#10233f;
@@ -68,19 +60,17 @@ input,textarea{
   padding:12px;
   font:inherit;
 }
-
+input,textarea{width:100%}
 textarea{
   min-height:120px;
   resize:vertical;
 }
-
 .actions{
   display:flex;
   flex-wrap:wrap;
   gap:10px;
   margin-top:18px;
 }
-
 button,a.btn{
   display:inline-flex;
   align-items:center;
@@ -94,22 +84,9 @@ button,a.btn{
   font-weight:800;
   cursor:pointer;
 }
-
-.btn-primary{
-  background:#4c86f7;
-  color:#fff;
-}
-
-.btn-success{
-  background:#22c55e;
-  color:#08111f;
-}
-
-.btn-neutral{
-  background:#e5e7eb;
-  color:#111827;
-}
-
+.btn-primary{background:#4c86f7;color:#fff}
+.btn-success{background:#22c55e;color:#08111f}
+.btn-neutral{background:#e5e7eb;color:#111827}
 .result{
   margin-top:18px;
   background:#223552;
@@ -119,19 +96,24 @@ button,a.btn{
   color:#e5e7eb;
   white-space:pre-wrap;
 }
-
+.csv-help{
+  color:#b8c4d6;
+  font-size:14px;
+  line-height:1.5;
+}
+#csvFileStatus{
+  padding-top:10px;
+  color:#b8c4d6;
+  font-size:14px;
+  min-height:20px;
+}
 @media(max-width:760px){
-  .row{
-    grid-template-columns:1fr;
-  }
+  .row{grid-template-columns:1fr}
 }
 </style>
 </head>
-
 <body>
-
 <div class="wrap">
-
   <section class="hero">
     <h1>🟡 VA Recovery Cabinet</h1>
     <p>
@@ -141,147 +123,142 @@ button,a.btn{
     </p>
   </section>
 
- <section class="card">
-
-  <h2>1. Recovery-подія</h2>
-
-  <div class="row">
-    <div>
-      <label>Назва події</label>
-      <input id="title" value="Queen при свічках — компенсація">
+  <section class="card">
+    <h2>1. Recovery-подія</h2>
+    <div class="row">
+      <div>
+        <label for="title">Назва події</label>
+        <input id="title" value="Queen при свічках — компенсація">
+      </div>
+      <div>
+        <label for="recoveryEvent">Нова дата / сеанс</label>
+        <input id="recoveryEvent" value="Компенсаційний сеанс">
+      </div>
     </div>
-
-    <div>
-      <label>Нова дата / сеанс</label>
-      <input id="recoveryEvent" value="Компенсаційний сеанс">
+    <label for="originalEvent">Оригінальна подія</label>
+    <input id="originalEvent" value="Queen при свічках 19.04">
+    <div class="row">
+      <div>
+        <label for="venueName">Майданчик</label>
+        <input id="venueName" value="Демо-майданчик">
+      </div>
+      <div>
+        <label for="locality">Населений пункт</label>
+        <input id="locality" value="Кривий Ріг">
+      </div>
+      <div>
+        <label for="eventScope">Тип події</label>
+        <select id="eventScope">
+          <option value="repertoire">Репертуар закладу</option>
+          <option value="rental">Оренда</option>
+          <option value="external">Зовнішній організатор</option>
+        </select>
+      </div>
     </div>
-  </div>
-
-  <label>Оригінальна подія</label>
-  <input id="originalEvent" value="Queen при свічках 19.04">
-
-  <div class="row">
-    <div>
-      <label>Майданчик</label>
-      <input id="venueName" value="Демо-майданчик">
+    <div class="row">
+      <div>
+        <label for="incidentType">Тип інциденту</label>
+        <select id="incidentType">
+          <option value="postponed">Перенесення</option>
+          <option value="cancelled">Скасування</option>
+        </select>
+      </div>
+      <div>
+        <label for="incidentReason">Причина</label>
+        <select id="incidentReason">
+          <option value="air_alert">Повітряна тривога</option>
+          <option value="illness">Хвороба артиста</option>
+          <option value="blackout">Відсутність електроенергії</option>
+          <option value="technical">Технічний збій</option>
+          <option value="transport">Транспортна проблема</option>
+          <option value="admin">Рішення адміністрації</option>
+          <option value="other">Інше</option>
+        </select>
+      </div>
     </div>
-
     <div>
-      <label>Населений пункт</label>
-      <input id="locality" value="Кривий Ріг">
-    </div>
-
-    <div>
-      <label>Тип події</label>
-      <select id="eventScope">
-        <option value="repertoire">Репертуар закладу</option>
-        <option value="rental">Оренда</option>
-        <option value="external">Зовнішній організатор</option>
+      <label for="operationalStatus">Operational status</label>
+      <select id="operationalStatus">
+        <option value="ACTIVE">ACTIVE</option>
+        <option value="RESOLVED">RESOLVED</option>
+        <option value="ARCHIVED">ARCHIVED</option>
       </select>
     </div>
-  </div>
-
-  <div class="row">
-    <div>
-      <label>Тип інциденту</label>
-      <select id="incidentType">
-        <option value="postponed">Перенесення</option>
-        <option value="cancelled">Скасування</option>
-      </select>
+    <label for="incidentNote">Коментар</label>
+    <textarea id="incidentNote" placeholder="Додаткова інформація..."></textarea>
+    <div class="actions">
+      <button class="btn-primary" onclick="createRecoveryEvent()">Створити recovery-подію</button>
     </div>
+    <div id="eventResult" class="result">Recovery-подія ще не створена.</div>
+  </section>
 
-    <div>
-      <label>Причина</label>
-      <select id="incidentReason">
-        <option value="air_alert">Повітряна тривога</option>
-        <option value="illness">Хвороба артиста</option>
-        <option value="blackout">Відсутність електроенергії</option>
-        <option value="technical">Технічний збій</option>
-        <option value="transport">Транспортна проблема</option>
-        <option value="admin">Рішення адміністрації</option>
-        <option value="other">Інше</option>
-      </select>
+  <section class="card">
+    <h2>2. Швидка активація recovery</h2>
+    <p style="color:#b8c4d6;">Скануйте QR або вставте barcode квитка.</p>
+    <input id="quickToken" placeholder="Token / barcode">
+    <div class="actions">
+      <button class="btn-primary" onclick="quickActivateRecovery()">Активувати recovery</button>
     </div>
-  </div>
+    <div id="quickResult" class="result">Очікування...</div>
+  </section>
 
-  <div>
-    <label>Operational status</label>
-    <select id="operationalStatus">
-      <option value="ACTIVE">ACTIVE</option>
-      <option value="RESOLVED">RESOLVED</option>
-      <option value="ARCHIVED">ARCHIVED</option>
-    </select>
-  </div>
+  <section class="card">
+    <h2>3. Імпорт квитків</h2>
+    <p class="csv-help">Формат CSV: token,seat_label,owner_name. Оберіть файл або вставте CSV у текстове поле.</p>
 
-  <label>Коментар</label>
-  <textarea id="incidentNote" placeholder="Додаткова інформація..."></textarea>
+    <!-- НОВЕ: вибір готового CSV; файл читається локально і підставляється у старе поле. -->
+    <label for="csvFile">Завантажити CSV-файл</label>
+    <input id="csvFile" type="file" accept=".csv,text/csv,text/plain">
+    <div id="csvFileStatus" role="status" aria-live="polite">Файл ще не обрано.</div>
 
-  <div class="actions">
-    <button class="btn-primary" onclick="createRecoveryEvent()">
-      Створити recovery-подію
-    </button>
-  </div>
+    <label for="csvInput">CSV (можна редагувати перед активацією)</label>
+    <textarea id="csvInput" spellcheck="false">token,seat_label,owner_name</textarea>
 
-  <div id="eventResult" class="result">
-    Recovery-подія ще не створена.
-  </div>
-
-</section>
-
-<section class="card">
-
-  <h2>2. Швидка активація recovery</h2>
-
-  <p style="color:#b8c4d6;">
-    Скануйте QR або вставте barcode квитка.
-  </p>
-
-  <input id="quickToken" placeholder="Token / barcode">
-
-  <div class="actions">
-    <button class="btn-primary" onclick="quickActivateRecovery()">
-      Активувати recovery
-    </button>
-  </div>
-
-  <div id="quickResult" class="result">
-    Очікування...
-  </div>
-
-</section>
-
-<section class="card">
-
-  <h2>3. Імпорт квитків</h2>
-
-  <p style="color:#b8c4d6;">
-    Формат CSV: token, seat_label, owner_name
-  </p>
-
-  <label>CSV</label>
-  <textarea id="csvInput">token,seat_label,owner_name
-2787601013,Партер Ряд 13 Місце 8,Рябов Олександр
-TEST-0002,Партер Ряд 13 Місце 9,Тестовий глядач
-TEST-0003,Партер Ряд 13 Місце 10,Тестовий глядач</textarea>
-
-  <div class="actions">
-    <button class="btn-success" onclick="importTokens()">
-      Активувати компенсацію
-    </button>
-
-    <a class="btn btn-neutral" href="./recovery-scanner.html" target="_blank">
-      Відкрити scanner
-    </a>
-  </div>
-
-  <div id="importResult" class="result">
-    Квитки ще не імпортовані.
-  </div>
-
-</section>
-
+    <div class="actions">
+      <button class="btn-success" onclick="importTokens()">Активувати компенсацію</button>
+      <a class="btn btn-neutral" href="./recovery-scanner.html" target="_blank" rel="noopener">Відкрити scanner</a>
+    </div>
+    <div id="importResult" class="result">Квитки ще не імпортовані.</div>
+  </section>
 </div>
 
+<!-- Існуючий JavaScript залишено без змін. -->
 <script src="./recovery-cabinet.js?v=clean-02"></script>
+<script>
+(function () {
+  "use strict";
+  const fileInput = document.getElementById("csvFile");
+  const csvInput = document.getElementById("csvInput");
+  const status = document.getElementById("csvFileStatus");
+
+  fileInput.addEventListener("change", async () => {
+    const file = fileInput.files && fileInput.files[0];
+    if (!file) return;
+    status.textContent = "Читання CSV…";
+    try {
+      const bytes = await file.arrayBuffer();
+      let csv;
+      try {
+        // UTF-8; у разі старого CSV з Excel пробуємо Windows-1251.
+        csv = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+      } catch (_) {
+        csv = new TextDecoder("windows-1251").decode(bytes);
+      }
+      csv = csv.replace(/^\uFEFF/, "");
+      const lines = csv.split(/\r?\n/).filter(line => line.trim().length);
+      const header = (lines[0] || "").split(",").map(h => h.trim());
+      if (!header.includes("token")) {
+        throw new Error("Файл не містить стовпця token у першому рядку. Потрібен CSV з роздільником — кома.");
+      }
+      csvInput.value = csv;
+      const count = Math.max(0, lines.length - 1);
+      status.textContent = `✓ ${file.name} · ${count} рядків даних. Перевірте вміст нижче. Компенсацію ще НЕ активовано.`;
+    } catch (error) {
+      status.textContent = "Помилка завантаження: " + (error && error.message ? error.message : String(error));
+      fileInput.value = "";
+    }
+  });
+})();
+</script>
 </body>
 </html>
