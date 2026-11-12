@@ -86,33 +86,6 @@ function normalizeText(value){
   return String(value || "").trim();
 }
 
-function sameSeat(a, b){
-  return String(a || "")
-    .replace(/\s+/g, "")
-    .trim()
-    .toUpperCase() ===
-    String(b || "")
-      .replace(/\s+/g, "")
-      .trim()
-      .toUpperCase();
-}
-
-function equivalentVaToken(a, b){
-  const aa = parseVaQrToken(a);
-  const bb = parseVaQrToken(b);
-
-  if (normalizeToken(a) === normalizeToken(b)) return true;
-
-  if (aa.structured && bb.structured) {
-    return (
-      aa.order_id.toLowerCase() === bb.order_id.toLowerCase() &&
-      sameSeat(aa.seat_label, bb.seat_label)
-    );
-  }
-
-  return false;
-}
-
 function parseCsv(text){
   const lines = String(text || "")
     .split(/\r?\n/)
@@ -131,21 +104,8 @@ function parseCsv(text){
   });
 }
 
-async function supaFetch(table, query = ""){
-  const res = await fetch(`${RECOVERY_SUPABASE_URL}/rest/v1/${table}${query}`, {
-    headers:{
-      apikey: RECOVERY_SUPABASE_KEY,
-      Authorization:"Bearer " + RECOVERY_SUPABASE_KEY
-    },
-    cache:"no-store"
-  });
-
-  if (!res.ok) throw new Error(await res.text());
-  return await res.json();
-}
-
-// All External Recovery writes go through server authorization.
-// Read-only queries below are unchanged until SELECT access is migrated.
+// All Recovery data access is now server-authorized.
+// No direct public SELECT of recovery_tokens or tickets from this cabinet.
 async function supaInsert(table, body){
   if (table !== "recovery_events") throw new Error("Direct Recovery token INSERT is disabled");
   if (!window.VAAdminOps) throw new Error("VA Admin Operations client не завантажено");
@@ -165,198 +125,20 @@ async function supaInsert(table, body){
   return [row];
 }
 
-async function supaUpdate(table, query, body){
-  if (table !== "recovery_tokens") throw new Error("Direct Recovery UPDATE is disabled");
-  if (!window.VAAdminOps) throw new Error("VA Admin Operations client не завантажено");
-  const params = new URLSearchParams(String(query || "").replace(/^\?/, ""));
-  const eqId = params.get("id") || "";
-  if (!eqId.startsWith("eq.")) throw new Error("Recovery token id is required");
-  const result = await VAAdminOps.request("recovery.external_repair_token", {
-    event_id: CURRENT_RECOVERY_EVENT_ID,
-    token_id: eqId.slice(3),
-    token: String(body?.token || "")
-  });
-  return [result.row];
-}
-
-async function findTicketByQrPayload(token){
-  const canonical = normalizeToken(token);
-
-  const exactRows = await supaFetch(
-    "tickets",
-    `?qr_payload=eq.${encodeURIComponent(canonical)}` +
-    `&select=id,order_id,seance_id,show_slug,seat_label,price,buyer_name,buyer_email,qr_payload,ticket_number` +
-    `&limit=2`
-  );
-
-  if (Array.isArray(exactRows) && exactRows.length) {
-    return exactRows[0];
-  }
-
-  /*
-    TK-... is the human-readable VA ticket identifier.
-    For new tickets it equals qr_payload; this explicit fallback also finds
-    older tickets where the printed number and stored QR differ.
-  */
-  if (/^TK-[A-Z0-9]+-\d+$/i.test(canonical)) {
-    const byNumber = await supaFetch(
-      "tickets",
-      `?ticket_number=ilike.${encodeURIComponent(canonical)}` +
-      `&select=id,order_id,seance_id,show_slug,seat_label,price,buyer_name,buyer_email,qr_payload,ticket_number` +
-      `&limit=2`
-    );
-
-    if (Array.isArray(byNumber) && byNumber.length) {
-      return byNumber[0];
-    }
-  }
-
-  const parsed = parseVaQrToken(canonical);
-
-  if (!parsed.structured) return null;
-
-  /*
-    Кассовый QR может содержать старое show:test, но order_id
-    и seat_label всё равно однозначно определяют физический билет.
-  */
-  const rows = await supaFetch(
-    "tickets",
-    `?order_id=eq.${encodeURIComponent(parsed.order_id)}` +
-    `&seat_label=eq.${encodeURIComponent(parsed.seat_label)}` +
-    `&select=id,order_id,seance_id,show_slug,seat_label,price,buyer_name,buyer_email,qr_payload,ticket_number` +
-    `&limit=2`
-  );
-
-  if (!Array.isArray(rows) || rows.length === 0) return null;
-  return rows[0];
-}
-
-async function findExistingRecoveryToken(token){
-  const canonical = normalizeToken(token);
-
-  const exactRows = await supaFetch(
-    "recovery_tokens",
-    `?recovery_event_id=eq.${encodeURIComponent(CURRENT_RECOVERY_EVENT_ID)}` +
-    `&token=eq.${encodeURIComponent(canonical)}` +
-    `&select=*` +
-    `&limit=2`
-  );
-
-  if (Array.isArray(exactRows) && exactRows.length) {
-    return exactRows[0];
-  }
-
-  const parsed = parseVaQrToken(canonical);
-
-  if (!parsed.structured) return null;
-
-  /*
-    Ищем старую запись этой Recovery-події по order_id.
-    Затем сравниваем order_id + seat_label уже в JavaScript.
-  */
-  const tail = parsed.order_id.slice(-8) || parsed.order_id;
-
-  const candidates = await supaFetch(
-    "recovery_tokens",
-    `?recovery_event_id=eq.${encodeURIComponent(CURRENT_RECOVERY_EVENT_ID)}` +
-    `&token=ilike.${encodeURIComponent(`*${tail}*`)}` +
-    `&select=*` +
-    `&limit=100`
-  );
-
-  const equivalent = (Array.isArray(candidates) ? candidates : [])
-    .find(row => equivalentVaToken(row?.token, canonical));
-
-  if (!equivalent) return null;
-
-  /*
-    Старую строку с переносами/скрытыми символами сразу ремонтируем,
-    чтобы дальнейшие сканы проходили обычным точным поиском.
-  */
-  if (String(equivalent.token || "") !== canonical) {
-    const repaired = await supaUpdate(
-      "recovery_tokens",
-      `?id=eq.${encodeURIComponent(equivalent.id)}`,
-      { token:canonical }
-    );
-
-    if (Array.isArray(repaired) && repaired.length) {
-      return repaired[0];
-    }
-  }
-
-  return equivalent;
-}
-
 async function activateRecoveryToken(rawToken, fallback = {}){
   const token = normalizeToken(rawToken);
-
   if (!token) throw new Error("empty token");
   if (!CURRENT_RECOVERY_EVENT_ID) throw new Error("Спочатку створіть recovery-подію");
-
-  const existing = await findExistingRecoveryToken(token);
-
-  if (existing) {
-    return {
-      status:"exists",
-      row:existing,
-      source:"recovery_tokens"
-    };
-  }
-
-  const ticket = await findTicketByQrPayload(token);
-
-  /*
-    Если билет найден в tickets, источником истины становится
-    сохранённый tickets.qr_payload. Для внешнего/несинхронизированного
-    билета сохраняем каноническую строку, введённую оператором.
-  */
-  const storedToken = normalizeToken(ticket?.qr_payload || token);
-
-  /*
-    If a TK number resolves to an older structured QR, do not create a second
-    Recovery right for the same physical ticket.
-  */
-  if (storedToken && storedToken !== token) {
-    const existingByStoredToken = await findExistingRecoveryToken(storedToken);
-
-    if (existingByStoredToken) {
-      return {
-        status:"exists",
-        row:existingByStoredToken,
-        source:"recovery_tokens"
-      };
-    }
-  }
-
-  const payload = {
-    recovery_event_id: CURRENT_RECOVERY_EVENT_ID,
-    token:storedToken,
-    seat_label:
-      normalizeText(ticket?.seat_label) ||
-      normalizeText(fallback.seat_label) ||
-      "",
-    owner_name:
-      normalizeText(ticket?.buyer_name) ||
-      normalizeText(fallback.owner_name) ||
-      "",
-    owner_email:
-      normalizeText(ticket?.buyer_email) ||
-      normalizeText(fallback.owner_email) ||
-      null,
-    compensation_allowed:true,
-    compensation_used:false
-  };
-
   if (!window.VAAdminOps) throw new Error("VA Admin Operations client не завантажено");
+
+  // Server performs VA ticket lookup, duplicate search and legacy QR repair.
   const result = await VAAdminOps.request("recovery.external_create_token", {
     event_id: CURRENT_RECOVERY_EVENT_ID,
-    token: payload.token,
-    seat_label: payload.seat_label,
-    owner_name: payload.owner_name,
-    owner_email: payload.owner_email
+    token,
+    seat_label: normalizeText(fallback.seat_label),
+    owner_name: normalizeText(fallback.owner_name),
+    owner_email: normalizeText(fallback.owner_email)
   });
-
   return {
     status: result.status === "exists" ? "exists" : "inserted",
     row: result.row,
