@@ -144,39 +144,39 @@ async function supaFetch(table, query = ""){
   return await res.json();
 }
 
+// All External Recovery writes go through server authorization.
+// Read-only queries below are unchanged until SELECT access is migrated.
 async function supaInsert(table, body){
-  const res = await fetch(`${RECOVERY_SUPABASE_URL}/rest/v1/${table}`, {
-    method:"POST",
-    headers:{
-      apikey: RECOVERY_SUPABASE_KEY,
-      Authorization:"Bearer " + RECOVERY_SUPABASE_KEY,
-      "Content-Type":"application/json",
-      Prefer:"return=representation"
-    },
-    body:JSON.stringify(body)
-  });
-
-  if (!res.ok) throw new Error(await res.text());
-  return await res.json();
+  if (table !== "recovery_events") throw new Error("Direct Recovery token INSERT is disabled");
+  if (!window.VAAdminOps) throw new Error("VA Admin Operations client не завантажено");
+  const payload = {
+    title:body.title,
+    original_event:body.original_event,
+    recovery_event:body.recovery_event,
+    venue_name:body.venue_name,
+    locality:body.locality,
+    event_scope:body.event_scope,
+    incident_type:body.incident_type,
+    incident_reason:body.incident_reason,
+    incident_note:body.incident_note,
+    operational_status:body.operational_status
+  };
+  const row = await VAAdminOps.request("recovery.external_create_event", payload);
+  return [row];
 }
 
 async function supaUpdate(table, query, body){
-  const res = await fetch(
-    `${RECOVERY_SUPABASE_URL}/rest/v1/${table}${query}`,
-    {
-      method:"PATCH",
-      headers:{
-        apikey:RECOVERY_SUPABASE_KEY,
-        Authorization:"Bearer " + RECOVERY_SUPABASE_KEY,
-        "Content-Type":"application/json",
-        Prefer:"return=representation"
-      },
-      body:JSON.stringify(body)
-    }
-  );
-
-  if (!res.ok) throw new Error(await res.text());
-  return await res.json();
+  if (table !== "recovery_tokens") throw new Error("Direct Recovery UPDATE is disabled");
+  if (!window.VAAdminOps) throw new Error("VA Admin Operations client не завантажено");
+  const params = new URLSearchParams(String(query || "").replace(/^\?/, ""));
+  const eqId = params.get("id") || "";
+  if (!eqId.startsWith("eq.")) throw new Error("Recovery token id is required");
+  const result = await VAAdminOps.request("recovery.external_repair_token", {
+    event_id: CURRENT_RECOVERY_EVENT_ID,
+    token_id: eqId.slice(3),
+    token: String(body?.token || "")
+  });
+  return [result.row];
 }
 
 async function findTicketByQrPayload(token){
@@ -348,16 +348,19 @@ async function activateRecoveryToken(rawToken, fallback = {}){
     compensation_used:false
   };
 
-  const inserted = await supaInsert("recovery_tokens", payload);
+  if (!window.VAAdminOps) throw new Error("VA Admin Operations client не завантажено");
+  const result = await VAAdminOps.request("recovery.external_create_token", {
+    event_id: CURRENT_RECOVERY_EVENT_ID,
+    token: payload.token,
+    seat_label: payload.seat_label,
+    owner_name: payload.owner_name,
+    owner_email: payload.owner_email
+  });
 
   return {
-    status:"inserted",
-    row:inserted[0],
-    source:ticket
-      ? (ticket.ticket_number && normalizeToken(ticket.ticket_number) === token
-          ? "tickets.ticket_number"
-          : "tickets.qr_payload")
-      : "external"
+    status: result.status === "exists" ? "exists" : "inserted",
+    row: result.row,
+    source: result.source || "external"
   };
 }
 
@@ -467,18 +470,20 @@ async function quickActivateRecovery(){
 
     const parsed = parseVaQrToken(row.token || token);
 
-    $("quickResult").innerHTML = `
-${result.status === "exists" ? "↻ Recovery вже було активовано" : "✅ Recovery активовано"}<br><br>
-Token: ${row.token || token}<br>
-Джерело: ${result.source}<br>
-Order: ${parsed.order_id || "—"}<br>
-Місце: ${row.seat_label || parsed.seat_label || "—"}<br>
-Глядач: ${row.owner_name || "—"}<br>
-Email: ${row.owner_email || "—"}
-    `;
+    // Text-only output: never interpret untrusted CSV or DB fields as HTML.
+    $("quickResult").textContent = [
+      result.status === "exists" ? "↻ Recovery вже було активовано" : "✅ Recovery активовано",
+      "",
+      `Token: ${row.token || token}`,
+      `Джерело: ${result.source}`,
+      `Order: ${parsed.order_id || "—"}`,
+      `Місце: ${row.seat_label || parsed.seat_label || "—"}`,
+      `Глядач: ${row.owner_name || "—"}`,
+      `Email: ${row.owner_email || "—"}`
+    ].join("\n");
 
   } catch(e){
     console.error(e);
-    $("quickResult").innerHTML = "❌ " + String(e.message || e);
+    $("quickResult").textContent = "❌ " + String(e.message || e);
   }
 }
